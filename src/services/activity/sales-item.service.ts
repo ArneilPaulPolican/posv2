@@ -1,0 +1,294 @@
+import { DBConnectionService } from '../database.connection';
+import { COLLECTIONS_TABLE, CUSTOMERS_TABLE, DISCOUNTS_TABLE, ITEMS_TABLE, SALES_ITEMS_TABLE, SALES_TABLE, TABLE_GROUP_LINES_TABLE, TABLES_TABLE, TAXES_TABLE, UNITS_TABLE, USERS_TABLE } from '@/schema/tables';
+import { ref } from 'vue';
+import { SALES, SALES_DTO } from '@/models/sales.model';
+import { CUSTOMER } from '@/models/customer.model';
+import USER from '@/models/user.model';
+import { SALES_ITEM, SALES_ITEM_DTO } from '@/models/sales-item.model';
+
+// const db_connection = new DBConnectionService()
+const data = ref<SALES_ITEM[]>([])
+interface ResultSet {
+  rows: {
+    raw: () => any[];
+  };
+}
+
+export const getSalesItemBySalesId = async (sales_id:number) => {
+    const dbConnectionService = await DBConnectionService.getInstance();
+    const db = await dbConnectionService.getDatabaseConnection();
+    try {
+        if (!db) {
+            throw new Error('Database connection not open');
+        }
+      
+        const saleServiceQuery = 
+        `SELECT ${SALES_ITEMS_TABLE}.id,
+                ${SALES_ITEMS_TABLE}.sales_id,
+                ${SALES_ITEMS_TABLE}.date_time,
+                ${SALES_ITEMS_TABLE}.item_id,
+                ${ITEMS_TABLE}.item_code,
+                ${ITEMS_TABLE}.bar_code,
+                ${ITEMS_TABLE}.item_description,
+                ${ITEMS_TABLE}.image_path as item_image_path,
+                ${ITEMS_TABLE}.category as item_category,
+                ${ITEMS_TABLE}.is_inventory,
+                ${SALES_ITEMS_TABLE}.unit_id,
+                ${UNITS_TABLE}.unit_code,
+                ${SALES_ITEMS_TABLE}.quantity,
+                ${SALES_ITEMS_TABLE}.price,
+                ${SALES_ITEMS_TABLE}.discount_id,
+                ${DISCOUNTS_TABLE}.discount,
+                ${SALES_ITEMS_TABLE}.discount_rate,
+                ${SALES_ITEMS_TABLE}.discount_amount,
+                ${SALES_ITEMS_TABLE}.net_price,
+                ${SALES_ITEMS_TABLE}.amount,
+                ${SALES_ITEMS_TABLE}.tax_id,
+                ${SALES_ITEMS_TABLE}.tax_rate,
+                ${SALES_ITEMS_TABLE}.tax_amount,
+                ${TAXES_TABLE}.tax_code,
+                ${TAXES_TABLE}.is_inclusive,
+                ${SALES_ITEMS_TABLE}.particulars,
+                ${SALES_ITEMS_TABLE}.user_id
+          FROM ${SALES_ITEMS_TABLE}
+          LEFT JOIN ${ITEMS_TABLE}
+          ON ${SALES_ITEMS_TABLE}.item_id=${ITEMS_TABLE}.id
+          LEFT JOIN ${UNITS_TABLE}
+          ON ${ITEMS_TABLE}.unit_id=${UNITS_TABLE}.id
+          LEFT JOIN ${TAXES_TABLE}
+          ON ${SALES_ITEMS_TABLE}.tax_id=${TAXES_TABLE}.id
+          LEFT JOIN ${DISCOUNTS_TABLE}
+          ON ${SALES_ITEMS_TABLE}.discount_id=${DISCOUNTS_TABLE}.id
+          WHERE ${SALES_ITEMS_TABLE}.sales_id=?`;
+        const params = [sales_id];
+        
+        const result = await db.query(saleServiceQuery,params);
+        console.log('sales items', result.values);
+     
+      return result.values as SALES_ITEM_DTO[];
+    } catch (error) {
+      console.log('get sales error');
+      console.log(error);
+      throw error;
+    }
+};
+
+export const getSalesItemById = async (id:number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+      if (!db) {
+          throw new Error('Database connection not open');
+      }
+    
+      // const saleServiceQuery = 
+      // `SELECT ${SALES_ITEMS_TABLE}.id,
+      //         ${SALES_ITEMS_TABLE}.sales_id,
+      //         ${SALES_ITEMS_TABLE}.date_time,
+      //         ${SALES_ITEMS_TABLE}.item_id,
+      //         ${ITEMS_TABLE}.item_code,
+      //         ${ITEMS_TABLE}.bar_code,
+      //         ${ITEMS_TABLE}.item_description,
+      //         ${ITEMS_TABLE}.image_path as item_image_path,
+      //         ${ITEMS_TABLE}.category as item_category,
+      //         ${ITEMS_TABLE}.is_inventory,
+      //         ${SALES_ITEMS_TABLE}.unit_id,
+      //         ${UNITS_TABLE}.unit_code,
+      //         ${SALES_ITEMS_TABLE}.quantity,
+      //         ${SALES_ITEMS_TABLE}.price,
+      //         ${SALES_ITEMS_TABLE}.discount_id,
+      //         ${DISCOUNTS_TABLE}.discount,
+      //         ${SALES_ITEMS_TABLE}.discount_rate,
+      //         ${SALES_ITEMS_TABLE}.discount_amount,
+      //         ${SALES_ITEMS_TABLE}.net_price,
+      //         ${SALES_ITEMS_TABLE}.amount,
+      //         ${SALES_ITEMS_TABLE}.tax_id,
+      //         ${SALES_ITEMS_TABLE}.tax_rate,
+      //         ${SALES_ITEMS_TABLE}.tax_amount,
+      //         ${TAXES_TABLE}.tax_code,
+      //         ${TAXES_TABLE}.is_inclusive,
+      //         ${SALES_ITEMS_TABLE}.particulars,
+      //         ${SALES_ITEMS_TABLE}.user_id
+      //   FROM ${SALES_ITEMS_TABLE}
+      //   LEFT JOIN ${ITEMS_TABLE}
+      //   ON ${SALES_ITEMS_TABLE}.item_id=${ITEMS_TABLE}.id
+      //   LEFT JOIN ${UNITS_TABLE}
+      //   ON ${ITEMS_TABLE}.unit_id=${UNITS_TABLE}.id
+      //   LEFT JOIN ${TAXES_TABLE}
+      //   ON ${SALES_ITEMS_TABLE}.tax_id=${TAXES_TABLE}.id
+      //   LEFT JOIN ${DISCOUNTS_TABLE}
+      //   ON ${SALES_ITEMS_TABLE}.discount_id=${DISCOUNTS_TABLE}.id
+      //   WHERE ${SALES_ITEMS_TABLE}.id=?`;
+      const saleServiceQuery = 
+      `SELECT 
+        ${SALES_ITEMS_TABLE}.id,
+        ${SALES_ITEMS_TABLE}.sales_id,
+        ${SALES_ITEMS_TABLE}.date_time,
+        ${SALES_ITEMS_TABLE}.item_id,
+        ${ITEMS_TABLE}.item_code,
+        ${ITEMS_TABLE}.bar_code as item_barcode,
+        ${ITEMS_TABLE}.item_description,
+        ${ITEMS_TABLE}.image_path as item_image_path,
+        ${ITEMS_TABLE}.category as item_category,
+        ${ITEMS_TABLE}.is_inventory,
+        ${SALES_ITEMS_TABLE}.unit_id,
+        ${UNITS_TABLE}.unit_code,
+        ${SALES_ITEMS_TABLE}.quantity,
+        ${SALES_ITEMS_TABLE}.price,
+        ${SALES_ITEMS_TABLE}.discount_id,
+        ${DISCOUNTS_TABLE}.discount,
+        ${SALES_ITEMS_TABLE}.discount_rate,
+        ${SALES_ITEMS_TABLE}.discount_amount,
+        ${SALES_ITEMS_TABLE}.net_price,
+        ${SALES_ITEMS_TABLE}.amount,
+        ${SALES_ITEMS_TABLE}.tax_id,
+        ${SALES_ITEMS_TABLE}.tax_rate,
+        ${SALES_ITEMS_TABLE}.tax_amount,
+        ${TAXES_TABLE}.tax_code,
+        ${TAXES_TABLE}.is_inclusive,
+        ${SALES_ITEMS_TABLE}.particulars,
+        ${SALES_ITEMS_TABLE}.user_id
+      FROM ${SALES_ITEMS_TABLE}
+      LEFT JOIN ${ITEMS_TABLE} ON ${SALES_ITEMS_TABLE}.item_id = ${ITEMS_TABLE}.id
+      LEFT JOIN ${UNITS_TABLE} ON ${SALES_ITEMS_TABLE}.unit_id = ${UNITS_TABLE}.id
+      LEFT JOIN ${TAXES_TABLE} ON ${SALES_ITEMS_TABLE}.tax_id = ${TAXES_TABLE}.id
+      LEFT JOIN ${DISCOUNTS_TABLE} ON ${SALES_ITEMS_TABLE}.discount_id=${DISCOUNTS_TABLE}.id
+      WHERE ${SALES_ITEMS_TABLE}.id=?`;
+      const params = [id];
+      
+      const result = await db.query(saleServiceQuery,params);
+      console.log('sales items', result.values);
+      const sales_item = result.values?.map(sales_item => ({
+        id: sales_item.id,
+        sales_id: sales_item.sales_id,
+        date_time: sales_item.date_time,
+        item_id: sales_item.item_id,
+        item_code: sales_item?.item_code || '',
+        item_barcode: sales_item?.item_barcode || '',
+        item_description: sales_item?.item_description || '',
+        item_alias: sales_item?.item_alias || '',
+        item_category: sales_item?.item_category || '',
+        item_cost: sales_item?.item_cost || 0,
+        unit_id: sales_item.unit_id,
+        unit: sales_item.unit,
+        quantity: sales_item.quantity,
+        price: sales_item.price,
+        discount_id: sales_item.discount_id,
+        discount: sales_item.discount,
+        discount_rate: sales_item.discount_rate,
+        discount_amount: sales_item.discount_amount,
+        net_price: sales_item.net_price,
+        amount: sales_item.amount,
+        tax_id: sales_item.tax_id,
+        tax: sales_item.tax,
+        tax_rate: sales_item.tax_rate,
+        tax_amount: sales_item.tax_amount,
+        particulars: sales_item.particulars,
+        user_id: sales_item.user_id,
+        user: '',
+      }))[0];
+   
+    console.log('sales_item ', sales_item);
+    return sales_item;
+  } catch (error) {
+    console.log('get sales error');
+    console.log(error);
+    throw error;
+  }
+};
+
+export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) => {
+    const dbConnectionService = await DBConnectionService.getInstance();
+    const db = await dbConnectionService.getDatabaseConnection();
+    try {
+        console.log(`Receive data: ${sales_id} and `, data)
+        for (const item of data) {
+            const query = `
+              INSERT INTO ${SALES_ITEMS_TABLE} (
+                sales_id, item_id,
+                unit_id, quantity, price,
+                discount_id, discount_rate, discount_amount,
+                net_price, amount, tax_id,
+                tax_rate, tax_amount, particulars,
+                user_id
+              ) VALUES (
+                ?, ?, 
+                ?, ?, ?, 
+                ?, ?, ?, 
+                ?, ?, ?, 
+                ?, ?, ?,
+                ? 
+              )
+            `;
+            const values = [
+              sales_id, item.item_id,
+              item.unit_id, item.quantity, item.price,
+              item.discount_id, item.discount_rate, item.discount_amount,
+              item.net_price, item.amount, item.tax_id,
+              item.tax_rate, item.tax_amount, item.particulars,
+              item.user_id
+            ];
+          
+            console.log('Query:', query);
+            console.log('Values:', values);
+          
+            try {
+              const res = await db.query(query, values);
+              console.log('Insert sales item query result: ', res);
+            } catch (error) {
+              console.error('Error adding bulk items:', error);
+            }
+          }
+    } catch (error) {
+        console.log('Error adding bulk items ',error)
+    }
+}
+
+export const updateSalesItem = async (data: SALES_ITEM_DTO) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+
+    const transactionStatements = [
+      {
+        statement: `UPDATE ${SALES_ITEMS_TABLE}
+          SET unit_id=?,
+          quantity=?,
+          price=?,
+          discount_id=?,
+          discount_rate=?,
+          discount_amount=?,
+          net_price=?,
+          amount=?,
+          tax_id=?,
+          tax_rate=?,
+          tax_amount=?,
+          particulars =?
+        WHERE id=?`,
+        values: [
+          data.unit_id,
+          data.quantity,
+          data.price,
+          data.discount_id,
+          data.discount_rate,
+          data.discount_amount,
+          data.net_price,
+          data.amount,
+          data.tax_id,
+          data.tax_rate,
+          data.tax_amount,
+          data.particulars,
+          data.id
+        ]
+      }
+    ]
+    const res = await db.executeTransaction(transactionStatements);
+    // const res = await db.query(query,transactionStatements[0].values );
+    console.log('update sales item query response ', res)
+    // return true,Id;
+    return { success: true, insertedId: data.id };
+  } catch (error) {
+    console.log('update sales item error:', error);
+    return { success: false, insertedId: 0 };
+  }
+};

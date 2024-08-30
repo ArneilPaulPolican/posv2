@@ -1,0 +1,31 @@
+export interface Z_READINGS {
+    id: number;
+    z_reading_date: string;
+    gross_sales: number;
+    regular_discount: number;
+    senior_discount: number;
+    pwd_discount: number;
+    sales_return: number;
+    net_sales: number;
+    collections: string;
+    total_collection: number;
+    vat_sales: number;
+    vat_amount: number;
+    non_vat: number;
+    vat_exempt: number;
+    vat_zero_rated: number;
+    total_vat_analysis: number;
+    counter_id_start: string;
+    counter_id_end: string;
+    cancelled_transaction: number;
+    cancelled_amount: number;
+    number_of_transaction: number;
+    number_of_sku: number;
+    total_quantity: number;
+    ags_previous_reading: number;
+    ags_gross_sales: number;
+    ags_accumulated_gross_sales: number;
+    ans_previous_reading: number;
+    ans_net_sales: number;
+    ans_accumulated_net_sales: number;
+  }
