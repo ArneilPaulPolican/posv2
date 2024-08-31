@@ -1,6 +1,6 @@
 <template>
     <ion-page>
-        <HeaderComponent :title="header" />
+        <!-- <HeaderComponent :title="header" /> -->
 
         <ion-item>
             
@@ -15,8 +15,8 @@
         </ion-item>
         
         <ion-content :fullscreen="true">
-            <ion-list :inset="true" style="margin: 10px">
-                <div style="padding: 10px;">
+            <ion-list :inset="true" style="margin: px">
+                <div style="padding: 5px;">
                     <ion-item>
                         <ion-label position="stacked">Paytype :</ion-label>
                         <ion-input v-model="paytype.paytype" placeholder="Enter Tax Code"></ion-input>
@@ -49,15 +49,16 @@
 import { icons } from '@/plugins/icons';
 import { defineComponent, onMounted, Ref, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { actionSheetController } from '@ionic/vue';
+import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { Lock } from '@/services/lock';
 import { PAYTYPE } from '@/models/paytype.model';
+import { getPaytypesById } from '@/services/system/paytype.service';
 
 export default defineComponent({
     components: { 
-        HeaderComponent,
+        // HeaderComponent,
         AlertComponent,
     },
     setup(){
@@ -87,7 +88,7 @@ export default defineComponent({
                 try {
                     if(paytype_id == 0){
                         console.log('New')
-                        const response = true; // await addTax(tax.value);
+                        const response = true; // await addTax(paytype.value);
                         alertSubTitle.value = 'Adding Item'
                         if(response){
                             // trigger here to open the alert component
@@ -101,7 +102,7 @@ export default defineComponent({
                         }
                     }else{
                         console.log('Update')
-                        const response = true ;//await updateTax(tax.value);
+                        const response = true ;//await updateTax(paytype.value);
                         alertSubTitle.value = 'Updating Item'
                         if(response){
                             console.log('Tax successfully updated')
@@ -122,13 +123,13 @@ export default defineComponent({
             }, 300);
         }
 
-        onMounted(async()=>{
+        async function fetchDetails() {
             const routeParams = +route.params.id;
             paytype_id = routeParams ; 
-
-            setTimeout(() => {
-                const paytypeResult = paytype.value;//await getTaxesById(routeParams)
-                console.log("taxResult ", paytypeResult)
+            
+            setTimeout(async () => {
+                const paytypeResult = await getPaytypesById(routeParams)
+                console.log("paytypeResult ", paytypeResult)
                 if(paytypeResult){
                     paytype.value ={
                         id: paytypeResult.id,
@@ -139,8 +140,8 @@ export default defineComponent({
                     if(routeParams !=0 ){
                         
                         alertTitle.value = 'Not Found';
-                        alertSubTitle.value = 'TAX Not Found'
-                        alertMessage.value = 'No tax exist';
+                        alertSubTitle.value = 'PAYTYPE Not Found'
+                        alertMessage.value = 'No paytype exist';
                         open_alert.value = true; // Open the alert
                     }else{
                         paytype.value ={
@@ -151,7 +152,14 @@ export default defineComponent({
                     }
                 }
             }, 500);
+        }
+
+        onMounted(async()=>{
+            await fetchDetails
         })
+        onIonViewDidEnter(async () => {
+            await fetchDetails()
+        });
         return{
             header:'Paytype Deail',
             icons,

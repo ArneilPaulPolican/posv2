@@ -6,7 +6,7 @@ import {
   UNITS_TABLE,
 } from '@/schema/tables';
 import { Capacitor } from '@capacitor/core';
-import { ITEM } from '@/models/item.model';
+import ITEM_DTO, { ITEM } from '@/models/item.model';
 import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { SQLiteDBConnection, SQLiteHook } from 'vue-sqlite-hook/dist';
@@ -52,11 +52,11 @@ export const getItems = async () => {
                ${ITEMS_TABLE}.is_locked,
                ${ITEMS_TABLE}.expiry_date,
                ${ITEMS_TABLE}.lot_number,
-               ${TAXES_TABLE}.id as tax_id,
-               ${TAXES_TABLE}.tax_code,
+               ${TAXES_TABLE}.tax,
+               ${TAXES_TABLE}.rate as tax_rate,
+               ${TAXES_TABLE}.is_inclusive as is_tax_rate_inclusive,
                ${TAXES_TABLE}.rate,
-               ${UNITS_TABLE}.id as unit_id,
-               ${UNITS_TABLE}.unit_code
+               ${UNITS_TABLE}.unit_code as unit
         FROM ${ITEMS_TABLE}
         LEFT JOIN ${UNITS_TABLE}
         ON ${ITEMS_TABLE}.unit_id = ${UNITS_TABLE}.id
@@ -66,13 +66,13 @@ export const getItems = async () => {
     // const itemServiceQuery = `SELECT * FROM customer`
     // const result = await db?.execute(itemServiceQuery);
     const res = await db.query(itemServiceQuery);
-    console.log('query results', res);
+    console.log('item query results', res);
     if(res.values){
-      data.value = res.values as ITEM[];
+      data.value = res.values as ITEM_DTO[];
     }
 
     if (res && Array.isArray(res.values)) {
-      data.value = res.values as ITEM[];
+      data.value = res.values as ITEM_DTO[];
       console.log(data.value )
     }
 

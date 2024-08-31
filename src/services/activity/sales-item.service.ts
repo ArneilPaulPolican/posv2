@@ -244,6 +244,56 @@ export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) =>
     }
 }
 
+
+export const updatebULKSalesItem = async (items: SALES_ITEM_DTO[]) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    for (const data of items) {
+      
+      const transactionStatements = [
+        {
+          statement: `UPDATE ${SALES_ITEMS_TABLE}
+            SET unit_id=?,
+            quantity=?,
+            price=?,
+            discount_id=?,
+            discount_rate=?,
+            discount_amount=?,
+            net_price=?,
+            amount=?,
+            tax_id=?,
+            tax_rate=?,
+            tax_amount=?,
+            particulars =?
+          WHERE id=?`,
+          values: [
+            data.unit_id,
+            data.quantity,
+            data.price,
+            data.discount_id,
+            data.discount_rate,
+            data.discount_amount,
+            data.net_price,
+            data.amount,
+            data.tax_id,
+            data.tax_rate,
+            data.tax_amount,
+            data.particulars,
+            data.id
+          ]
+        }
+      ]
+      const res = await db.executeTransaction(transactionStatements);
+      console.log('update sales item query response ', res)
+    }
+    return true;
+  } catch (error) {
+    console.log('update sales item error:', error);
+    return false;
+  }
+};
+
 export const updateSalesItem = async (data: SALES_ITEM_DTO) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();

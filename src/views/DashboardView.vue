@@ -65,12 +65,14 @@
                         </router-link>
                     </ion-col>
                     <ion-col size="4" size-md="4" size-lg="4">
-                        <ion-button size="medium" expand="full" style="height: 100%">
-                            <div class="icon-label-wrapper">
-                                <ion-icon slot="start" :ios="icons.restaurantOutline" :md="icons.restaurantSharp"></ion-icon>
-                                <span>Table</span>
-                            </div>
-                        </ion-button>
+                        <router-link :to="{ name: 'table_lists' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon slot="start" :ios="icons.restaurantOutline" :md="icons.restaurantSharp"></ion-icon>
+                                    <span>Table</span>
+                                </div>
+                            </ion-button>
+                        </router-link>
                     </ion-col>
                 </ion-row>
                 <ion-row>
@@ -105,27 +107,50 @@
                         </router-link>
                     </ion-col>
                     <ion-col size="3" size-md="3" size-lg="3">
-                        <!-- <router-link :to="{ name: 'paytype_lists' }"> -->
-                        <router-link to="#">
-                        <ion-button size="medium" expand="full" style="height: 100%">
-                        <div class="icon-label-wrapper">
-                            <ion-icon :ios="icons.walletOutline" :md="icons.walletSharp"></ion-icon>
-                            <span>Paytype</span>
-                        </div>
-                        </ion-button>
+                        <router-link :to="{ name: 'paytype_lists' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon :ios="icons.walletOutline" :md="icons.walletSharp"></ion-icon>
+                                    <span>Paytype</span>
+                                </div>
+                            </ion-button>
                         </router-link>
                     </ion-col>
                 </ion-row>
                 
                 <ion-row>
-                    <router-link :to="{ name: 'tabs' }">
-                        <ion-button size="medium" expand="full" style="height: 100%">
-                            <div class="icon-label-wrapper">
-                                <ion-icon slot="start" :ios="icons.logInOutline" :md="icons.logInSharp"></ion-icon>
-                                <span>TAB</span>
-                            </div>
-                        </ion-button>
-                    </router-link>
+                    
+                    <ion-col size="3" size-md="3" size-lg="3">
+                        <router-link :to="{ name: 'tabs' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon slot="start" :ios="icons.logInOutline" :md="icons.logInSharp"></ion-icon>
+                                    <span>TAB</span>
+                                </div>
+                            </ion-button>
+                        </router-link>
+                    </ion-col>
+                    
+                    <ion-col size="3" size-md="3" size-lg="3">
+                        <router-link :to="{ name: 'company_details' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon :ios="icons.walletOutline" :md="icons.walletSharp"></ion-icon>
+                                    <span>Company</span>
+                                </div>
+                            </ion-button>
+                        </router-link>
+                    </ion-col>
+                    <ion-col size="3" size-md="3" size-lg="3">
+                        <router-link :to="{ name: 'user_lists' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon :ios="icons.walletOutline" :md="icons.walletSharp"></ion-icon>
+                                    <span>Users</span>
+                                </div>
+                            </ion-button>
+                        </router-link>
+                    </ion-col>
                 </ion-row>
             </ion-grid>
             
@@ -134,11 +159,19 @@
 </template>
 
 
-<script setup lang="ts">
+<script lang="ts">
 import { icons } from '@/plugins/icons';
-import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
+import { defineComponent } from 'vue';
+// import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 
 const header = 'DASHBOARD';
+export default defineComponent({
+    setup(){
+        return{
+            icons
+        }
+    }
+})
 </script>
 
 

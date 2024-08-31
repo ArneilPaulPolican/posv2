@@ -44,6 +44,7 @@ import { Lock } from './services/lock';
 import { createTables } from './schema/database_scripts';
 import { runAllMigrations } from './services/migration.service';
 import GlobalComponents from './plugins/global-components';
+import { provideAlert } from './services/alert.service';
 
 // const app = createApp(App)
 //   .use(IonicVue)
@@ -68,7 +69,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     .use(IonicVue)
     .use(router)
     .use(GlobalComponents);
-
+    
+  provideAlert();
   /* SQLite Global Variables*/
 
   // Only if you want to use the onProgressImport/Export events

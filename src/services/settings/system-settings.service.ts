@@ -63,3 +63,65 @@ export const getSystemSettings = async () => {
     }
 };
   
+
+export const updateSystemSettings = async (data: SYS_SETTINGS) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+
+    const transactionStatements = [
+      {
+        statement: `UPDATE ${SYS_SETTINGS_TABLE}
+          SET customer=?,
+          customer_address=?,
+          customer_tin=?,
+          terminal_number=?,
+          pos_serial_number=?,
+          pos_permit_number=?,
+          pos_accreditation_number=?,
+          pos_machine_identification_number=?,
+          pos_vendor=?,
+          pos_vendor_address=?,
+          pos_vendor_tin=?,
+          pos_vendor_accreditation_number =?,
+          pos_vendor_accreditation_expiry_date =?,
+          remarks =?,
+          backoffice_domain =?,
+          backoffice_access_token =?,
+          is_backoffice_enabled =?,
+          license_key=?
+          LIMIT 1`,
+        values: [
+          data.customer,
+          data.customer_address,
+          data.customer_tin,
+          data.terminal_number,
+          data.pos_serial_number,
+          data.pos_permit_number,
+          data.pos_accreditation_number,
+          data.pos_machine_identification_number,
+          data.pos_vendor,
+          data.pos_vendor_address,
+          data.pos_vendor_tin,
+          data.pos_vendor_accreditation_number,
+          data.pos_vendor_accreditation_expiry_date,
+          data.remarks,
+          data.backoffice_domain,
+          data.backoffice_access_token,
+          data.is_backoffice_enabled,
+          data.license_key
+        ]
+      }
+    ]
+    console.log('query response ', transactionStatements[0].values)
+
+    const res = await db.executeTransaction(transactionStatements);
+    // const res = await db.query(query,transactionStatements[0].values );
+    console.log('query response ', res)
+    // return true,Id;
+    return { success: true, insertedId: data.id };
+  } catch (error) {
+    console.log('update sales error:', error);
+    return { success: false, insertedId: 0 };
+  }
+};

@@ -49,8 +49,10 @@ import { UNIT } from '@/models/unit.model';
 import { icons } from '@/plugins/icons';
 import { getUnits } from '@/services/system/unit.service';
 import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue';
-import { Storage } from '@ionic/storage';
+// import { Storage } from '@ionic/storage';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
+import { onIonViewDidEnter } from '@ionic/vue';
+import { getItems } from '@/services/setup/item.service';
 
 export default defineComponent({
     props: {
@@ -64,72 +66,73 @@ export default defineComponent({
         // const reactiveProps = reactive(props);
         // const sales = reactiveProps.sales;
         const { sales } = toRefs(props); 
-        const store = new Storage();
-        const items = ref<ITEM_DTO[]>([
-            {
-                id: 1,
-                item_code: "ABC123",
-                bar_code: "1234567890",
-                item_description: "Apple iPhone 12 asd asd asd asd asdasd asd",
-                alias: "iPhone 12",
-                category: "Electronics",
-                price: 999.99,
-                cost: 800.00,
-                quantity: 10,
-                unit_id: 1,
-                is_inventory: true,
-                generic_name: "Smartphone",
-                tax_id: 1,
-                remarks: "Latest model",
-                image_path: "/path/to/image.jpg",
-                is_package: false,
-                is_locked: false,
-                expiry_date:'',
-                lot_number:''
-            },
-            {
-                id: 2,
-                item_code: "DEF456",
-                item_description: "Samsung TV 4K",
-                bar_code: "9876543210",
-                alias: "Samsung TV",
-                category: "Electronics",
-                price: 1299.99,
-                cost: 1000.00,
-                quantity: 5,
-                unit_id: 2,
-                is_inventory: true,
-                generic_name: "Television",
-                tax_id: 2,
-                remarks: "4K resolution",
-                image_path: "/path/to/image2.jpg",
-                is_package: false,
-                is_locked: false,
-                expiry_date:'',
-                lot_number:''
-            },
-            {
-                id: 3,
-                item_code: "GHI789",
-                item_description: "Nike Shoes",
-                bar_code: "1111111111",
-                alias: "Nike Shoes",
-                category: "Clothing",
-                price: 99.99,
-                cost: 80.00,
-                quantity: 20,
-                unit_id: 3,
-                is_inventory: true,
-                generic_name: "Shoes",
-                tax_id: 3,
-                remarks: "Running shoes",
-                image_path: "/path/to/image3.jpg",
-                is_package: false,
-                is_locked: false,
-                expiry_date:'',
-                lot_number:''
-            }
-        ])
+        // const store = new Storage();
+        const items = ref<ITEM_DTO[]>([]);
+        // const items = ref<ITEM_DTO[]>([
+        //     {
+        //         id: 1,
+        //         item_code: "ABC123",
+        //         bar_code: "1234567890",
+        //         item_description: "Apple iPhone 12 asd asd asd asd asdasd asd",
+        //         alias: "iPhone 12",
+        //         category: "Electronics",
+        //         price: 999.99,
+        //         cost: 800.00,
+        //         quantity: 10,
+        //         unit_id: 1,
+        //         is_inventory: true,
+        //         generic_name: "Smartphone",
+        //         tax_id: 1,
+        //         remarks: "Latest model",
+        //         image_path: "/path/to/image.jpg",
+        //         is_package: false,
+        //         is_locked: false,
+        //         expiry_date:'',
+        //         lot_number:''
+        //     },
+        //     {
+        //         id: 2,
+        //         item_code: "DEF456",
+        //         item_description: "Samsung TV 4K",
+        //         bar_code: "9876543210",
+        //         alias: "Samsung TV",
+        //         category: "Electronics",
+        //         price: 1299.99,
+        //         cost: 1000.00,
+        //         quantity: 5,
+        //         unit_id: 2,
+        //         is_inventory: true,
+        //         generic_name: "Television",
+        //         tax_id: 2,
+        //         remarks: "4K resolution",
+        //         image_path: "/path/to/image2.jpg",
+        //         is_package: false,
+        //         is_locked: false,
+        //         expiry_date:'',
+        //         lot_number:''
+        //     },
+        //     {
+        //         id: 3,
+        //         item_code: "GHI789",
+        //         item_description: "Nike Shoes",
+        //         bar_code: "1111111111",
+        //         alias: "Nike Shoes",
+        //         category: "Clothing",
+        //         price: 99.99,
+        //         cost: 80.00,
+        //         quantity: 20,
+        //         unit_id: 3,
+        //         is_inventory: true,
+        //         generic_name: "Shoes",
+        //         tax_id: 3,
+        //         remarks: "Running shoes",
+        //         image_path: "/path/to/image3.jpg",
+        //         is_package: false,
+        //         is_locked: false,
+        //         expiry_date:'',
+        //         lot_number:''
+        //     }
+        // ])
         const sales_items = ref<SALES_ITEM_DTO[]>([]);
         const quantity = 0;
 
@@ -143,6 +146,7 @@ export default defineComponent({
         const updateQuantity = async (qty : number, item: ITEM_DTO) =>{
             console.log("props sales ",props.sales)
             sales_items.value.push({
+                id:0,
                 sales_id:0, 
                 item_id: item.id ?? 0,
                 item_code: item.item_code,
@@ -172,24 +176,26 @@ export default defineComponent({
             })
             console.log("Selected item ",sales_items.value)
 
-            // emit('item-picked', qty);
-            // emit('close'); 
+            emit('item-picked', qty);
+            emit('close'); 
             // await store.set('selected_item', item);
 
         }
 
+        async function fetchList() {
+             items.value = await getItems()
+            console.log('get items ',JSON.stringify(items.value));
+        }
+        onIonViewDidEnter(async () => {
+            await fetchList()
+        });
         onMounted(async () => {
-            // console.log("selected Items",await store.get('selected_item'))
-            setTimeout(async () => {
-                const unitsData = items.value; //await getUnits();
-                items.value = unitsData;
-            }, 500);
+            await fetchList()
         });
         return{
             icons,
             items,
             quantity,
-            store,
 
             handlePickedItem,
             updateQuantity

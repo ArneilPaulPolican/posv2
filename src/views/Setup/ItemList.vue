@@ -190,7 +190,6 @@ name: 'DashboardView', // Update the component name here
             // item_obersvable,
             component: markRaw(ItemDetail),
 
-
             items,
             imagePath,
             

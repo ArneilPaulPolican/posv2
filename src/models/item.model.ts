@@ -1,7 +1,7 @@
 //item.model.ts
 
 export interface ITEM {
-  id?: number ;
+  id: number;
   item_code: string;
   bar_code: string;
   item_description: string;
@@ -52,7 +52,6 @@ export default class ITEM_DTO {
   image_path: string = '';
   is_package: boolean = false;
   is_locked: boolean = true;
-  is_shown?: boolean = false;
   expiry_date: string = '';
   lot_number: string = '';
 }

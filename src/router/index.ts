@@ -72,6 +72,53 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import ('../views/Setup/ItemDetail.vue'),
     props: true
   },
+  {
+    path: '/setup/tables',
+    name: 'table_lists',
+    component: () => import ('../views/Setup/TableList.vue'),
+  },
+  {
+    path: '/setup/table/details/:id',
+    name: 'table_details',
+    component: () => import ('../views/Setup/TableDetail.vue'),
+    props: true
+  },
+
+  
+  // Activities
+  {
+    path: '/activity/sales',
+    name: 'sales',
+    component: () => import ('../views/Activity/SalesList.vue'),
+    meta: { title: 'Sales' },
+    children: [
+      {
+        path: '',
+        redirect: '/Activity/Sales/Open',
+      },
+      {
+        path: 'Open',
+        component: () => import('../components/Sales/OpenList.vue'),
+      },
+      {
+        path: 'BilledOut',
+        component: () => import('../components/Sales/BilledOutList.vue'),
+      },
+      {
+        path: 'Collected',
+        component: () => import('../components/Sales/CollectedList.vue'),
+      },
+      {
+        path: 'Cancelled',
+        component: () => import('../components/Sales/CancelledList.vue'),
+      },
+    ],
+  },
+  {
+    path: '/activity/sales/details/:id',
+    component: () => import ('../views/Activity/SalesDetails.vue'),
+    meta: { title: 'Sales Detail' },
+  },
   
   // System Tables
   {
@@ -121,6 +168,19 @@ const routes: Array<RouteRecordRaw> = [
     name: 'tax_details',
     component: () => import ('../views/System/TaxDetail.vue'),
     meta: { title: 'Tax Details' }
+  },
+  // Settings
+  {
+    path: '/Settings/company',
+    name: 'company_details',
+    component: () => import ('../views/settings/CompanyDetails.vue'),
+    meta: { title: 'Company Details' }
+  },
+  {
+    path: '/settings/users',
+    name: 'user_lists',
+    component: () => import ('../views/settings/UserList.vue'),
+    meta: { title: 'User List' }
   },
 ]
 

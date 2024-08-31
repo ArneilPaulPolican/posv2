@@ -1,9 +1,7 @@
 <template>
-    <ion-page>
-        <!-- <HeaderComponent :title="header" /> -->
-        
+ <ion-page>
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button @click="openPaytypeDetailForm">
+            <ion-fab-button  @click="openUserDetailForm">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -13,9 +11,10 @@
             
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="paytype in paytypes" :key="paytype.id" @click="openActionSheet(paytype)">
+                <ion-item v-for="user in users" :key="user.id" @click="openActionSheet(user)">
                     <ion-label>
-                        <h2>{{ paytype.paytype }}</h2>
+                        <h2>{{ user.fullname }}</h2>
+                        <p>{{ user.email }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -24,30 +23,26 @@
 </template>
 
 <script lang="ts">
+import USER from '@/models/user.model';
 import { icons } from '@/plugins/icons';
-import { defineComponent, onMounted, Ref, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { getUsers } from '@/services/settings/user.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
-import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
-import { PAYTYPE } from '@/models/paytype.model';
-import { getPaytypes } from '@/services/system/paytype.service';
+import { defineComponent, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
 
 export default defineComponent({
-    components:{
-        // HeaderComponent
-    },
     setup(){
         const router = useRouter();
-        const paytypes = ref<PAYTYPE[]>([])
-
-
+        const users = ref<USER[]>([]);
+        
         //#region   Actionsheet
-        const actionSheetButtons = (paytype:any) => [
+        const actionSheetButtons = (user:any) => [
             {
                 text: 'Delete',
                 role: 'destructive',
                 handler: () => {
-                    handleDelete(paytype);
+                    handleDelete(user);
                 },
                 data: {
                     action: 'delete',
@@ -56,7 +51,7 @@ export default defineComponent({
             {
                 text: 'Edit',
                 handler: () => {
-                    handleEdit(paytype);
+                    handleEdit(user);
                 },
                 data: {
                     action: 'Edit',
@@ -66,42 +61,40 @@ export default defineComponent({
         const actionSheet = ref(null);
         const _actionSheetController = actionSheetController;// Action Sheet Controller
         // Open Action Sheet Function
-        const openActionSheet = async (paytype:any) => {
+        const openActionSheet = async (user:any) => {
             const actionSheet = await _actionSheetController.create({
-                header: `Options for Unit ${paytype.tax_code}  ${paytype.tax_description}`,
-                buttons: actionSheetButtons(paytype)
+                header: `Options for Unit ${user.unit_code}  ${user.unit_description}`,
+                buttons: actionSheetButtons(user)
             });
             await actionSheet.present();
         };
         //#endregion
-
-        const handleDelete = (paytype: any) => {
+        
+        const handleDelete = (user: any) => {
             throw new Error('Function not implemented.');
         };
-        const handleEdit = (paytype: any) => {
-            router.push(`/System/Paytype/Details/${paytype.id}`);
-        };
-        const openPaytypeDetailForm = async() => {
-            router.push(`/System/Paytype/Details/0`);
+        const handleEdit = (user: any) => {
+            router.push(`/Settings/User/Details/${user.id}`);
         }
-        
-        async function fetchList() {
-            const response = await getPaytypes()
-            paytypes.value = response
+        const openUserDetailForm = async() => {
+            router.push(`/Settings/User/Details/0`);
         }
-        onMounted(async () => {
-          await fetchList()
-        })
-        onIonViewDidEnter(async () => {
-            await fetchList()
-        });
-        return{
-            header: 'Paytype List',
-            icons,
-            paytypes,
 
-            handleEdit,
-            openPaytypeDetailForm,
+        async function fetchList() {
+            const response = await getUsers()
+            users.value = response
+        }
+        onMounted(async () =>{
+
+        })
+        onIonViewDidEnter(async () =>{
+
+        })
+        return{
+            icons,
+            users,
+
+            openUserDetailForm,
             openActionSheet
         }
     }

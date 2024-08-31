@@ -1,6 +1,6 @@
 <template>
     <ion-page :key="$route.path">
-        <HeaderComponent :title="header" />
+        <!-- <HeaderComponent :title="header" /> -->
 
         <ion-item>
             <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="icon_is_clicked"></ion-icon>
@@ -51,9 +51,18 @@
                         </ion-row>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Tax :</ion-label>
-                        <ion-input :readonly="true" v-model="item.tax" placeholder="VAT" @click="openTaxModal(true)"></ion-input>
-                        <br>
+                        <ion-row>
+                            <ion-col>
+                                <ion-label position="stacked">Tax :</ion-label>
+                                <ion-input :readonly="true" v-model="item.tax" placeholder="VAT" @click="openTaxModal(true)"></ion-input>
+                            </ion-col>
+                            <ion-col  size="8">
+                                <ion-datetime-button v-model="item.expiry_date" datetime="datetime"></ion-datetime-button>
+                                <ion-modal :keep-contents-mounted="true">
+                                    <ion-datetime id="datetime"></ion-datetime>
+                                </ion-modal>
+                            </ion-col>
+                        </ion-row>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Alias :</ion-label>
@@ -111,7 +120,7 @@ import { onIonViewDidEnter } from '@ionic/vue';
 export default {
 name: 'ITEM DETAILS', // Update the component name here
     components: { 
-        HeaderComponent,
+        // HeaderComponent,
         UnitListModal,
         TaxListModal,
         AlertComponent

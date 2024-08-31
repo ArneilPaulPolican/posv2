@@ -1,6 +1,5 @@
 <template>
   <ion-alert
-    trigger="present-alert"
     :header="title"
     :message="message"
     :buttons="alertButtons"
@@ -16,6 +15,7 @@ export default defineComponent({
     title: String,
     sub_title: String,
     message: String,
+    isOpen: Boolean
   },
     components: { 
    },

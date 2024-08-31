@@ -81,7 +81,7 @@ export default defineComponent({
                     },
                     {
                         title: 'Table',
-                        url: '/Setup/Table',
+                        url: '/Setup/Tables',
                         iosIcon: icons.restaurantOutline,
                         mdIcon: icons.restaurantSharp,
                     },
@@ -180,8 +180,8 @@ export default defineComponent({
                         mdIcon: icons.storefrontSharp,
                     },
                     {
-                        title: 'System',
-                        url: '/Settings/System',
+                        title: 'Users',
+                        url: '/Settings/Users',
                         iosIcon: icons.cogOutline,
                         mdIcon: icons.cogSharp,
                     },

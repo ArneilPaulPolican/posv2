@@ -1,21 +1,20 @@
 <template>
-    <ion-page>
-        <!-- <HeaderComponent :title="header" /> -->
-        
-        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button @click="openPaytypeDetailForm">
-                <ion-icon :icon="icons.addSharp"></ion-icon>
-            </ion-fab-button>
-        </ion-fab>
 
+    <ion-page>
+        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+            <ion-nav-link router-direction="forward">
+                <ion-fab-button size="small" @click="openItemDetailForm">
+                    <ion-icon :icon="icons.addSharp"></ion-icon>
+                </ion-fab-button>
+            </ion-nav-link>
+        </ion-fab>
         
         <ion-content :fullscreen="true">
-            
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="paytype in paytypes" :key="paytype.id" @click="openActionSheet(paytype)">
+                <ion-item v-for="table in tables" :key="table.id" @click="openActionSheet(table)">
                     <ion-label>
-                        <h2>{{ paytype.paytype }}</h2>
+                        <h2>{{ table.table_name }}</h2>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -24,30 +23,30 @@
 </template>
 
 <script lang="ts">
+import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
-import { defineComponent, onMounted, Ref, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import router from '@/router';
+import { getTables } from '@/services/setup/table.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
-import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
-import { PAYTYPE } from '@/models/paytype.model';
-import { getPaytypes } from '@/services/system/paytype.service';
+import { defineComponent, markRaw, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
 
 export default defineComponent({
     components:{
-        // HeaderComponent
-    },
-    setup(){
-        const router = useRouter();
-        const paytypes = ref<PAYTYPE[]>([])
 
+    },
+    setup() {
+        const tables = ref<TABLE[]>([])
+        const router = useRouter();
 
         //#region   Actionsheet
-        const actionSheetButtons = (paytype:any) => [
+        const actionSheetButtons = (table:any) => [
             {
                 text: 'Delete',
                 role: 'destructive',
                 handler: () => {
-                    handleDelete(paytype);
+                    handleDelete(table);
                 },
                 data: {
                     action: 'delete',
@@ -56,7 +55,7 @@ export default defineComponent({
             {
                 text: 'Edit',
                 handler: () => {
-                    handleEdit(paytype);
+                    handleEdit(table);
                 },
                 data: {
                     action: 'Edit',
@@ -66,44 +65,43 @@ export default defineComponent({
         const actionSheet = ref(null);
         const _actionSheetController = actionSheetController;// Action Sheet Controller
         // Open Action Sheet Function
-        const openActionSheet = async (paytype:any) => {
+        const openActionSheet = async (table:any) => {
             const actionSheet = await _actionSheetController.create({
-                header: `Options for Unit ${paytype.tax_code}  ${paytype.tax_description}`,
-                buttons: actionSheetButtons(paytype)
+                header: `Options for Unit ${table.table_name}`,
+                buttons: actionSheetButtons(table)
             });
             await actionSheet.present();
         };
         //#endregion
 
-        const handleDelete = (paytype: any) => {
+        const handleDelete = (table: any) => {
             throw new Error('Function not implemented.');
         };
-        const handleEdit = (paytype: any) => {
-            router.push(`/System/Paytype/Details/${paytype.id}`);
+        const handleEdit = (table: any) => {
+            router.push(`/Setup/Table/Details/${table.id}`);
         };
-        const openPaytypeDetailForm = async() => {
-            router.push(`/System/Paytype/Details/0`);
+        
+        const openItemDetailForm = async() => {
+            router.push(`/Setup/Table/Details/0`);
         }
         
         async function fetchList() {
-            const response = await getPaytypes()
-            paytypes.value = response
+            const response = await getTables()
+            tables.value = response
         }
         onMounted(async () => {
           await fetchList()
         })
         onIonViewDidEnter(async () => {
             await fetchList()
-        });
+        })
         return{
-            header: 'Paytype List',
             icons,
-            paytypes,
+            tables,
 
-            handleEdit,
-            openPaytypeDetailForm,
+            openItemDetailForm,
             openActionSheet
         }
-    }
-})
+    },
+});
 </script>

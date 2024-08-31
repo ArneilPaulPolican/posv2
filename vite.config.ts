@@ -11,10 +11,21 @@ export default defineConfig({
     vue(),
     legacy()
   ],
+  build: {
+    rollupOptions: {
+      external: ['jspdf'],
+    },
+    commonjsOptions: {
+      include: ['/jspdf/', '/node_modules/']
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  optimizeDeps: {
+    include: ['@awesome-cordova-plugins/core']
   },
   test: {
     globals: true,
