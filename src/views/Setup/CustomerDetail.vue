@@ -1,6 +1,6 @@
 <template>
     <ion-page>
-        <HeaderComponent :title="header" />
+        <!-- <HeaderComponent :title="header" /> -->
         
         <ion-item>
             <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon>
@@ -74,7 +74,7 @@
 import { icons } from '@/plugins/icons';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import HeaderComponent from '@/components/HeaderComponent.vue';
+import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 // import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { Lock } from '@/services/lock';
 import { CUSTOMER } from '@/models/customer.model';

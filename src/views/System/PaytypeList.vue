@@ -1,28 +1,21 @@
 <template>
     <ion-page>
-        <!-- <HeaderComponent :title="header" /> -->
+        <HeaderComponent :title="header" />
+        
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button size="small" @click="openDetailForm">
+            <ion-fab-button @click="openPaytypeDetailForm">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
 
-        <ion-item>
-            <!-- Search Input -->
-            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
-        </ion-item>
         
         <ion-content :fullscreen="true">
+            
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="customer in customers" :key="customer.id" @click="openActionSheet(customer)">
-                    <ion-avatar aria-hidden="true" slot="start">
-                        <!-- <img alt="" v-if="item.image" :src="item.image" /> -->
-                        <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
-                    </ion-avatar>
+                <ion-item v-for="paytype in paytypes" :key="paytype.id" @click="openActionSheet(paytype)">
                     <ion-label>
-                        <h2>{{ customer.customer_code }}</h2>
-                        <p>{{ customer.customer }}</p>
+                        <h2>{{ paytype.paytype }}</h2>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -36,25 +29,25 @@ import { defineComponent, onMounted, Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
-import { CUSTOMER } from '@/models/customer.model';
-import { getCustomers } from '@/services/setup/customer.service';
+import { PAYTYPE } from '@/models/paytype.model';
+import { getPaytypes } from '@/services/system/paytype.service';
 
 export default defineComponent({
-    components: { 
+    components:{
         HeaderComponent
     },
     setup(){
         const router = useRouter();
-        const customers = ref<CUSTOMER[]>([])
+        const paytypes = ref<PAYTYPE[]>([])
 
-        
+
         //#region   Actionsheet
-        const actionSheetButtons = (customer:any) => [
+        const actionSheetButtons = (paytype:any) => [
             {
                 text: 'Delete',
                 role: 'destructive',
                 handler: () => {
-                    handleDelete(customer);
+                    handleDelete(paytype);
                 },
                 data: {
                     action: 'delete',
@@ -63,7 +56,7 @@ export default defineComponent({
             {
                 text: 'Edit',
                 handler: () => {
-                    handleEdit(customer);
+                    handleEdit(paytype);
                 },
                 data: {
                     action: 'Edit',
@@ -73,45 +66,44 @@ export default defineComponent({
         const actionSheet = ref(null);
         const _actionSheetController = actionSheetController;// Action Sheet Controller
         // Open Action Sheet Function
-        const openActionSheet = async (customer:any) => {
+        const openActionSheet = async (paytype:any) => {
             const actionSheet = await _actionSheetController.create({
-                header: `Options for Customer ${customer.customer_code}  ${customer.customer_name}`,
-                buttons: actionSheetButtons(customer)
+                header: `Options for Unit ${paytype.tax_code}  ${paytype.tax_description}`,
+                buttons: actionSheetButtons(paytype)
             });
             await actionSheet.present();
         };
         //#endregion
-        
-        const handleDelete = (customer: any) => {
+
+        const handleDelete = (paytype: any) => {
             throw new Error('Function not implemented.');
         };
-        const handleEdit = (customer: any) => {
-            router.push(`/Setup/Customer/Details/${customer.id}`);
+        const handleEdit = (paytype: any) => {
+            router.push(`/System/Paytype/Details/${paytype.id}`);
         };
-        
-        const openDetailForm = async() => {
-            router.push(`/Setup/Customer/Details/0`);
+        const openPaytypeDetailForm = async() => {
+            router.push(`/System/Paytype/Details/0`);
         }
         
         async function fetchList() {
-            const response = await getCustomers();
-            customers.value = response
+            const response = await getPaytypes()
+            paytypes.value = response
         }
+        onMounted(async () => {
+          await fetchList()
+        })
         onIonViewDidEnter(async () => {
             await fetchList()
         });
-        onMounted(async()=>{
-            await fetchList()
-        })
         return{
-            header:'Customer List',
+            header: 'Paytype List',
             icons,
-            customers,
+            paytypes,
 
-            openDetailForm,
-            openActionSheet,
-            
+            handleEdit,
+            openPaytypeDetailForm,
+            openActionSheet
         }
     }
-});
+})
 </script>

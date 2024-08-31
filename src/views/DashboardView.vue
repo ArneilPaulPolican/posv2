@@ -1,9 +1,9 @@
 <template>
     <ion-page>
-        <HeaderComponent :title="header"/>
+        <!-- <HeaderComponent :title="header"/> -->
         <ion-router-outlet></ion-router-outlet>
         <ion-content >
-            <ion-grid style="width: 100%">
+            <ion-grid style="width: 100%;">
                 <ion-row>
                     <ion-col size="8" size-md="12" size-lg="12">
                         <ion-button size="medium" expand="full" style="height: 100%" :router-link="'/Activity/Sales'">
@@ -12,16 +12,6 @@
                             <span>Sales</span>
                             </div>
                         </ion-button>
-                    </ion-col>
-                    <ion-col size="8" size-md="12" size-lg="12">
-                        <router-link :to="{ name: 'tabs' }">
-                            <ion-button size="medium" expand="full" style="height: 100%">
-                                <div class="icon-label-wrapper">
-                                    <ion-icon slot="start" :ios="icons.logInOutline" :md="icons.logInSharp"></ion-icon>
-                                    <span>TAB</span>
-                                </div>
-                            </ion-button>
-                        </router-link>
                     </ion-col>
                 </ion-row>
                 <ion-row>
@@ -55,8 +45,7 @@
             <ion-grid style="width: 100%">
                 <ion-row>
                     <ion-col size="4" size-md="4" size-lg="4">
-                        <router-link >
-                        <!-- <router-link :to="{ name: 'item_lists' }"> -->
+                        <router-link :to="{ name: 'item_lists' }">
                         <ion-button size="medium" expand="full" style="height: 100%">
                             <div class="icon-label-wrapper">
                                 <ion-icon slot="start" :ios="icons.fileTrayStackedOutline" :md="icons.fileTrayStackedSharp"></ion-icon>
@@ -86,41 +75,38 @@
                 </ion-row>
                 <ion-row>
                     <ion-col size="3" size-md="3" size-lg="3">
-                        <!-- <router-link :to="{ name: 'unit_lists' }"> -->
-                        <router-link >
-                        <ion-button size="medium" expand="full" style="height: 100%">
-                        <div class="icon-label-wrapper">
-                            <ion-icon :ios="icons.scaleOutline" :md="icons.scaleSharp"></ion-icon>
-                            <span>Unit</span>
-                        </div>
-                        </ion-button>
+                        <router-link :to="{ name: 'unit_lists' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon :ios="icons.scaleOutline" :md="icons.scaleSharp"></ion-icon>
+                                    <span>Unit</span>
+                                </div>
+                            </ion-button>
                         </router-link>
                     </ion-col>
                     <ion-col size="3" size-md="3" size-lg="3">
-                        <!-- <router-link :to="{ name: 'discount_lists' }"> -->
-                        <router-link >
-                        <ion-button size="medium" expand="full" style="height: 100%">
-                        <div class="icon-label-wrapper">
-                            <ion-icon :ios="icons.discOutline" :md="icons.discSharp"></ion-icon>
-                            <span>Discount</span>
-                        </div>
-                        </ion-button>
+                        <router-link :to="{ name: 'discount_lists' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon :ios="icons.discOutline" :md="icons.discSharp"></ion-icon>
+                                    <span>Discount</span>
+                                </div>
+                            </ion-button>
                         </router-link>
                     </ion-col>
                     <ion-col size="3" size-md="3" size-lg="3">
-                        <!-- <router-link :to="{ name: 'tax_lists' }"> -->
-                        <router-link >
-                        <ion-button size="medium" expand="full" style="height: 100%">
-                        <div class="icon-label-wrapper">
-                            <ion-icon :ios="icons.pieChartOutline" :md="icons.pieChartSharp"></ion-icon>
-                            <span>Tax</span>
-                        </div>
-                        </ion-button>
-                    </router-link>
+                        <router-link :to="{ name: 'tax_lists' }">
+                            <ion-button size="medium" expand="full" style="height: 100%">
+                                <div class="icon-label-wrapper">
+                                    <ion-icon :ios="icons.pieChartOutline" :md="icons.pieChartSharp"></ion-icon>
+                                    <span>Tax</span>
+                                </div>
+                            </ion-button>
+                        </router-link>
                     </ion-col>
                     <ion-col size="3" size-md="3" size-lg="3">
                         <!-- <router-link :to="{ name: 'paytype_lists' }"> -->
-                        <router-link >
+                        <router-link to="#">
                         <ion-button size="medium" expand="full" style="height: 100%">
                         <div class="icon-label-wrapper">
                             <ion-icon :ios="icons.walletOutline" :md="icons.walletSharp"></ion-icon>
@@ -130,6 +116,17 @@
                         </router-link>
                     </ion-col>
                 </ion-row>
+                
+                <ion-row>
+                    <router-link :to="{ name: 'tabs' }">
+                        <ion-button size="medium" expand="full" style="height: 100%">
+                            <div class="icon-label-wrapper">
+                                <ion-icon slot="start" :ios="icons.logInOutline" :md="icons.logInSharp"></ion-icon>
+                                <span>TAB</span>
+                            </div>
+                        </ion-button>
+                    </router-link>
+                </ion-row>
             </ion-grid>
             
         </ion-content>
@@ -137,34 +134,11 @@
 </template>
 
 
-
 <script setup lang="ts">
 import { icons } from '@/plugins/icons';
-// import { onMounted } from 'vue';
-import HeaderComponent from '@/components/HeaderComponent.vue';
-// Imports End here
+import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 
-// Declaration start here
-
-// Function start here
-const header ='DASHBOARD';
-
-// export default {
-//     name: 'DashboardView', // Update the component name here
-//     components: { 
-//         HeaderComponent,
-//     },
-//   setup() {
-// //     // On component load
-// //     onMounted(async () => {
-// //         console.log('Dashboard loaded')
-// //     });
-//     return {
-//         header:'DASHBOARD',
-// //         icons
-//     }
-//   }
-// }
+const header = 'DASHBOARD';
 </script>
 
 

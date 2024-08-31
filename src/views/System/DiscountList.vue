@@ -1,28 +1,23 @@
 <template>
     <ion-page>
         <!-- <HeaderComponent :title="header" /> -->
+
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button size="small" @click="openDetailForm">
+            <ion-fab-button @click="openDisctountDetailForm">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
 
-        <ion-item>
-            <!-- Search Input -->
-            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
-        </ion-item>
-        
         <ion-content :fullscreen="true">
+            
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="customer in customers" :key="customer.id" @click="openActionSheet(customer)">
-                    <ion-avatar aria-hidden="true" slot="start">
-                        <!-- <img alt="" v-if="item.image" :src="item.image" /> -->
-                        <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
-                    </ion-avatar>
+                <ion-item v-for="tax in discounts" :key="tax.id" @click="openActionSheet(tax)">
                     <ion-label>
-                        <h2>{{ customer.customer_code }}</h2>
-                        <p>{{ customer.customer }}</p>
+                        <h2>{{ tax.discount }}</h2>
+                    </ion-label>
+                    <ion-label slot="end">
+                        <p>{{ tax.discount_rate }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -36,25 +31,25 @@ import { defineComponent, onMounted, Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
-import { CUSTOMER } from '@/models/customer.model';
-import { getCustomers } from '@/services/setup/customer.service';
+import { DISCOUNT } from '@/models/discount.model';
+import { getDiscounts } from '@/services/system/discount.service';
 
 export default defineComponent({
-    components: { 
-        HeaderComponent
+    components:{
+        // HeaderComponent
     },
     setup(){
         const router = useRouter();
-        const customers = ref<CUSTOMER[]>([])
+        const discounts = ref<DISCOUNT[]>([])
+        let saveTimeout: number | undefined;
 
-        
         //#region   Actionsheet
-        const actionSheetButtons = (customer:any) => [
+                const actionSheetButtons = (tax:any) => [
             {
                 text: 'Delete',
                 role: 'destructive',
                 handler: () => {
-                    handleDelete(customer);
+                    handleDelete(tax);
                 },
                 data: {
                     action: 'delete',
@@ -63,7 +58,7 @@ export default defineComponent({
             {
                 text: 'Edit',
                 handler: () => {
-                    handleEdit(customer);
+                    handleEdit(tax);
                 },
                 data: {
                     action: 'Edit',
@@ -73,45 +68,46 @@ export default defineComponent({
         const actionSheet = ref(null);
         const _actionSheetController = actionSheetController;// Action Sheet Controller
         // Open Action Sheet Function
-        const openActionSheet = async (customer:any) => {
+        const openActionSheet = async (tax:any) => {
             const actionSheet = await _actionSheetController.create({
-                header: `Options for Customer ${customer.customer_code}  ${customer.customer_name}`,
-                buttons: actionSheetButtons(customer)
+                header: `Options for Unit ${tax.tax_code}  ${tax.tax_description}`,
+                buttons: actionSheetButtons(tax)
             });
             await actionSheet.present();
         };
         //#endregion
-        
-        const handleDelete = (customer: any) => {
+
+
+        const handleDelete = (tax: any) => {
             throw new Error('Function not implemented.');
         };
-        const handleEdit = (customer: any) => {
-            router.push(`/Setup/Customer/Details/${customer.id}`);
+        const handleEdit = (tax: any) => {
+            router.push(`/System/Discount/Details/${tax.id}`);
         };
-        
-        const openDetailForm = async() => {
-            router.push(`/Setup/Customer/Details/0`);
+        const openDisctountDetailForm = async() => {
+            router.push(`/System/Discount/Details/0`);
         }
-        
+
         async function fetchList() {
-            const response = await getCustomers();
-            customers.value = response
+            discounts.value = await getDiscounts()
         }
         onIonViewDidEnter(async () => {
             await fetchList()
         });
-        onMounted(async()=>{
-            await fetchList()
-        })
+        onMounted(async () => {
+           await fetchList()
+        });
         return{
-            header:'Customer List',
+            header:"Discount List",
             icons,
-            customers,
+            router,
+            discounts,
 
-            openDetailForm,
             openActionSheet,
-            
+            handleDelete,
+            handleEdit,
+            openDisctountDetailForm
         }
     }
-});
+})
 </script>

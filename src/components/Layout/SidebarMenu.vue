@@ -1,33 +1,60 @@
 <template>
-    <ion-menu content-id="main-content" menu-id="my-menu">
-      <!-- <SidebarMenu ref="sidebarMenu"/> -->
-    </ion-menu>
-    <!-- <SidebarMenu ref="sidebarMenu"/> -->
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-menu-button @click="handleMenuClick" color="primary"></ion-menu-button>
-        </ion-buttons>
-        <ion-title>{{ title }}</ion-title>
-        <router-link v-if="$route.path.toLowerCase() !== '/dashboard' " to="/"  slot="end" style="margin-right: 10px;">
-          <ion-buttons size="large">
-            <ion-icon :icon="icons.homeSharp"></ion-icon>
-          </ion-buttons>
-        </router-link>
-      </ion-toolbar>
-    </ion-header>
-</template>
-  
-<script setup lang="ts">
-import { icons } from '@/plugins/icons';
-// import SidebarMenu from './SidebarMenu.vue';
-import { defineComponent, onMounted, ref } from 'vue';
-import { Icon } from 'ionicons/dist/types/components/icon/icon';
+    <ion-page>
+        <ion-content>
+          <ion-list id="inbox-list">
+            <!-- <img src="/public/favicon.png" style="justify-self: center;"> -->
+            <ion-item>
+                <h1>Company</h1>
+            </ion-item>
+            <ion-item>
+                <ion-note>test@example.user.com</ion-note>
+            </ion-item>
 
-  
-const isMenuOpen = ref(false);
-    const sidebarMenu = ref(null);
-    const appPages = [
+            <ion-item slot="header" router-direction="root" :router-link="'/Dashboard'" lines="none" :detail="false" class="hydrated" >
+                  <ion-icon slot="start" :ios="icons.homeOutline" :md="icons.homeSharp"></ion-icon>
+                  <ion-label>Dashboard</ion-label>
+            </ion-item>
+            <ion-accordion-group>
+              <ion-accordion v-for="(p, i) in appPages" :key="i">
+                <ion-item slot="header" @click="p.subitems ? accordionToggle(i) : selectedIndex = i" router-direction="root" :router-link="p.url" lines="none" :detail="false" class="hydrated" :class="{ selected: p.subitems ? false : selectedIndex === i }">
+                  <ion-icon slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
+                  <ion-label>{{ p.title }}</ion-label>
+                </ion-item>
+                <ion-list slot="content" v-if="p.subitems">
+                  <ion-item v-for="(subitem, j) in p.subitems" :key="j" @click="selectedIndex = j" router-direction="root" 
+                    :router-link="subitem.url" lines="none" :detail="false" class="hydrated" :class="{ selected: selectedIndex === j }">
+                    <ion-icon aria-hidden="true" slot="start" :ios="subitem.iosIcon" :md="subitem.mdIcon"></ion-icon>
+                    <ion-label>{{ subitem.title }}</ion-label>
+                  </ion-item>
+                </ion-list>
+              </ion-accordion>
+            </ion-accordion-group>
+            <ion-item slot="header" router-direction="root" :router-link="'/tabs/tab1'" lines="none" :detail="false" class="hydrated" >
+                  <ion-label>Test</ion-label>
+            </ion-item>
+          </ion-list>
+
+          <ion-list id="labels-list">
+            <ion-list-header>Widget</ion-list-header>
+
+            <ion-item v-for="(label, index) in labels" lines="none" :key="index">
+              <ion-icon aria-hidden="true" slot="start" :ios="icons.bookmarkOutline" :md="icons.bookmarkSharp"></ion-icon>
+              <ion-label>{{ label }}</ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+    </ion-page>
+</template>
+
+
+<script lang="ts">
+import { icons } from '@/plugins/icons';
+import { defineComponent, onBeforeMount, onMounted, ref } from 'vue';
+
+export default defineComponent({
+    setup(){
+        const accordionStates= ref<{ [key: string]: boolean }>({})
+        const appPages = [
                 {
                     title: 'Setup',
                     url: '',
@@ -128,7 +155,7 @@ const isMenuOpen = ref(false);
                             mdIcon: icons.pieChartSharp,
                         },
                         {
-                            title: 'Discount',
+                            title: 'Discounts',
                             url: '/System/Discounts',
                             iosIcon: icons.discOutline,
                             mdIcon: icons.discSharp,
@@ -161,34 +188,21 @@ const isMenuOpen = ref(false);
                     ]
                 },
         ]
-    const accordionStates= ref<{ [key: string]: boolean }>({})
-
-    
-    const handleMenuClick = async () => {
-      // try {
-      //   console.log('menu button')
-        const menu = document.querySelector('ion-menu');
-        console.log('menu ',menu)
-      //   if (menu) {
-      //     if (await menu.isOpen()) {
-      //       menu.close();
-      //     } else {
-      //       menu.open();
-      //     }
-      //   }
-      // } catch (error) {
-      //   console.log('error ',error)
-      // }
-    };
-
-    const selectedIndex = ref(0);
-    function accordionToggle(i: number) {
-        accordionStates.value[i] = !accordionStates.value[i];
+            
+        const selectedIndex = ref(0);
+        function accordionToggle(i: number) {
+            accordionStates.value[i] = !accordionStates.value[i];
+        }
+        onMounted(() =>{
+            console.log('Sidebar onMounted')
+        })
+        return{
+            icons,
+            appPages,
+            labels: ['Sales', 'Item', 'Customer'],
+            selectedIndex,
+            accordionToggle
+        }
     }
-    
-
-    onMounted(() => {
-      const menu = document.querySelector('ion-menu');
-    });
-
+});
 </script>
