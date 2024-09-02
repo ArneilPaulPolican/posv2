@@ -178,7 +178,6 @@ import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, upd
 import { Lock } from '@/services/lock';
 import { addBulkSalesItem, getSalesItemBySalesId, updatebULKSalesItem } from '@/services/activity/sales-item.service';
 // import { generatePDF } from '@/composables/pdf-generator';
-import { useAlert } from '../../services/alert.service';
 
 export default defineComponent({
     components:{
@@ -241,7 +240,6 @@ export default defineComponent({
         const sales_item = ref(null);
         const pdf_src = ref('');
         const open_pdf_modal =  ref(false);
-        const alert = useAlert();
 
         //#region   Actionsheet
         const actionSheetButtons = (item:any) => [
@@ -284,15 +282,14 @@ export default defineComponent({
         // BACK
         const handleReturn = async () => {
             console.log('reuturn handler');
-            await alert.show('Sales', 'Are you sure you want to quit without saving this transaction');
+            open_alert.value = true; // Open the alert
             // if(sales_id == 0){
             //     console.log('inside condition');
             //     alertTitle.value = 'Sales';
             //     alertMessage.value = 'Are you sure you want to quit without saving this transaction';
-            //     open_alert.value = true; // Open the alert
             // }else{
             //     await handleSave();
-            //     confirmReturn();
+                confirmReturn();
             // }
         }
         const confirmReturn =() => {

@@ -9,6 +9,11 @@
             </ion-nav-link>
         </ion-fab>
         
+        <ion-item>
+            <!-- Search Input -->
+             <ion-label position="stacked">Search Table</ion-label>
+            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
+        </ion-item>
         <ion-content :fullscreen="true">
             <ion-list :inset="true">
                 <!-- List -->

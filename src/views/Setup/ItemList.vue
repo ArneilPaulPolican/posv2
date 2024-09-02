@@ -11,6 +11,7 @@
 
         <ion-item>
             <!-- Search Input -->
+             <ion-label position="stacked">Search Item</ion-label>
             <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
         </ion-item>
         <ion-content :fullscreen="true">
@@ -72,26 +73,7 @@ name: 'DashboardView', // Update the component name here
     setup() {
         const router = useRouter();
         const items = ref<ITEM[]>([])
-        const item = ref<ITEM>({
-            item_code: '002',
-            item_description: 'sample 1',
-            bar_code: '002',
-            alias: 'NA',
-            category: 'NA',
-            price: 0,
-            cost: 0,
-            quantity: 0,
-            unit_id: 0,
-            is_inventory: false,
-            generic_name: 'NA',
-            tax_id: 0,
-            remarks: 'NA',
-            image_path: '', // This will be set by processedImageSavePath
-            is_package: false,
-            is_locked: false,
-            expiry_date:'',
-            lot_number:''
-        });
+
         const imagePath = ref('');
         const dbLock = new Lock(); // Create a new lock
         // const db_connection = await DBConnectionService.getInstance();
@@ -153,25 +135,10 @@ name: 'DashboardView', // Update the component name here
         }
         //#endregion
 
-        // add data
-        const addData = async () => {
-            try {
-                const response = await addItem(item.value, imagePath.value);
-                if(response){
-                    console.log('Item successfully created')
-                }else{
-                    console.error('Item adding failed')
-                }
-            } catch (err) {
-                dbLock.release(); // Release the lock after the operation
-                console.error('Error adding data:', err)
-            }
-        }
 
         const openItemDetailForm = async() => {
             router.push(`/Setup/Item/Details/0`);
         }
-
         
         async function fetchList() {
             items.value = await getItems()
@@ -194,7 +161,6 @@ name: 'DashboardView', // Update the component name here
             imagePath,
             
             // events
-            addData,
             openItemDetailForm,
 
             openActionSheet,

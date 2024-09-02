@@ -459,10 +459,10 @@ export const getLastSalesNumber = async (): Promise<string> => {
     const result = await db?.query(query);
     const lastSalesNumber =result?.values?.[0].sales_number;
     console.log('lastSalesNumber',lastSalesNumber)
-    return lastSalesNumber || '0000000001';
+    return lastSalesNumber || '0000000000';
   } catch (error) {
     console.log(error)
-    return '0000000001';
+    return '0000000000';
   }
 }
 

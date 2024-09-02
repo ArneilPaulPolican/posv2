@@ -1,6 +1,7 @@
 <template>
     <ion-page>
         <ion-item>
+            <ion-label position="stacked">Search Collected Sales</ion-label>
             <ion-searchbar placeholder="Enter Keyword"> </ion-searchbar>
         </ion-item>
         <ion-item>

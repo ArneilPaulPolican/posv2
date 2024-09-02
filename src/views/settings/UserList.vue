@@ -6,6 +6,11 @@
             </ion-fab-button>
         </ion-fab>
 
+        <ion-item>
+            <!-- Search Input -->
+             <ion-label position="stacked">Search User</ion-label>
+            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
+        </ion-item>
         
         <ion-content :fullscreen="true">
             
@@ -13,7 +18,7 @@
                 <!-- List -->
                 <ion-item v-for="user in users" :key="user.id" @click="openActionSheet(user)">
                     <ion-label>
-                        <h2>{{ user.fullname }}</h2>
+                        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
                         <p>{{ user.email }}</p>
                     </ion-label>
                 </ion-item>
@@ -85,9 +90,10 @@ export default defineComponent({
             users.value = response
         }
         onMounted(async () =>{
-
+            await fetchList();
         })
         onIonViewDidEnter(async () =>{
+            await fetchList();
 
         })
         return{

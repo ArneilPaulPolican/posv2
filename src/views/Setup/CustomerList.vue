@@ -9,7 +9,8 @@
 
         <ion-item>
             <!-- Search Input -->
-            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
+             <ion-label position="stacked">Search Customer</ion-label>
+             <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
         </ion-item>
         
         <ion-content :fullscreen="true">

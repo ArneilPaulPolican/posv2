@@ -1,4 +1,4 @@
-export interface STOCK_OUTS {
+export interface STOCK_OUT {
     id: number;
     user_id: number;
     out_number: string;
@@ -7,7 +7,7 @@ export interface STOCK_OUTS {
     status: string;
 }
 
-export class STOCK_OUTS_DTO {
+export class STOCK_OUT_DTO {
     id: number=0;
     user_id: number =0;
     user: string =''

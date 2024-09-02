@@ -14,14 +14,14 @@ export const getUsers = async (): Promise<USER[]> => {
     if (!db) {
       throw new Error('Database connection not open');
     }
-    const taxServiceQuery = `SELECT * FROM ${USERS_TABLE}`;
+    const userQuery = `SELECT * FROM ${USERS_TABLE}`;
     
-    const result = await db.query(taxServiceQuery);
+    const result = await db.query(userQuery);
    
     console.log('Res Values', JSON.stringify(result.values));
     return result.values as USER[];
   } catch (error) {
-    console.log('get taxes error');
+    console.log('get users error');
     console.log(error);
     throw error;
   }
@@ -44,6 +44,7 @@ export const getUserById = async () => {
       console.log('Res Values', JSON.stringify(result.values));
       const user = result.values?.map(user => ({
         id: user.id,
+        username: user.username,
         fullname: user.first_name + ' ' +user.last_name,
         last_name: user.last_name,
         first_name: user.first_name,

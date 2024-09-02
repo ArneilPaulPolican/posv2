@@ -582,7 +582,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         const existingSysSettings = await db.query(getSysSettingsQuery);
         console.log("condition 1 ", existingSysSettings.values?.length);
 
-        // if (!existingSysSettings.values?.length) {
+        if (!existingSysSettings.values?.length) {
           console.log("condition 2 ", existingSysSettings);
           const insertSysSettingsQuery = `
             INSERT INTO ${SYS_SETTINGS_TABLE} (
@@ -715,7 +715,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
           `;
           const resTABLES_TABLE = await db.execute(insertTablespesQuery);
           console.log("TABLES_TABLE  ", resTABLES_TABLE);
-        // }
+        }
         console.log("Add defaults ended");
     } catch (error) {
       console.log('create tables error', error);

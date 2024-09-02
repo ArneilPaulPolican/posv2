@@ -1,21 +1,26 @@
 <template>
-    <ion-page>
-        <!-- <HeaderComponent :title="header" /> -->
+<ion-page>
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button  @click="openDetailForm">
+            <ion-fab-button @click=openDetailForm >
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
 
+        <ion-item>
+            <!-- Search Input -->
+             <ion-label position="stacked">Search Stock Out</ion-label>
+            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
+        </ion-item>
         
         <ion-content :fullscreen="true">
             
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="tax in taxes" :key="tax.id" @click="openActionSheet(tax)">
+                <ion-item v-for="stock_out in stock_outs" :key="stock_out.id" @click="openActionSheet(stock_out)">
                     <ion-label>
-                        <h2>{{ tax.tax_code }}</h2>
-                        <p>{{ tax.tax }}</p>
+                        <h2>{{ stock_out.out_number }}</h2>
+                        <p>{{ stock_out.out_date }}</p>
+                        <p>{{ stock_out.remarks }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -24,29 +29,27 @@
 </template>
 
 <script lang="ts">
+import { STOCK_IN } from '@/models/stock-in.model';
+import { STOCK_OUT } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
-import { defineComponent, onActivated, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { getStockInById, getStockIn } from '@/services/activity/stoc-in.service';
+import { getStockOut } from '@/services/activity/stoc-out.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
-import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
-import { TAX } from '@/models/tax.model';
-import { getTaxes } from '@/services/system/tax.service';
+import { defineComponent, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 
 export default defineComponent({
-    components: { 
-        // HeaderComponent
-    },
     setup(){
         const router = useRouter();
-        const taxes = ref<TAX[]>([]);
+        const stock_outs = ref<STOCK_OUT[]>([]);
         //#region   Actionsheet
-        const actionSheetButtons = (unit:any) => [
+        const actionSheetButtons = (stock_out:any) => [
             {
                 text: 'Delete',
                 role: 'destructive',
                 handler: () => {
-                    handleDelete(unit);
+                    handleDelete(stock_out);
                 },
                 data: {
                     action: 'delete',
@@ -55,7 +58,7 @@ export default defineComponent({
             {
                 text: 'Edit',
                 handler: () => {
-                    handleEdit(unit);
+                    handleEdit(stock_out);
                 },
                 data: {
                     action: 'Edit',
@@ -65,44 +68,42 @@ export default defineComponent({
         const actionSheet = ref(null);
         const _actionSheetController = actionSheetController;// Action Sheet Controller
         // Open Action Sheet Function
-        const openActionSheet = async (tax:any) => {
+        const openActionSheet = async (stock_out:any) => {
             const actionSheet = await _actionSheetController.create({
-                header: `Options for Tax ${tax.tax_code}  ${tax.tax_description}`,
-                buttons: actionSheetButtons(tax)
+                header: `Options for Tax ${stock_out.in_number}  ${stock_out.in_date}`,
+                buttons: actionSheetButtons(stock_out)
             });
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (tax: any) => {
+        const handleDelete = (stock_out: any) => {
             throw new Error('Function not implemented.');
         };
-        const handleEdit = (tax: any) => {
-            router.push(`/System/Tax/Details/${tax.id}`);
+        const handleEdit = (stock_out: any) => {
+            router.push(`/activity/stock-out/details/${stock_out.id}`);
         }
-        const openDetailForm = async() => {
-            router.push(`/System/Tax/Details/0`);
+        const openDetailForm = async() => {     
+            router.push(`/activity/stock-out/details/0`);
         }
 
+
         async function fetchList() {
-            const response = await getTaxes()
-            taxes.value = response
+            const response = await getStockOut() 
+            stock_outs.value = response           
         }
-        onIonViewDidEnter(async () => {
+        onMounted(async()=>{
             await fetchList()
-        });
-        onMounted(async() =>{
+        })
+        onIonViewDidEnter(async()=>{
             await fetchList()
         })
         return{
-            header:'Tax List',
             icons,
-            taxes,
+            stock_outs,
 
             openActionSheet,
-            handleDelete,
-            handleEdit,
             openDetailForm
         }
     }
-});
+})
 </script>

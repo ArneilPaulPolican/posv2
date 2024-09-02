@@ -28,7 +28,7 @@ export const getSystemSettings = async () => {
         if (!db) {
             throw new Error('Database connection not open');
         }
-        const customerServiceQuery = `SELECT * FROM ${SYS_SETTINGS_TABLE}`
+        const customerServiceQuery = `SELECT * FROM ${SYS_SETTINGS_TABLE} LIMIT 1`
         const result = await db.query(customerServiceQuery);
 
         const sys_settings = result.values?.map(sys_settings=>({
@@ -46,14 +46,14 @@ export const getSystemSettings = async () => {
             pos_vendor_tin: sys_settings.pos_vendor_tin,
             pos_vendor_accreditation_number: sys_settings.pos_vendor_accreditation_number,
             pos_vendor_accreditation_expiry_date: sys_settings.pos_vendor_accreditation_expiry_date,
-            remarks: sys_settings.remarks,
-            backoffice_domain: sys_settings.backoffice_domain,
-            backoffice_access_token: sys_settings.backoffice_access_token,
+            remarks: sys_settings.remarks ?? '',
+            backoffice_domain: sys_settings.backoffice_domain ?? '',
+            backoffice_access_token: sys_settings.backoffice_access_token ?? '',
             is_backoffice_enabled: sys_settings.is_backoffice_enabled,
-            license_key: sys_settings.license_key
+            license_key: sys_settings.license_key ?? ''
         }))[0];
 
-
+        console.log('sys_settings', sys_settings);
 
         return sys_settings;
     } catch (error) {

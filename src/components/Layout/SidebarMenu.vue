@@ -100,19 +100,19 @@ export default defineComponent({
                     },
                     {
                         title: 'Cash-in / Cash-out',
-                        url: '/Activity/CashInCashOut',
+                        url: '/Activity/Cash-In-Cash-Outs',
                         iosIcon: icons.bookOutline,
                         mdIcon: icons.bookSharp,
                     },
                     {
                         title: 'Stock In',
-                        url: '/Activity/StockIn',
+                        url: '/Activity/Stock-In',
                         iosIcon: icons.logInOutline,
                         mdIcon: icons.logInSharp,
                     },
                     {
                         title: 'Stock Out',
-                        url: '/Activity/StockOut',
+                        url: '/Activity/Stock-Out',
                         iosIcon: icons.logOutOutline,
                         mdIcon: icons.logOutSharp,
                     },
@@ -182,8 +182,8 @@ export default defineComponent({
                     {
                         title: 'Users',
                         url: '/Settings/Users',
-                        iosIcon: icons.cogOutline,
-                        mdIcon: icons.cogSharp,
+                        iosIcon: icons.peopleCircleOutline,
+                        mdIcon: icons.peopleCircleSharp,
                     },
                     ]
                 },

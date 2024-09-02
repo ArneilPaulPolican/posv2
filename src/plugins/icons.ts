@@ -10,7 +10,8 @@ import {
   calendar, calendarNumber, calendarNumberOutline, calendarNumberSharp, terminal, terminalOutline, terminalSharp, arrowBackOutline, arrowBackSharp,
   image, imageOutline, imageSharp, pricetag, pricetagOutline, pricetagSharp, print, printOutline, printSharp, save, saveOutline, saveSharp,
   closeCircle, closeCircleOutline, closeCircleSharp, menu, menuOutline, menuSharp, openOutline, openSharp, receiptOutline, receiptSharp,
-  lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp
+  lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp, 
+  people, peopleCircle, peopleOutline, peopleCircleSharp
 } from 'ionicons/icons';
 
 export const icons = {
@@ -24,5 +25,6 @@ export const icons = {
   calendar, calendarNumber, calendarNumberOutline, calendarNumberSharp, terminal, terminalOutline, terminalSharp, arrowBackOutline, arrowBackSharp,
   image, imageOutline, imageSharp, pricetag, pricetagOutline, pricetagSharp, print, printOutline, printSharp, save, saveOutline, saveSharp,
   closeCircle, closeCircleOutline, closeCircleSharp, menu, menuOutline, menuSharp, openOutline, openSharp,  receiptOutline, receiptSharp,
-  lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp
+  lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp,
+  people, peopleCircle, peopleOutline, peopleCircleSharp
 };

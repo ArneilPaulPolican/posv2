@@ -119,6 +119,46 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import ('../views/Activity/SalesDetails.vue'),
     meta: { title: 'Sales Detail' },
   },
+  {
+    path: '/activity/cash-in-cash-outs',
+    name: 'cashin_cashout',
+    component: () => import ('../views/Activity/CashInCashOutlist.vue'),
+    meta: { 
+      title: 'Folder' ,
+    }
+  },
+  {
+    path: '/activity/stock-in',
+    name: 'stockin_lists',
+    component: () => import ('../views/Activity/StockInList.vue'),
+    meta: { 
+      title: 'Folder' ,
+    }
+  },
+  {
+    path: '/activity/stock-in/details/:id',
+    name: 'stockin_details',
+    component: () => import ('../views/Activity/StockInDetails.vue'),
+    meta: { 
+      title: 'Folder' ,
+    }
+  },
+  {
+    path: '/activity/stock-out',
+    name: 'stockout_lists',
+    component: () => import ('../views/Activity/StockOutList.vue'),
+    meta: { 
+      title: 'Folder' ,
+    }
+  },
+  {
+    path: '/activity/stock-out/details/:id',
+    name: 'stockout_details',
+    component: () => import ('../views/Activity/StockOutDetails.vue'),
+    meta: { 
+      title: 'Folder' ,
+    }
+  },
   
   // System Tables
   {
@@ -181,6 +221,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'user_lists',
     component: () => import ('../views/settings/UserList.vue'),
     meta: { title: 'User List' }
+  },
+  {
+    path: '/settings/user/details/:id',
+    name: 'user_details',
+    component: () => import ('../views/settings/UserDetails.vue'),
+    meta: { title: 'User Detail' }
   },
 ]
 
