@@ -13,11 +13,10 @@ export default defineConfig({
   ],
   build: {
     rollupOptions: {
-      external: ['jspdf'],
     },
-    commonjsOptions: {
-      include: ['/jspdf/', '/node_modules/']
-    }
+    // commonjsOptions: {
+    //   include: ['/jspdf/', '/node_modules/']
+    // }
   },
   resolve: {
     alias: {
@@ -25,7 +24,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['@awesome-cordova-plugins/core']
+    include: ['jspdf']
   },
   test: {
     globals: true,
