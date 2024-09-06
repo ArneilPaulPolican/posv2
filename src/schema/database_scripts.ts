@@ -335,6 +335,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         user_id INTEGER NOT NULL,
         sales_number TEXT NOT NULL,
         sales_date TEXT NOT NULL DEFAULT current_timestamp,
+        sales_time TEXT NOT NULL DEFAULT current_timestamp,
         terminal_number TEXT NOT NULL,
         customer_id INTEGER NOT NULL,
         table_id INTEGER,
@@ -344,12 +345,14 @@ export const createTables = async (db: SQLiteDBConnection) => {
         discount_id INTEGER NOT NULL,
         discount_rate REAL NOT NULL,
         discount_amount REAL NOT NULL,
+        net_amount REAL NOT NULL,
         no_of_pax INTEGER NOT NULL,
         remarks TEXT,
         status TEXT NOT NULL,
         is_locked BOOLEAN DEFAULT false,
         is_billed_out BOOLEAN DEFAULT false,
         is_cancelled BOOLEAN DEFAULT false,
+        is_printed BOOLEAN DEFAULT false,
         senior_pwd_id TEXT,
         senior_pwd_name TEXT,
         discounted_pax REAL DEFAULT 0.0,
@@ -521,6 +524,15 @@ export const createTables = async (db: SQLiteDBConnection) => {
         ans_accumulated_net_sales REAL NOT NULL
       )
     `;
+    
+    const createPrinterConfigurationTableQuery = `
+      CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        width TEXT,
+        height TEXT,
+      )
+    `;
 
     const createMigrationsTableQuery = `
       CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
@@ -682,7 +694,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
             INSERT OR IGNORE INTO ${DISCOUNTS_TABLE} (discount, discount_rate, vat_inclusive, particular, is_locked, image_url)
             VALUES
               ('Zero Discount', 0, false, 'NA', true, 'NA'),
-              ('SR / PWD Discount', 0.20, false, 'NA', true, 'NA'),
+              ('Senior / PWD Discount', 20, false, 'NA', true, 'NA'),
               ('Variable', 0, false, 'NA', true, 'NA')
           `;
           const resDISCOUNTS_TABLE = await db.execute(insertDiscountsQuery);

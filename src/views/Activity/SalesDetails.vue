@@ -10,15 +10,15 @@
 
         <ion-item style="position: relative;">
             <div style="display: flex; overflow-x: auto; white-space: nowrap; width: 100%; padding-right: 10px;height: 100%">
-            <ion-button size="medium" expand="block" style="height: 90%" @click="handleSave">
+            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%" @click="handleSave">
                 <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
                 <ion-label>Save</ion-label>
             </ion-button>
-            <ion-button size="medium" expand="block" style="height: 90%">
-                <ion-icon :icon="icons.lockClosedSharp"></ion-icon>&nbsp;
+            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%">
+                <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>&nbsp;
                 <ion-label>Lock</ion-label>
             </ion-button>
-            <ion-button size="medium" expand="block" style="height: 90%" @click="handleBillOut">
+            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%" @click="handleBillOut">
                 <ion-icon :icon="icons.receiptSharp"></ion-icon>&nbsp;
                 <ion-label>Bill Out</ion-label>
             </ion-button>
@@ -26,7 +26,11 @@
                 <ion-icon :icon="icons.printSharp"></ion-icon>&nbsp;
                 <ion-label>Print</ion-label>
             </ion-button>
-            <ion-button @click="handleReturn" size="medium" expand="block" style="height: 90%">
+            <ion-button @click="confirmReturn" size="medium" expand="block" style="height: 90%">
+                <ion-icon :icon="icons.arrowBackSharp"></ion-icon>&nbsp;
+                <ion-label>Back</ion-label>
+            </ion-button>
+            <ion-button v-if="!sales.is_cancelled && sales.is_locked" @click="confirmReturn" size="medium" expand="block" style="height: 90%">
                 <ion-icon :icon="icons.closeCircle"></ion-icon>&nbsp;
                 <ion-label>Cancel</ion-label>
             </ion-button>
@@ -43,7 +47,7 @@
                     </ion-chip>
                 </div>
                 <h1 slot="end">
-                    ₱&nbsp;{{ amount.toFixed(2) }}
+                    ₱&nbsp;{{ (sales.net_amount?? 0).toFixed(2) }}
                 </h1>
             </ion-item>
         </div>
@@ -73,10 +77,10 @@
                     </ion-item>
                     <ion-item>
                         <ion-chip>
-                            <ion-label>Disc. Rate: {{ sales.discount_rate?.toFixed(2) }}</ion-label>
+                            <ion-label>Disc. Rate: {{ sales.discount_rate ?? 0 }}</ion-label>
                         </ion-chip>
                         <ion-chip>
-                            <ion-label>Disc. Amount: {{ sales.discount_amount?.toFixed(2) }}</ion-label>
+                            <ion-label>Disc. Amount: {{ sales.discount_amount ?? 0 }}</ion-label>
                         </ion-chip>
                     </ion-item>
                     <ion-item>
@@ -108,16 +112,20 @@
 
                     
                     <!-- List -->
-                    <ion-item v-for="item in sales_items" :key="item.id" @click="openActionSheet(item)">
+                    <ion-item v-for="item in sales_item_list" :key="item.id" @click="openActionSheet(item)">
                         <!-- <img alt="" :src="item.item_image" style="width: 100px;height: 100px; position: con;"/> -->
-                        <div style="width: 100px; height: 100px; overflow: hidden;">
+                        <div style="width: 50px; height: 50px; overflow: hidden;">
                             <img alt="" :src="item.item_image" style="width: 100%; height: 100%; object-fit: cover;"/>
                         </div>
                         &nbsp;
-
                         <ion-label>
-                            <h2>{{ item.item_barcode }}</h2>
+                            <h1>{{ item.item_barcode }}</h1>
                             <p>{{ item.item_description }}</p>
+                            <p>Tax:&nbsp;{{ item.tax }}</p>
+                            <p>Rate:&nbsp;{{ item.tax_rate.toFixed(2) }}</p>
+                            <p>Amount:&nbsp;{{ item.tax_amount?.toFixed(2) }}</p>
+                        </ion-label>
+                        <ion-label slot="end">
                             <p>Price:&nbsp;{{ item.price?.toFixed(2) }}</p>
                             <p>Qty:&nbsp;{{ item.quantity }}</p>
                             <p>Amount:&nbsp;{{ item.amount?.toFixed(2) }}</p>
@@ -126,9 +134,6 @@
                 </div>
             </ion-list>
 
-            <!-- <iframe  :src="pdf_src" type="application/pdf" width="100%" height="500"></iframe> -->
-            <!-- <iframe v-bind:src="pdf_src" type="application/pdf" width="100%" height="500" ref="iframeRef"></iframe>
-            <iframe src="../../../public/tst.pdf" type="application/pdf" width="100%" height="500" ref="iframeRef"></iframe> -->
             <ion-modal :is-open="open_customer_modal" @close="open_customer_modal = false">
                 <CustomerListModal @customer-picked="handleCustomerPicked"  @close="open_customer_modal = false"/>
             </ion-modal>
@@ -138,11 +143,13 @@
             </ion-modal>
 
             <ion-modal :is-open="open_item_modal" @close="open_item_modal = false">
-                <ItemListModal :sales="sales" @item-picked="handleItemSubmit"  @close="open_item_modal = false"/>
+                <ItemListModal :sales="sales" @item-picked="handleSubmitItems"  @close="open_item_modal = false"/>
             </ion-modal>
 
-            <ion-modal :is-open="open_sales_item_modal" >
-                <SalesItemDetailsModal :sales_item="sales_item" @close="open_sales_item_modal = false"/>
+            <ion-modal :is-open="open_sales_item_modal" @close="open_sales_item_modal = false">
+                <SalesItemDetailsModal :sales_item="sales_item" 
+                @close="open_sales_item_modal = false"
+                @submit="() => { calculateAmount(); open_sales_item_modal = false; }"/>
             </ion-modal>
 
         </ion-content>
@@ -154,9 +161,6 @@
         @cancel="open_alert = false"
         @confirm="confirmReturn"
         />
-        <ion-modal :is-open="open_pdf_modal" >
-            <PDFTemplate v-if="open_pdf_modal" :pdf_src="pdf_src" @close="open_pdf_modal = false"/>
-        </ion-modal>
     </ion-page>
 </template>
 
@@ -173,10 +177,12 @@ import ItemListModal from '@/components/Modal/ItemListModal.vue';
 import SalesItemDetailsModal from '@/components/Modal/SalesItemDetailsModal.vue';
 import CustomerListModal from '@/components/Modal/CustomerListModal.vue';
 import DiscountListModal from '@/components/Modal/DiscountListModal.vue';
-import PDFTemplate from '@/components/Modal/PDFTemplate.vue';
 import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, updateSales } from '@/services/activity/sales.service';
 import { Lock } from '@/services/lock';
 import { addBulkSalesItem, getSalesItemBySalesId, updatebULKSalesItem } from '@/services/activity/sales-item.service';
+import { generateSales } from '@/composables/pdf-generator';
+import { disc } from 'ionicons/icons';
+import { DISCOUNT_DTO } from '@/models/discount.model';
 // import { generatePDF } from '@/composables/pdf-generator';
 
 export default defineComponent({
@@ -187,7 +193,6 @@ export default defineComponent({
         SalesItemDetailsModal,
         CustomerListModal,
         DiscountListModal,
-        PDFTemplate
     },
     setup(){
         const route = useRoute();
@@ -201,6 +206,7 @@ export default defineComponent({
             user: '',
             sales_number: '0000000001',
             sales_date: '',
+            sales_time: '',
             terminal_number: '001',
             customer_id: 0,
             customer_code:'',
@@ -213,12 +219,14 @@ export default defineComponent({
             balance_amount: 0,
             paid_amount: 0,
             discount_amount: 0,
+            net_amount: 0,
             no_of_pax: 0,
             remarks: 'NA',
             status: 'NEW',
             is_locked: false,
             is_billed_out: false,
             is_cancelled: false,
+            is_printed: false,
             discount_id: 1,
             discount: '',
             discount_rate: 0,
@@ -232,7 +240,7 @@ export default defineComponent({
         const alertMessage = ref('');
         const not_found = ref(false);
         const date_today = new Date;
-        const sales_items = ref<SALES_ITEM_DTO[]>([]);
+        const sales_item_list = ref<SALES_ITEM_DTO[]>([]);
         const open_customer_modal =  ref(false);
         const open_discount_modal =  ref(false);
         const open_item_modal =  ref(false);
@@ -289,7 +297,7 @@ export default defineComponent({
             //     alertMessage.value = 'Are you sure you want to quit without saving this transaction';
             // }else{
             //     await handleSave();
-                confirmReturn();
+                // confirmReturn();
             // }
         }
         const confirmReturn =() => {
@@ -301,116 +309,139 @@ export default defineComponent({
         function openCustomerModal(isOpen: boolean) {
             open_customer_modal.value = isOpen
         }
-        const handleCustomerPicked = (customer: any) => {
+        // Trigger when customer list is submitted
+        async function handleCustomerPicked (customer: any)  {
             sales.value.customer_id = customer.id;
             sales.value.customer = customer.customer;
             open_customer_modal.value = false;
             console.log('Picked customer:', sales.value.customer);
         };
 
-        // Pick Discount
+        // Select Discount
         function openDiscountModal(isOpen: boolean) {
             open_discount_modal.value = isOpen
         }
-        const handleDiscountPicked = (discount: any) => {
+        // Trigger when discount dialog is submitted
+        async function handleDiscountPicked (discount: DISCOUNT_DTO) {
+            console.log('receive discount',discount)
             sales.value.discount_id = discount.id;
             sales.value.discount = discount.discount;
             sales.value.discount_rate = discount.discount_rate;
-            sales.value.discount_amount = 0;
+            sales.value.discount_amount = discount.discount_amount;
+            sales.value.senior_pwd_id= discount.senior_pwd_id;
+            sales.value.senior_pwd_name= discount.senior_pwd_name;
             open_discount_modal.value = false;
-            console.log('Picked Discount:', sales.value.customer);
+            await updateSalesItemDiscount(); // update the discount in the selected items
+
+            await handleSave();
         };
 
         const openItemModal = (isOpen: boolean) => {
             open_item_modal.value = isOpen
         }
-        const handleItemSubmit = (items: Ref<SALES_ITEM_DTO[]>) => {
-            sales_items.value = items.value
-            items.value.forEach((item) => {
-                amount.value += (item.quantity * (item.price ?? 0))
-                console.log(`Item Quantity: ${item.quantity}, Item Price: ${item.price}`);
-            });
-            sales.value.total_amount = parseFloat(amount.value.toFixed(2));
+        // Trigger when item list modal is submitted
+        async function handleSubmitItems (sales_items: Ref<SALES_ITEM_DTO[]>)  {
+            const routeParams = +route.params.id;
+            sales_id = routeParams ; 
+
+            await addBulkSalesItem(sales_id, sales_items.value); // add new selected items
+            await calculateAmount(); // recalculate total_amount
+            await handleSave(); // Save with updated total_amount
         };
 
         // edit sales item
         const handleEdit = async (item: any) => {
             sales_item.value = item;
-            console.log("SelectedItem ", sales_item.value)
+            console.log("SelectedItem ", item)
             open_sales_item_modal.value = true;
-            console.log("open_sales_item_modal.value ", open_sales_item_modal.value)
+        }
+        //
+        async function handleUpdateSalesItem() {
+            await calculateAmount();
+            await handleSave();
+        }
+        
+        async function calculateAmount() {
+            sales_item_list.value = await getSalesItemBySalesId(sales_id)
+            let _amount = 0;
+            let _disc_amount = 0;
+            let _net_amount = 0;
+            sales_item_list.value.forEach((item) => {
+                _amount += parseFloat((item.amount ?? 0).toFixed(2))
+                _disc_amount += parseFloat((item.discount_amount ?? 0).toFixed(2))
+                _net_amount += (item.quantity * (item.net_price ?? 0));
+            });
+            sales.value.total_amount = _amount;
+            sales.value.discount_amount = _disc_amount;
+            sales.value.net_amount = parseFloat(_net_amount.toFixed(2));
         }
 
-        async function updateSalesItems() {
-            const new_sales_items = ref<SALES_ITEM_DTO[]>([]);
+        // Trigger only if Discount has changed
+        async function updateSalesItemDiscount() {
             const update_sales_items = ref<SALES_ITEM_DTO[]>([]);
-            console.log('items ', sales_items);
-            sales_items.value.forEach((item) => {
-                if (item.id === 0) {
-                    new_sales_items.value.push(item);
-                }else{
-                    update_sales_items.value.push(item)
-                }
-                
-            });
+            console.log('items ', sales_item_list);
+            let _total_amount = 0
+            let _net_amount = 0
+            sales_item_list.value.forEach((item) => {
+                let _price = item.price ?? 0;
+                let _net_price = item.net_price ?? 0;
+                item.discount_id = sales.value.discount_id?? 1;
+                item.discount_rate = sales.value.discount_rate?? 0;
 
-            await addBulkSalesItem(sales.value.id?? 0, new_sales_items.value);
+                if(_price !=0 && item.discount_rate !=0 ){
+                    _net_price = _price - (_price * (item.discount_rate / 100));
+                }
+                item.net_price = parseFloat(_net_price.toFixed(2))
+                item.amount = parseFloat((_net_price * item.quantity).toFixed(2));
+
+                _total_amount += parseFloat((_price  * item.quantity).toFixed(2));
+                _net_amount += parseFloat(item.amount.toFixed(2));
+
+                update_sales_items.value.push(item)
+            });
+            console.log('update of total amount', _total_amount)
+            sales.value.total_amount = _total_amount;
+            sales.value.discount_amount = _total_amount - _net_amount;
+            sales.value.net_amount = _net_amount;
             await updatebULKSalesItem(update_sales_items.value)
         }
 
         async function handleSave() {
             try {
-                console.log('Sales Id ', sales_id)
-                if(sales_id == 0){
-                    console.log(sales.value)
-                    const response = await addSales(sales.value, sales_items.value);
-                    if(response.success){
-                        router.push(`/Activity/Sales/Details/${response.insertedId}`);
-                        alertMessage.value = 'Sales successfully created,\n do you want to close this form?';
-                        alertTitle.value = 'Success';
-                    }else{
-                        console.error('Failed to create sales')
-                        alertTitle.value = 'Failed';
-                        alertMessage.value = 'Failed to create sales';
-                    }
-                    open_alert.value = true
+                sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
+                const response = await updateSales(sales.value)
+                if(response.success){
+                    alertMessage.value = 'Sales successfully updated';
+                    alertTitle.value = 'Success';
                 }else{
-                    const response = await updateSales(sales.value)
-                    if(response.success){
-                        alertMessage.value = 'Sales successfully updated';
-                        alertTitle.value = 'Success';
-                    }else{
-                        console.error('Failed to update sales')
-                        alertTitle.value = 'Failed';
-                        alertMessage.value = 'Failed to update sales';
-                    }
-                    open_alert.value = true
+                    console.error('Failed to update sales')
+                    alertTitle.value = 'Failed';
+                    alertMessage.value = 'Failed to update sales';
                 }
+                open_alert.value = true
             } catch (error) {
                 console.log(error)
             }
         }
 
         async function handleBillOut() {
-            if(sales_id != 0){
-                console.log(sales.value)
-                    const response = await billOutSales(sales.value);
-                    if(response.success){
-                        alertMessage.value = 'Sales successfully updated';
-                        alertTitle.value = 'Success';
-                    }else{
-                        console.error('Failed to update sales')
-                        alertTitle.value = 'Failed';
-                        alertMessage.value = 'Failed to update sales';
-                    }
-                    open_alert.value = true
+            if(sales.value.total_amount != 0){
+                const response = await billOutSales(sales.value);
+                if(response.success){
+                    alertMessage.value = 'Sales successfully updated';
+                    alertTitle.value = 'Success';
+                }else{
+                    console.error('Failed to update sales')
+                    alertTitle.value = 'Failed';
+                    alertMessage.value = 'Failed to update sales';
+                }
+                open_alert.value = true
             }
+            
         }
 
         async function printInvoice() {
-            // const blobURL = await generatePDF()
-            // pdf_src.value = blobURL
-            open_pdf_modal.value = true;
+            await generateSales(sales.value, sales_item_list.value)
         }
 
         async function fetchDetails(){
@@ -425,83 +456,14 @@ export default defineComponent({
             sales_id = routeParams ; 
             setTimeout(async () => {
                 try {
-                    if(routeParams == 0){
-                        sales_number.value = await getLastSalesNumber();
-                        const currentSalesNumber = parseInt(sales_number.value, 10);
-                        const nextSalesNumber = currentSalesNumber + 1;
-                        const formattedNextSalesNumber = nextSalesNumber.toString().padStart(10, '0');
-                        sales_number.value = formattedNextSalesNumber;
-                        sales.value = {
-                                id: 0,
-                                user_id: 1,
-                                user:'cashier',
-                                sales_number: sales_number.value,
-                                sales_date: new Date().toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: '2-digit',
-                                            day: '2-digit'
-                                            }),
-                                terminal_number: '001',
-                                customer_id: 1,
-                                customer_code:'',
-                                customer: 'Walk-in',
-                                customer_address: '',
-                                customer_tin: '',
-                                table_id: 1,
-                                table: 'VIP',
-                                total_amount: 0,
-                                balance_amount: 0,
-                                paid_amount: 0,
-                                discount_amount: 0,
-                                no_of_pax: 0,
-                                remarks: 'NA',
-                                status: 'NEW',
-                                is_locked: false,
-                                discount_id: 1,
-                                discount:'No Discount',
-                                discount_rate:0,
-                                senior_pwd_name:'NA',
-                                senior_pwd_id: 'NA'
-                            }
+                    const result = await getSalesById(routeParams)
+                    if(result){
+                        sales.value = {... result}
+                        sales_item_list.value = await getSalesItemBySalesId(routeParams)
                     }else{
-                        const result = await getSalesById(routeParams)
-                        if(result){
-                            sales.value = {
-                                id: result.id,
-                                user_id: result.user_id,
-                                user: result.user,
-                                sales_number: result.sales_number,
-                                sales_date: result.sales_date,
-                                terminal_number: result.terminal_number,
-                                customer_id: result.customer_id,
-                                customer_code: result.customer_code,
-                                customer: result.customer,
-                                customer_address: result.customer_address,
-                                customer_tin: result.customer_tin,
-                                table_id: result.table_id,
-                                table: result.table,
-                                total_amount: result.total_amount,
-                                balance_amount: result.balance_amount,
-                                paid_amount: result.paid_amount,
-                                no_of_pax: result.no_of_pax,
-                                remarks: result.remarks,
-                                status: result.status,
-                                is_locked: result.is_locked,
-                                is_billed_out: result.is_billed_out,
-                                is_cancelled: result.is_cancelled,
-                                discount_id: result.discount_id,
-                                discount: result.discount,
-                                discount_rate: result.discount_rate,
-                                discount_amount: result.discount_amount,
-                                senior_pwd_id: result.senior_pwd_id,
-                                senior_pwd_name: result.senior_pwd_name,
-                            }
-                            sales_items.value = await getSalesItemBySalesId(routeParams)
-                        }else{
-                            alertTitle.value = 'Not Found';
-                            alertMessage.value = 'No Customer exist';
-                            open_alert.value = true; // Open the alert
-                        }
+                        alertTitle.value = 'Not Found';
+                        alertMessage.value = 'No Customer exist';
+                        open_alert.value = true; // Open the alert
                     }
                     
                 } catch (error) {
@@ -512,13 +474,10 @@ export default defineComponent({
             }, 300);
         }
         onMounted(async ()=>{
-
             await fetchDetails()
-        })
-        
+        });
         onIonViewDidEnter(async () => {
             await fetchDetails()
-            console.log('Home page did enter');
         });
         return{
             header:'Sales Details',
@@ -526,7 +485,7 @@ export default defineComponent({
             icons,
             amount,
             date_today,
-            sales_items,
+            sales_item_list,
             open_customer_modal,
             open_discount_modal,
             open_item_modal,
@@ -540,13 +499,12 @@ export default defineComponent({
             alertSubTitle,
             not_found,
 
-            pdf_src,
 
             openCustomerModal,
             handleCustomerPicked,
 
             openItemModal,
-            handleItemSubmit,
+            handleSubmitItems,
 
             openActionSheet,
             handleReturn,
@@ -558,7 +516,7 @@ export default defineComponent({
             openDiscountModal,
             handleDiscountPicked,
             printInvoice,
-
+            calculateAmount
         }
     }
 })

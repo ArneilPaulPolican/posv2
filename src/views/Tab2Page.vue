@@ -11,7 +11,8 @@
           <ion-title size="large">Tab 2</ion-title>
         </ion-toolbar>
       </ion-header>
-      <ion-button @click="openPDF">PDF</ion-button>
+      <ion-button @click="printSales">Sales</ion-button>
+      <ion-button @click="printZReading">Z-Reading</ion-button>
       <ion-fab vertical="bottom" horizontal="center" slot="fixed">
         <ion-fab-button @click="takePhoto()">
           <ion-icon :icon="icons.cameraOutline"></ion-icon>
@@ -35,8 +36,10 @@ import { usePhotoGallery } from '@/composables/usePhotoGallery';
 import { DocumentViewer, DocumentViewerOptions } from '@ionic-native/document-viewer';
 import { Directory, Filesystem, FilesystemDirectory } from '@capacitor/filesystem';
 import { Browser } from '@capacitor/browser';
-import { generateSales } from '@/composables/pdf-generator';
+import { generateSales, generateZReading } from '@/composables/pdf-generator';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
+import { SALES_DTO } from '@/models/sales.model';
+import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 
 const options: DocumentViewerOptions = {
   title: 'My PDF'
@@ -51,6 +54,37 @@ export default defineComponent({
     const photo = ref([]);
     const blob_url = ref(new Blob());
     const imageUri = ref('')
+        const sales =  ref<SALES_DTO>({
+            id: undefined,
+            user_id: 0,
+            user: '',
+            sales_number: '0000000001',
+            sales_date: '',
+            terminal_number: '001',
+            customer_id: 0,
+            customer_code:'',
+            customer: '',
+            customer_address: '',
+            customer_tin: '',
+            table_id: 1,
+            table: '',
+            total_amount: 0,
+            balance_amount: 0,
+            paid_amount: 0,
+            discount_amount: 0,
+            no_of_pax: 0,
+            remarks: 'NA',
+            status: 'NEW',
+            is_locked: false,
+            is_billed_out: false,
+            is_cancelled: false,
+            discount_id: 1,
+            discount: '',
+            discount_rate: 0,
+            senior_pwd_name:'NA',
+            senior_pwd_id: 'NA'
+        });
+        const sales_item_list = ref<SALES_ITEM_DTO[]>([]);
 
     async function takePhoto () {
       const response = await usePhotoGallery();
@@ -101,13 +135,11 @@ export default defineComponent({
     }
 
     
-    async function openPDF() {
-      await generateSales()
-      // console.log('pdf response', response)
-      // const blob_res = await fetch(response);
-      // const blob = await blob_res.blob();
-
-
+    async function printZReading() {
+      await generateZReading()
+    }
+    async function printSales() {
+      await generateSales(sales.value,sales_item_list.value)
     }
 
     onMounted(() => {
@@ -118,7 +150,8 @@ export default defineComponent({
       blob_url,
       takePhoto,
       photo,
-      openPDF,
+      printSales,
+      printZReading,
       imageUri
     }
   }

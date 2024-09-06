@@ -92,19 +92,19 @@
             </ion-modal>
         </ion-content>
         
-        <AlertComponent v-if="open_alert"
+        <!-- <AlertComponent v-if="open_alert"
         :title="alertTitle"
         :sub_title="alertSubTitle"
         :message="alertMessage"
         @cancel="open_alert = false"
         @confirm="confirmReturn"
-        />
+        /> -->
     </ion-page>
 </template>
 
 <script  lang="ts">
 import { icons } from '@/plugins/icons';
-import { onBeforeUnmount, onMounted, ref, toRaw } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw } from 'vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
@@ -113,17 +113,15 @@ import { Lock } from '@/services/lock';
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import UnitListModal from '@/components/Modal/UnitListModal.vue';
 import TaxListModal from '@/components/Modal/TaxListModal.vue';
-import AlertComponent from '@/components/Modal/AlertComponent.vue';
+// import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { onIonViewDidEnter } from '@ionic/vue';
 
 
-export default {
-name: 'ITEM DETAILS', // Update the component name here
+export default defineComponent({
     components: { 
-        // HeaderComponent,
         UnitListModal,
         TaxListModal,
-        AlertComponent
+        // AlertComponent
     },
     setup() {
         //#region VARIABLES
@@ -213,7 +211,7 @@ name: 'ITEM DETAILS', // Update the component name here
                         console.error('Failed to create item')
                     }
                 }else{
-                    console.log('Update')
+                    console.log('Update',item.value)
                     const response = await updateItem(item.value, imagePath.value);
                     if(response){
                         console.log('Item successfully updated')
@@ -230,50 +228,54 @@ name: 'ITEM DETAILS', // Update the component name here
         async function fetchDetails() {
             const routeParams = +route.params.id;
             item_id = routeParams ;
-            if(item_id != 0){
-                const itemRes = await getItemById(routeParams)
-                if(itemRes){
-                    item.value = {
-                        id: itemRes.id,
-                        item_code: itemRes.item_code,
-                        item_description: itemRes.item_description ,
-                        bar_code: itemRes.bar_code ,
-                        alias: itemRes.alias ,
-                        category: itemRes.category,
-                        price: itemRes.price,
-                        cost: itemRes.cost ,
-                        quantity: itemRes.quantity,
-                        unit_id: itemRes.unitId, // Map unitId to unit_id
-                        unit: itemRes.unit_code,
-                        is_inventory: itemRes.is_inventory ,
-                        generic_name: itemRes.generic_name,
-                        tax_id: itemRes.taxId, // Map taxId to tax_id
-                        tax: itemRes.tax_code,
-                        remarks: itemRes.remarks,
-                        image_path: itemRes.image_path,
-                        // file_extension: itemRes.file_extension || '',
-                        is_package: itemRes.is_package,
-                        // item_components: itemRes.item_components || [], // Handle optional properties
-                        is_locked: itemRes.is_locked ,
-                        expiry_date: itemRes.expiry_date ,
-                        lot_number: itemRes.lot_number,
-                    };
-                }else{ 
-                    alertTitle.value = 'Not Found';
-                    alertMessage.value = 'No Item exist';
-                    open_alert.value = true; // Open the alert
+            setTimeout(async() => {
+                if(item_id != 0){
+                    const itemRes = await getItemById(routeParams)
+                    if(itemRes){
+                        item.value = {
+                            id: itemRes.id,
+                            item_code: itemRes.item_code,
+                            item_description: itemRes.item_description ,
+                            bar_code: itemRes.bar_code ,
+                            alias: itemRes.alias ,
+                            category: itemRes.category,
+                            price: itemRes.price,
+                            cost: itemRes.cost ,
+                            quantity: itemRes.quantity,
+                            unit_id: itemRes.unitId, // Map unitId to unit_id
+                            unit: itemRes.unit_code,
+                            is_inventory: itemRes.is_inventory ,
+                            generic_name: itemRes.generic_name,
+                            tax_id: itemRes.taxId, // Map taxId to tax_id
+                            tax: itemRes.tax_code,
+                            remarks: itemRes.remarks,
+                            image_path: itemRes.image_path,
+                            // file_extension: itemRes.file_extension || '',
+                            is_package: itemRes.is_package,
+                            // item_components: itemRes.item_components || [], // Handle optional properties
+                            is_locked: itemRes.is_locked ,
+                            expiry_date: itemRes.expiry_date ,
+                            lot_number: itemRes.lot_number,
+                        };
+                    }else{ 
+                        alertTitle.value = 'Not Found';
+                        alertMessage.value = 'No Item exist';
+                        open_alert.value = true; // Open the alert
+                    }
+                }else{
+                    const item_code = await getLastItemCode();
+                    const current_code = parseInt(item_code, 10);
+                    const next_code = current_code + 1;
+                    const formatted_next_code = next_code.toString().padStart(10, '0');
+                    item.value.item_code = formatted_next_code;
                 }
-            }else{
-                const item_code = await getLastItemCode();
-                const current_code = parseInt(item_code, 10);
-                const next_code = current_code + 1;
-                const formatted_next_code = next_code.toString().padStart(10, '0');
-                item.value.item_code = formatted_next_code;
-            }
+                
+            }, 500);
+            console.log('item', item.value)
         }
         //#endregion
         onMounted(async () => {
-            await fetchDetails();
+            // await fetchDetails();
         });
         onIonViewDidEnter(async () => {
             await fetchDetails()
@@ -300,5 +302,5 @@ name: 'ITEM DETAILS', // Update the component name here
             confirmReturn
         }
     }
-}
+});
 </script>

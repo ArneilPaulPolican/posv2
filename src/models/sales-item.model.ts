@@ -34,6 +34,7 @@ export interface SALES_ITEM {
     item_image:string = '';
     unit_id: number = 0;
     unit: string = '';
+    unit_code: string = '';
     quantity: number = 0;
     price?: number = 0;
     discount_id: number = 0;

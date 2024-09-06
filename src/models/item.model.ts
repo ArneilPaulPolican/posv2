@@ -42,6 +42,7 @@ export default class ITEM_DTO {
   quantity: number = 0;
   unit_id: number = 0;
   unit?: string = '';
+  unit_code?: string ='';
   is_inventory: boolean = false;
   generic_name: string = '';
   tax?: string = '';

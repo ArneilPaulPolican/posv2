@@ -3,10 +3,12 @@ export interface SALES {
   user_id: number;
   sales_number: string;
   sales_date: string;
+  sales_time: string ;
   terminal_number: number;
   customer_id: number;
   table_id: number;
   total_amount: number;
+  net_amount: number;
   balance_amount: number;
   paid_amount:number;
   discount_id: number;
@@ -18,6 +20,7 @@ export interface SALES {
   is_locked?: boolean;
   is_billed_out?: boolean;
   is_cancelled?: boolean;
+  is_printed?: boolean;
   senior_pwd_id?: string;
   senior_pwd_name?: string;
   discounted_pax : number;
@@ -29,6 +32,7 @@ export class SALES_DTO {
   user: string = '';
   sales_number: string = '';
   sales_date: string = '';
+  sales_time: string = '';
   terminal_number: string = '';
   customer_id: number =0;
   customer_code: string = '';
@@ -38,6 +42,7 @@ export class SALES_DTO {
   table_id: number =0;
   table: string = '';
   total_amount?: number = 0;
+  net_amount?: number = 0;
   balance_amount?: number =0;
   paid_amount?:number =0;
   discount_amount?: number =0;
@@ -47,6 +52,7 @@ export class SALES_DTO {
   is_locked?: boolean = false;
   is_billed_out?: boolean = false;
   is_cancelled?: boolean = false;
+  is_printed?: boolean = false;
   discount_id?: number = 0;
   discount: string = '';
   discount_rate?: number = 0;

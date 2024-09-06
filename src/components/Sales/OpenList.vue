@@ -26,7 +26,7 @@
                         {{ sales.customer }}
                     </ion-label>
                     <ion-label slot="end" >
-                        <h2>{{ sales.total_amount?.toFixed(2) }}<ion-note> / Amt</ion-note> </h2>
+                        <h2>{{ sales.net_amount?.toFixed(2) }}<ion-note> / Net</ion-note> </h2>
                         {{ sales.balance_amount?.toFixed(2) }}<ion-note> / Bal</ion-note> 
                         <p>{{ sales.status }}</p>
                     </ion-label>

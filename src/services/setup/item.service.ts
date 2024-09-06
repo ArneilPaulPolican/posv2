@@ -96,13 +96,14 @@ export const getItemById = async (id: number) => {
     // Prepare the SQL query and parameters
     const query = `
       SELECT 
-        ${ITEMS_TABLE}.id as item_id,
+        ${ITEMS_TABLE}.id,
         ${ITEMS_TABLE}.item_code,
         ${ITEMS_TABLE}.bar_code,
         ${ITEMS_TABLE}.item_description,
         ${ITEMS_TABLE}.alias,
         ${ITEMS_TABLE}.category,
         ${ITEMS_TABLE}.price,
+        ${ITEMS_TABLE}.cost,
         ${ITEMS_TABLE}.quantity,
         ${ITEMS_TABLE}.unit_id,
         ${ITEMS_TABLE}.is_inventory,
@@ -167,8 +168,6 @@ export const getItemById = async (id: number) => {
     console.log('get item by id transaction error:');
     console.log(error);
     return null;
-  } finally {
-    // await db.close(); // Close the database connection
   }
 };
 
@@ -252,6 +251,8 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
   const db = await dbConnectionService.getDatabaseConnection();
 
   try {
+    console.log(data)        
+
     const transactionStatements = [
       {
         statement: `
@@ -270,8 +271,8 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
             remarks = ?,
             image_path = ?,
             is_package = ?,
-            is_locked = ?
-            expiry_date = ?
+            is_locked = ?,
+            expiry_date = ?,
             lot_number = ?
           WHERE id = ?
         `,
@@ -299,6 +300,7 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
       // Add additional statements here if needed
     ];
 
+    console.log(transactionStatements.values);
     // Execute the transaction
     await db.executeTransaction(transactionStatements);
     console.log('Execute the transaction:');

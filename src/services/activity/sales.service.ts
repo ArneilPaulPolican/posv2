@@ -106,6 +106,7 @@ export const getSales = async (): Promise<SALES_DTO[]> => {
             ${TABLES_TABLE}.table_code,
             -- ${TABLES_TABLE}.image_path AS table_image_path,
             ${SALES_TABLE}.total_amount,
+            ${SALES_TABLE}.net_amount,
             ${SALES_TABLE}.balance_amount,
             ${SALES_TABLE}.paid_amount,
             ${SALES_TABLE}.discount_amount,
@@ -363,6 +364,7 @@ export const getSalesById = async (id:number) => {
           ${USERS_TABLE}.first_name || ' ' ||${USERS_TABLE}.last_name AS full_name,
           ${SALES_TABLE}.sales_number,
           ${SALES_TABLE}.sales_date,
+          ${SALES_TABLE}.sales_time,
           ${SALES_TABLE}.terminal_number,
           ${SALES_TABLE}.customer_id,
           ${CUSTOMERS_TABLE}.customer_code,
@@ -373,6 +375,7 @@ export const getSalesById = async (id:number) => {
           ${TABLES_TABLE}.table_code,
           -- ${TABLES_TABLE}.image_path AS table_image_path,
           ${SALES_TABLE}.total_amount,
+          ${SALES_TABLE}.net_amount,
           ${SALES_TABLE}.balance_amount,
           ${SALES_TABLE}.paid_amount,
           ${SALES_TABLE}.discount_id,
@@ -385,6 +388,7 @@ export const getSalesById = async (id:number) => {
           ${SALES_TABLE}.is_locked,
           ${SALES_TABLE}.is_billed_out,
           ${SALES_TABLE}.is_cancelled,
+          ${SALES_TABLE}.is_printed,
           ${COLLECTIONS_TABLE}.id as collection_id
       FROM ${SALES_TABLE}
       LEFT JOIN ${USERS_TABLE}
@@ -416,6 +420,7 @@ export const getSalesById = async (id:number) => {
       user: sales.user,
       sales_number: sales.sales_number,
       sales_date: sales.sales_date,
+      sales_time: sales.sales_time,
       terminal_number: sales.terminal_number,
       customer_id: sales.customer_id,
       customer_code: sales.customer_code,
@@ -425,6 +430,7 @@ export const getSalesById = async (id:number) => {
       table_id: sales.table_id,
       table: sales.table,
       total_amount: sales.total_amount,
+      net_amount: sales.net_amount,
       balance_amount: sales.balance_amount?? 0,
       paid_amount:sales.paid_amount,
       discount_amount: sales.discount_amount,
@@ -434,6 +440,7 @@ export const getSalesById = async (id:number) => {
       is_locked: sales.is_locked,
       is_billed_out: sales.is_billed_out,
       is_cancelled: sales.is_cancelled,
+      is_printed: sales.is_printed,
       discount_id: sales.discount_id,
       discount: sales.discount,
       discount_rate: sales.discount_rate,
@@ -465,6 +472,100 @@ export const getLastSalesNumber = async (): Promise<string> => {
     return '0000000000';
   }
 }
+
+
+export const newSales = async () => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+
+    let sales_number = await getLastSalesNumber();
+    const currentSalesNumber = parseInt(sales_number, 10);
+    const nextSalesNumber = currentSalesNumber + 1;
+    const formattedNextSalesNumber = nextSalesNumber.toString().padStart(10, '0');
+    sales_number = formattedNextSalesNumber;
+    const data = 
+    {
+      id: undefined,
+      user_id: 1,
+      sales_number: sales_number,
+      sales_date: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+        }),
+      sales_time : new Date().toLocaleTimeString('en-US', {
+        hour:  '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+        }),
+      terminal_number: '001',
+      customer_id: 1,
+      table_id: 1,
+      table: '',
+      total_amount: 0,
+      balance_amount: 0,
+      paid_amount: 0,
+      discount_amount: 0,
+      net_amount: 0,
+      no_of_pax: 0,
+      remarks: 'NA',
+      status: 'NEW',
+      is_locked: false,
+      is_billed_out: false,
+      is_cancelled: false,
+      is_printed: false,
+      discount_id: 1,
+      discount_rate: 0,
+      senior_pwd_name:'NA',
+      senior_pwd_id: 'NA'
+  }
+
+    const query = `INSERT INTO ${SALES_TABLE} (
+      user_id,          sales_date, sales_time,          sales_number,
+      terminal_number,      customer_id,        table_id,
+      total_amount,     balance_amount,         paid_amount,
+      discount_amount,    net_amount,      no_of_pax,          remarks,
+      status, discount_id, discount_rate
+    ) VALUES (
+      ?, ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?
+    )`;
+
+    const transactionStatements = [
+      {
+        statement: query,
+        values: [1 , data.sales_date, data.sales_time, data.sales_number, 
+          data.terminal_number, data.customer_id, data.table_id,
+          data.total_amount, data.balance_amount, data.paid_amount,
+          data.discount_amount, data.net_amount, data.no_of_pax, data.remarks,
+          data.status, data.discount_id, data.discount_rate
+        ],
+      },
+    ];
+
+    const res = await db.query(query,transactionStatements[0].values );
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+    // const insertedId = lastIdRes.values?[0].values['lastId'];
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId
+      console.log('Inserted ID:', lastIdRes.values[0].lastId);
+    } else {
+      Id = 0;
+      console.log('No inserted ID found');
+    }
+    // return true,Id;
+    return { success: true, insertedId: Id };
+  } catch (error) {
+    console.log('add sales error:', error);
+    return { success: false, insertedId: 0 };
+  }
+};
 
 export const addSales = async (data: SALES_DTO, data_line: SALES_ITEM_DTO[]) => {
   const dbConnectionService = await DBConnectionService.getInstance();
@@ -531,6 +632,7 @@ export const updateSales = async (data: SALES_DTO) => {
           SET customer_id=?,
           table_id=?,
           total_amount=?,
+          net_amount=?,
           balance_amount=?,
           paid_amount=?,
           discount_amount=?,
@@ -540,12 +642,15 @@ export const updateSales = async (data: SALES_DTO) => {
           discount_id=?,
           discount_rate=?,
           is_locked =?,
-          is_billed_out=?
+          is_billed_out=?,
+          senior_pwd_id=?,
+          senior_pwd_name=?
         WHERE id=?`,
         values: [
           data.customer_id,
           data.table_id,
           data.total_amount,
+          data.net_amount,
           data.balance_amount,
           data.paid_amount,
           data.discount_amount,
@@ -556,6 +661,8 @@ export const updateSales = async (data: SALES_DTO) => {
           data.discount_rate ?? 0,
           data.is_locked ?? false,
           data.is_billed_out ?? false,
+          data.senior_pwd_id ?? '',
+          data.senior_pwd_name ?? '',
           data.id
         ]
       }

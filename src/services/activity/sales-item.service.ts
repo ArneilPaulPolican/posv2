@@ -28,7 +28,7 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
                 ${SALES_ITEMS_TABLE}.date_time,
                 ${SALES_ITEMS_TABLE}.item_id,
                 ${ITEMS_TABLE}.item_code,
-                ${ITEMS_TABLE}.bar_code,
+                ${ITEMS_TABLE}.bar_code as item_barcode,
                 ${ITEMS_TABLE}.item_description,
                 ${ITEMS_TABLE}.image_path as item_image_path,
                 ${ITEMS_TABLE}.category as item_category,
@@ -80,6 +80,7 @@ export const getSalesItemById = async (id:number) => {
       if (!db) {
           throw new Error('Database connection not open');
       }
+      console.log('parameter',id);
     
       // const saleServiceQuery = 
       // `SELECT ${SALES_ITEMS_TABLE}.id,
@@ -133,6 +134,7 @@ export const getSalesItemById = async (id:number) => {
         ${ITEMS_TABLE}.is_inventory,
         ${SALES_ITEMS_TABLE}.unit_id,
         ${UNITS_TABLE}.unit_code,
+        ${UNITS_TABLE}.unit,
         ${SALES_ITEMS_TABLE}.quantity,
         ${SALES_ITEMS_TABLE}.price,
         ${SALES_ITEMS_TABLE}.discount_id,
@@ -157,7 +159,7 @@ export const getSalesItemById = async (id:number) => {
       const params = [id];
       
       const result = await db.query(saleServiceQuery,params);
-      console.log('sales items', result.values);
+      console.log('sales items query result', result.values);
       const sales_item = result.values?.map(sales_item => ({
         id: sales_item.id,
         sales_id: sales_item.sales_id,
@@ -171,6 +173,7 @@ export const getSalesItemById = async (id:number) => {
         item_cost: sales_item?.item_cost || 0,
         unit_id: sales_item.unit_id,
         unit: sales_item.unit,
+        unit_code: sales_item.unit_code,
         quantity: sales_item.quantity,
         price: sales_item.price,
         discount_id: sales_item.discount_id,
@@ -298,7 +301,7 @@ export const updateSalesItem = async (data: SALES_ITEM_DTO) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
-
+    console.log('update sales item', data)
     const transactionStatements = [
       {
         statement: `UPDATE ${SALES_ITEMS_TABLE}
@@ -333,9 +336,6 @@ export const updateSalesItem = async (data: SALES_ITEM_DTO) => {
       }
     ]
     const res = await db.executeTransaction(transactionStatements);
-    // const res = await db.query(query,transactionStatements[0].values );
-    console.log('update sales item query response ', res)
-    // return true,Id;
     return { success: true, insertedId: data.id };
   } catch (error) {
     console.log('update sales item error:', error);

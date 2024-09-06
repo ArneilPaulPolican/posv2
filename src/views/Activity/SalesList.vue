@@ -19,6 +19,7 @@ import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import SalesMainModule from '@/components/Sales/SalesMainModule.vue';
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
+import { newSales } from '@/services/activity/sales.service';
 
 export default defineComponent({
     components:{
@@ -29,7 +30,10 @@ export default defineComponent({
         const router = useRouter();
 
         const openDetailForm = async() => {
-            router.push(`/Activity/Sales/Details/0`);
+            const response = await newSales();
+            if(response.success){
+                router.push(`/Activity/Sales/Details/${response.insertedId}`);
+            }
         }
         return{
             header:'Sales',

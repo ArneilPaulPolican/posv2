@@ -26,16 +26,45 @@
                         <ion-input v-model="sales_item_local.item_description" placeholder="No Discount"></ion-input>
                     </ion-item>
                     <ion-item>
+                        <ion-label position="stacked">Discount</ion-label>
+                        <ion-input readonly v-model="sales_item_local.discount" placeholder="No Discount"></ion-input>
+                    </ion-item>
+                    <ion-item>
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Disc. Rate</ion-label>
-                                <ion-input v-model="sales_item_local.discount_rate" placeholder="No. PAX"></ion-input>
+                                <ion-input readonly v-model="sales_item_local.discount_rate" placeholder="No. PAX"></ion-input>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Disc. Amount</ion-label>
-                                <ion-input v-model="sales_item_local.discount_amount" placeholder="NEW"></ion-input>
+                                <ion-input readonly v-model="sales_item_local.discount_amount" placeholder="NEW"></ion-input>
                             </ion-col>
                         </ion-row>
+                    </ion-item>
+                    <ion-item>
+                        <ion-row>
+                            <ion-col size="6">
+                                <ion-label position="stacked">Price</ion-label>
+                                <ion-input @ionInput="updateAmount" v-model="sales_item_local.price" placeholder="No. PAX"></ion-input>
+                            </ion-col>
+                            <ion-col size="6">
+                                <ion-label position="stacked">Quantity</ion-label>
+                                <ion-input v-model="sales_item_local.quantity" placeholder="NEW"></ion-input>
+                            </ion-col>
+                        </ion-row>
+                    </ion-item>
+                    <ion-item>
+                        <ion-row>
+                            <ion-col size="6">
+                                <ion-label position="stacked">Net Price</ion-label>
+                                <ion-input v-model="sales_item_local.net_price" placeholder="0.00"></ion-input>
+                            </ion-col>
+                            <ion-col size="6">
+                                <ion-label position="stacked">Amount</ion-label>
+                                <ion-input v-model="sales_item_local.amount" placeholder="0.00"></ion-input>
+                            </ion-col>
+                        </ion-row>
+
                     </ion-item>
                 </div>
             </ion-list>
@@ -60,7 +89,7 @@ export default defineComponent({
     },
     components: { 
     },
-    setup(props) {
+    setup(props, {emit}) {
         const alertButtons = ['Confirm'];
         const sales_item_local = ref<SALES_ITEM_DTO>({
             id:  0,
@@ -76,6 +105,7 @@ export default defineComponent({
             item_image: '',
             unit_id:  0,
             unit:  '',
+            unit_code: '',
             quantity:  0,
             price:  0,
             discount_id:  0,
@@ -101,9 +131,31 @@ export default defineComponent({
                 }else{
                     console.log('Update unsuccesful')
                 }
+                emit('submit')
+
             } catch (error) {
                 console.log(error)
             }
+        }
+        function updateAmount(){
+            let _qty =  sales_item_local.value.quantity;
+            let price = (sales_item_local.value.price?? 0);
+            let net_price = (sales_item_local.value.price?? 0);
+            let _amount = (sales_item_local.value.price?? 0) * _qty;
+            let _net_amount = (sales_item_local.value.price?? 0) * _qty;
+            let _discount_amount = 0;
+
+            if(price != 0 && sales_item_local.value.discount_rate != 0){
+                net_price = parseFloat((price - (price * (sales_item_local.value.discount_rate / 100))).toFixed(2));
+                console.log(`net price ${net_price}`)
+            }
+
+
+            sales_item_local.value.net_price = net_price;
+            _net_amount = parseFloat((_qty * net_price).toFixed(2))
+            sales_item_local.value.amount = _net_amount;
+            console.log(`${_amount} and ${_net_amount}`)
+            sales_item_local.value.discount_amount = parseFloat((_amount - _net_amount).toFixed(2));
         }
         async function fetchDetails(){
             setTimeout(async () => {
@@ -124,6 +176,7 @@ export default defineComponent({
                             item_image: '',
                             unit_id: result.unit_id,
                             unit: result.unit,
+                            unit_code: result.unit_code,
                             quantity: result.quantity,
                             price: result.price,
                             discount_id: result.discount_id,
@@ -146,18 +199,17 @@ export default defineComponent({
                   console.log(error)
                 }
             }, 300);
+            await updateAmount()
+
         }
         onMounted(async () =>{
+            console.log(props.sales_item)
             if (props.sales_item) {
-                // console.log({ ...props.sales_item })
-                // sales_item_local.value = { ...props.sales_item };
                 await fetchDetails()
             } 
         })
         onIonViewDidEnter(async () => {
             if (props.sales_item) {
-                // sales_item_local.value = { ...props.sales_item };
-                // console.log({ ...props.sales_item })
                 await fetchDetails()
             }
         })
@@ -165,7 +217,8 @@ export default defineComponent({
             alertButtons,
             sales_item_local,
 
-            handleSave
+            handleSave,
+            updateAmount
         }
     }
 });
