@@ -29,9 +29,7 @@ export default defineComponent({
             if (value === '') {
                 value = '0';
             }
-            console.log('value', value)
             formattedValue.value = +value;
-            console.log('formattedValue', formattedValue.value)
         }
 
         return {

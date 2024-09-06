@@ -30,7 +30,7 @@ export const getItems = async () => {
   const db = await dbConnectionService.getDatabaseConnection();
   try {
 
-    console.log('Query string');
+    await presentToast('Query string');
     // const db = await getDBConnection();
     const itemServiceQuery = `
         SELECT ${ITEMS_TABLE}.id,
@@ -66,21 +66,21 @@ export const getItems = async () => {
     // const itemServiceQuery = `SELECT * FROM customer`
     // const result = await db?.execute(itemServiceQuery);
     const res = await db.query(itemServiceQuery);
-    console.log('item query results', res);
+    await presentToast('item query results', res);
     if(res.values){
       data.value = res.values as ITEM_DTO[];
     }
 
     if (res && Array.isArray(res.values)) {
       data.value = res.values as ITEM_DTO[];
-      console.log(data.value )
+      await presentToast(data.value )
     }
 
     return data.value;
 
   } catch (error) {
-    console.log('get items error');
-    console.log(error);
+    await presentToast('get items error');
+    await presentToast(error);
     throw error;
   } finally {
     // await db.close(); // Close the database connection
@@ -136,7 +136,7 @@ export const getItemById = async (id: number) => {
 
     // Retrieve the results after the transaction
     const result = await db.query(query, params);
-    console.log('get item by id result:',result);
+    await presentToast('get item by id result:',result);
     const item = result.values?.map(item => ({
       id: item.id,
       item_code: item.item_code,
@@ -165,8 +165,8 @@ export const getItemById = async (id: number) => {
     return item;
 
   } catch (error) {
-    console.log('get item by id transaction error:');
-    console.log(error);
+    await presentToast('get item by id transaction error:');
+    await presentToast(error);
     return null;
   }
 };
@@ -178,10 +178,10 @@ export const getLastItemCode = async (): Promise<string> => {
     const query = `SELECT item_code FROM ${ITEMS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
     const last_code =result?.values?.[0].sales_number;
-    console.log('last code',last_code)
+    await presentToast('last code',last_code)
     return last_code || '0000000001';
   } catch (error) {
-    console.log(error)
+    await presentToast(error)
     return '0000000001';
   }
 }
@@ -225,7 +225,7 @@ export const addItem = async (data: ITEM, processedImageSavePath: string): Promi
 
     return true;
   } catch (err: any) {
-    console.error('Error in addItem transaction:', err);
+    await presentToast('Error in addItem transaction:', err);
     return false;
   }
 };
@@ -241,8 +241,8 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
   //       data.item_code,
   //     );
   //   } catch (error) {
-  //     console.log('add item: error trying to save image');
-  //     console.log(error);
+  //     await presentToast('add item: error trying to save image');
+  //     await presentToast(error);
   //     throw error;
   //   }
   // }
@@ -251,7 +251,7 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
   const db = await dbConnectionService.getDatabaseConnection();
 
   try {
-    console.log(data)        
+    await presentToast(data)        
 
     const transactionStatements = [
       {
@@ -300,13 +300,37 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
       // Add additional statements here if needed
     ];
 
-    console.log(transactionStatements.values);
+    await presentToast(transactionStatements.values);
     // Execute the transaction
     await db.executeTransaction(transactionStatements);
-    console.log('Execute the transaction:');
+    await presentToast('Execute the transaction:');
     return true;
   } catch (error) {
-    console.log('update item transaction error:');
-    console.log(error);
+    await presentToast('update item transaction error:');
+    await presentToast(error);
+  }
+};
+
+export const deleteItem = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${ITEMS_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    await presentToast('cancel query response ', res)
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
   }
 };

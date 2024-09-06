@@ -46,7 +46,6 @@ export default defineComponent({
 
         const handleTaxPicked = async (tax:TAX) =>{
             // return to the ItemDetail.vue the unit.id, unit.unit_code and unit.unit_description
-            console.log("Selected tax ",tax)
             emit('tax-picked', tax);
             emit('close'); 
         }
@@ -56,7 +55,6 @@ export default defineComponent({
             setTimeout(async () => {
                 const taxData = await getTaxes();
                 tax.value = taxData;
-                console.log("getUnits result",tax.value)
             }, 500);
         });
         return{

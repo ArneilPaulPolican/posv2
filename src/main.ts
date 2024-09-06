@@ -117,7 +117,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       app.mount('#app');
     });
   } catch (err) {
-    console.log(`Error: ${err}`);
     throw new Error(`Error: ${err}`)
   }finally{
     dbLock.release()

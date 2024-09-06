@@ -29,10 +29,10 @@ import {
 } from './tables';
 import { Capacitor } from "@capacitor/core";
 import MIGRATION from "@/models/migration.model";
+import { presentToast } from "@/plugins/toast.service";
 
 export const createTables = async (db: SQLiteDBConnection) => {
 
-    // console.log("Create tables queries");
     const createUsersTableQuery = `
       CREATE TABLE IF NOT EXISTS ${USERS_TABLE} (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -543,7 +543,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
     `;
   
     try {
-        console.log("Execute create tables queries started");
         // Settings module
         await db.execute(createUsersTableQuery);
         // await db.execute(createCategoriesTableQuery);
@@ -581,21 +580,16 @@ export const createTables = async (db: SQLiteDBConnection) => {
   
         // Migrations
         await db.execute(createMigrationsTableQuery);
-        // console.log("Execute create tables queries finished");
   
         let deviceId = Capacitor.getPlatform();
         // const deviceId = await DeviceInfo.getAndroidId();
         deviceId = deviceId.toUpperCase();
-        console.log("deviceId ",deviceId);
   
-        // console.log("Add defaults started");
         // Create sys settings
         const getSysSettingsQuery = `SELECT * FROM ${SYS_SETTINGS_TABLE}`;
         const existingSysSettings = await db.query(getSysSettingsQuery);
-        console.log("condition 1 ", existingSysSettings.values?.length);
 
         if (!existingSysSettings.values?.length) {
-          console.log("condition 2 ", existingSysSettings);
           const insertSysSettingsQuery = `
             INSERT INTO ${SYS_SETTINGS_TABLE} (
               customer,
@@ -623,7 +617,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
               '${deviceId}'
             )`;
           const resSYS_SETTINGS_TABLE = await db.query(insertSysSettingsQuery);
-          console.log("SYS_SETTINGS_TABLE  ", resSYS_SETTINGS_TABLE);
 
           // Insert Default TAX
           const insertDefaultUserQuery = `
@@ -634,7 +627,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
           `;
 
           const resUSERS_TABLE = await db.execute(insertDefaultUserQuery);
-          console.log("USERS_TABLE  ", resUSERS_TABLE);
 
             // Insert default paytypes
           const insertPaytypesQuery = `
@@ -646,7 +638,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
               ('Check', 0)
           `;
           const resPAYTYPES_TABLE = await db.execute(insertPaytypesQuery);
-          console.log("PAYTYPES_TABLE  ", resPAYTYPES_TABLE);
 
           // Insert Default Unit
           const insertDefaultUnitQuery = `
@@ -654,7 +645,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
             VALUES ('Pcs', 'Pieces')
           `;
           const resUNITS_TABLE = await db.execute(insertDefaultUnitQuery);
-          console.log("UNITS_TABLE  ", resUNITS_TABLE);
 
           // Insert Default TAX
           const insertDefaultTaxQuery = `
@@ -664,15 +654,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
             ('VAT', 'Value Added Tax', 0.12, false)
           `;
           const resTAXES_TABLE = await db.execute(insertDefaultTaxQuery);
-          console.log("TAXES_TABLE  ", resTAXES_TABLE);
 
-          // Insert Default Item
-          // const insertDefaultItemQuery = `
-          //   INSERT OR IGNORE INTO ${ITEMS_TABLE} 
-          //   ( item_code, item_description, bar_code, alias, category, price, cost, quantity, unit_id, generic_name, tax_id, remarks, image_path )
-          //   VALUES 
-          //   ( '0000000001', 'Service Charge', '0000000001', '', 'Service Charge', 0.0, 0.0,  0.0, 1, 'NA', 1, '', '' )
-          // `;
           const insertDefaultItemQuery = `
             INSERT OR IGNORE INTO ${ITEMS_TABLE} 
             (item_code, bar_code, item_description,
@@ -687,7 +669,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
             )
           `;
           const resITEMS_TABLE = await db.execute(insertDefaultItemQuery);
-          console.log("ITEMS_TABLE  ", resITEMS_TABLE);
 
           // Insert Discount
           const insertDiscountsQuery = `
@@ -698,7 +679,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
               ('Variable', 0, false, 'NA', true, 'NA')
           `;
           const resDISCOUNTS_TABLE = await db.execute(insertDiscountsQuery);
-          console.log("DISCOUNTS_TABLE  ", resDISCOUNTS_TABLE);
 
           // Insert Default Customer
           const insertDefaultCustomerQuery = `
@@ -716,7 +696,6 @@ export const createTables = async (db: SQLiteDBConnection) => {
           `;
 
           const resCUSTOMERS_TABLE = await db.execute(insertDefaultCustomerQuery);
-          console.log("CUSTOMERS_TABLE  ", resCUSTOMERS_TABLE);
 
           // Insert default tables
           const insertTablespesQuery = `
@@ -726,10 +705,10 @@ export const createTables = async (db: SQLiteDBConnection) => {
             ('001', 'Take-out', 'NA', 0, '', 1)
           `;
           const resTABLES_TABLE = await db.execute(insertTablespesQuery);
-          console.log("TABLES_TABLE  ", resTABLES_TABLE);
         }
-        console.log("Add defaults ended");
+        await presentToast('Add defaults ended')
     } catch (error) {
-      console.log('create tables error', error);
+        await presentToast('create tables error')
+        await presentToast('create tables error', error);
     }
 };

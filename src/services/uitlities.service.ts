@@ -8,7 +8,7 @@ import { SQLiteDBConnection, SQLiteHook } from 'vue-sqlite-hook/dist';
 import { defineComponent, onMounted, getCurrentInstance } from 'vue';
 import MIGRATION from '@/models/migration.model';
 import { sync } from 'ionicons/icons';
-import { alterSalesTable } from '@/migration-script/001_add_amounts_to_sales_table';
+import { alterSalesTable } from '@/components/migration/001_add_amounts_to_sales_table';
 
 const app = getCurrentInstance()
 const sqlite: SQLiteHook = app?.appContext.config.globalProperties.$sqlite;

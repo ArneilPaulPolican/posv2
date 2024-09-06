@@ -40,6 +40,7 @@ import { generateSales, generateZReading } from '@/composables/pdf-generator';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 import { SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
+import { presentToast } from '@/plugins/toast.service';
 
 const options: DocumentViewerOptions = {
   title: 'My PDF'
@@ -60,6 +61,7 @@ export default defineComponent({
             user: '',
             sales_number: '0000000001',
             sales_date: '',
+            sales_time: '',
             terminal_number: '001',
             customer_id: 0,
             customer_code:'',
@@ -69,6 +71,7 @@ export default defineComponent({
             table_id: 1,
             table: '',
             total_amount: 0,
+            net_amount:0,
             balance_amount: 0,
             paid_amount: 0,
             discount_amount: 0,
@@ -90,7 +93,7 @@ export default defineComponent({
       const response = await usePhotoGallery();
       // const blob = new Blob(['<h1>Test Blob Content</h1>'], { type: 'text/html' });
       let webviewPath = response[0].webviewPath;
-      console.log('webviewPath ',webviewPath)
+      await presentToast('webviewPath ')
       // blob_res = await fetch(blobUrl);
       // const blob = await webviewPath.blob();
       // const base64Data = await blobToBase64(blob);
@@ -116,7 +119,6 @@ export default defineComponent({
           data: base64Data,
           directory: Directory.Documents,
         });
-        console.log('uri ', uri)
         imageUri.value = uri; // Set the image URI to display
       }
     }

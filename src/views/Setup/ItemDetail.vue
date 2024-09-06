@@ -115,6 +115,7 @@ import UnitListModal from '@/components/Modal/UnitListModal.vue';
 import TaxListModal from '@/components/Modal/TaxListModal.vue';
 // import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { onIonViewDidEnter } from '@ionic/vue';
+import { presentToast } from '@/plugins/toast.service';
 
 
 export default defineComponent({
@@ -176,9 +177,7 @@ export default defineComponent({
         const handleUnitPicked = (unit: any) => {
             // Handle the picked unit data here
             open_unit_modal.value = false;
-            console.log('Picked unit:', unit);
             item.value.unit_id = unit.id;
-            console.log('unit:', item.value.unit_id);
             // Process the unit data as needed
         };
 
@@ -193,9 +192,7 @@ export default defineComponent({
         const handleTaxPicked = (tax: any) => {
             // Handle the picked unit data here
             open_tax_modal.value = false;
-            console.log('Picked unit:', tax);
             item.value.tax_id = tax.id;
-            console.log('unit:', item.value.tax_id);
             // Process the unit data as needed
         };
 
@@ -203,25 +200,23 @@ export default defineComponent({
         const handleSave = async () => {
             try {
                 if(item_id == 0){
-                    console.log('New')
                     const response = await addItem(item.value, imagePath.value);
                     if(response){
-                        console.log('Item successfully created')
+                        await presentToast('Item successfully created')
                     }else{
-                        console.error('Failed to create item')
+                        await presentToast('Failed to create item')
                     }
                 }else{
-                    console.log('Update',item.value)
                     const response = await updateItem(item.value, imagePath.value);
                     if(response){
-                        console.log('Item successfully updated')
+                        await presentToast('Item successfully updated')
                     }else{
-                        console.error('Failed to update item')
+                        await presentToast('Failed to update item')
                     }
                 }
             } catch (err) {
                 dbLock.release(); // Release the lock after the operation
-                console.error('Error adding data:', err)
+                await presentToast('Error adding data:')
             }
         }
 
@@ -271,7 +266,6 @@ export default defineComponent({
                 }
                 
             }, 500);
-            console.log('item', item.value)
         }
         //#endregion
         onMounted(async () => {

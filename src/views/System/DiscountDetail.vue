@@ -52,6 +52,7 @@ import { actionSheetController } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { DISCOUNT } from '@/models/discount.model';
 import { Lock } from '@/services/lock';
+import { presentToast } from '@/plugins/toast.service';
 
 
 export default defineComponent({
@@ -65,7 +66,7 @@ export default defineComponent({
         const discount = ref<DISCOUNT>({
             id:0,
             discount: 'NA',
-            discount_rate: 'NA',
+            discount_rate: 0,
             vat_inclusive: false,
             particular: 'NA',
             is_locked: false,
@@ -82,41 +83,29 @@ export default defineComponent({
             router.push(`/System/Discounts`);
         }
         const handleSave = async () => {
-            setTimeout(() => {
+            setTimeout(async () => {
                 try {
                     if(discount_id == 0){
-                        console.log('New')
                         const response = discount.value; //await addTax(tax.value);
-                        alertSubTitle.value = 'Adding Discount'
                         if(response){
                             // trigger here to open the alert component
-                            console.log('Discount successfully created')
-                            alertMessage.value = 'Discount successfully created';
-                            alertTitle.value = 'Success';
+                            await presentToast('Discount successfully created')
                         }else{
-                            console.error('Failed to create item')
-                            alertTitle.value = 'Failed';
-                            alertMessage.value = 'Failed to create item';
+                            await presentToast('Failed to create item')
                         }
                     }else{
-                        console.log('Update')
                         const response = discount.value ;//await updateTax(tax.value);
                         alertSubTitle.value = 'Updating Discount'
                         if(response){
-                            console.log('Discount successfully updated')
-                            alertMessage.value = 'Discount successfully updated';
-                            alertTitle.value = 'Success';
+                            await presentToast('Discount successfully updated')
                         }else{
-                            console.error('Failed to update Discount')
-                            alertMessage.value = 'Failed to update Discount';
-                            alertTitle.value = 'Failed';
+                            await presentToast('Failed to update Discount')
                         }
                     }
                     open_alert.value = true; // Open the alert
-                    console.log('open_alert value', open_alert.value)
                 } catch (err) {
                     dbLock.release(); // Release the lock after the operation
-                    console.error('Error adding data:', err)
+                    await presentToast('Error adding data:')
                 }
             }, 500);
         }
@@ -124,13 +113,10 @@ export default defineComponent({
             setTimeout(() => {
                 const routeParams = +route.params.id;
                 discount_id = routeParams ; 
-                console.log(routeParams)
-                // const taxResult = await getTaxesById(routeParams)
-                // console.log("taxResult ", taxResult)
                 const discountResult= {
                         id:0,
                         discount: 'NA',
-                        discount_rate: 'NA',
+                        discount_rate: 0,
                         vat_inclusive: false,
                         particular: 'NA',
                         is_locked: false,
@@ -158,7 +144,7 @@ export default defineComponent({
                         discount.value ={
                             id: 0,
                             discount: 'NA',
-                            discount_rate: 'NA',
+                            discount_rate: 0,
                             vat_inclusive: false,
                             particular: 'NA',
                             is_locked: false,

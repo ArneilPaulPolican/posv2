@@ -5,6 +5,7 @@ import { SALES, SALES_DTO } from '@/models/sales.model';
 import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM, SALES_ITEM_DTO } from '@/models/sales-item.model';
+import { presentToast } from '@/plugins/toast.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<SALES_ITEM[]>([])
@@ -63,12 +64,10 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
         const params = [sales_id];
         
         const result = await db.query(saleServiceQuery,params);
-        console.log('sales items', result.values);
      
       return result.values as SALES_ITEM_DTO[];
     } catch (error) {
-      console.log('get sales error');
-      console.log(error);
+      await presentToast('Error')
       throw error;
     }
 };
@@ -80,46 +79,7 @@ export const getSalesItemById = async (id:number) => {
       if (!db) {
           throw new Error('Database connection not open');
       }
-      console.log('parameter',id);
     
-      // const saleServiceQuery = 
-      // `SELECT ${SALES_ITEMS_TABLE}.id,
-      //         ${SALES_ITEMS_TABLE}.sales_id,
-      //         ${SALES_ITEMS_TABLE}.date_time,
-      //         ${SALES_ITEMS_TABLE}.item_id,
-      //         ${ITEMS_TABLE}.item_code,
-      //         ${ITEMS_TABLE}.bar_code,
-      //         ${ITEMS_TABLE}.item_description,
-      //         ${ITEMS_TABLE}.image_path as item_image_path,
-      //         ${ITEMS_TABLE}.category as item_category,
-      //         ${ITEMS_TABLE}.is_inventory,
-      //         ${SALES_ITEMS_TABLE}.unit_id,
-      //         ${UNITS_TABLE}.unit_code,
-      //         ${SALES_ITEMS_TABLE}.quantity,
-      //         ${SALES_ITEMS_TABLE}.price,
-      //         ${SALES_ITEMS_TABLE}.discount_id,
-      //         ${DISCOUNTS_TABLE}.discount,
-      //         ${SALES_ITEMS_TABLE}.discount_rate,
-      //         ${SALES_ITEMS_TABLE}.discount_amount,
-      //         ${SALES_ITEMS_TABLE}.net_price,
-      //         ${SALES_ITEMS_TABLE}.amount,
-      //         ${SALES_ITEMS_TABLE}.tax_id,
-      //         ${SALES_ITEMS_TABLE}.tax_rate,
-      //         ${SALES_ITEMS_TABLE}.tax_amount,
-      //         ${TAXES_TABLE}.tax_code,
-      //         ${TAXES_TABLE}.is_inclusive,
-      //         ${SALES_ITEMS_TABLE}.particulars,
-      //         ${SALES_ITEMS_TABLE}.user_id
-      //   FROM ${SALES_ITEMS_TABLE}
-      //   LEFT JOIN ${ITEMS_TABLE}
-      //   ON ${SALES_ITEMS_TABLE}.item_id=${ITEMS_TABLE}.id
-      //   LEFT JOIN ${UNITS_TABLE}
-      //   ON ${ITEMS_TABLE}.unit_id=${UNITS_TABLE}.id
-      //   LEFT JOIN ${TAXES_TABLE}
-      //   ON ${SALES_ITEMS_TABLE}.tax_id=${TAXES_TABLE}.id
-      //   LEFT JOIN ${DISCOUNTS_TABLE}
-      //   ON ${SALES_ITEMS_TABLE}.discount_id=${DISCOUNTS_TABLE}.id
-      //   WHERE ${SALES_ITEMS_TABLE}.id=?`;
       const saleServiceQuery = 
       `SELECT 
         ${SALES_ITEMS_TABLE}.id,
@@ -159,7 +119,6 @@ export const getSalesItemById = async (id:number) => {
       const params = [id];
       
       const result = await db.query(saleServiceQuery,params);
-      console.log('sales items query result', result.values);
       const sales_item = result.values?.map(sales_item => ({
         id: sales_item.id,
         sales_id: sales_item.sales_id,
@@ -191,11 +150,9 @@ export const getSalesItemById = async (id:number) => {
         user: '',
       }))[0];
    
-    console.log('sales_item ', sales_item);
     return sales_item;
   } catch (error) {
-    console.log('get sales error');
-    console.log(error);
+    await presentToast
     throw error;
   }
 };
@@ -204,7 +161,6 @@ export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) =>
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
-        console.log(`Receive data: ${sales_id} and `, data)
         for (const item of data) {
             const query = `
               INSERT INTO ${SALES_ITEMS_TABLE} (
@@ -232,18 +188,17 @@ export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) =>
               item.user_id
             ];
           
-            console.log('Query:', query);
-            console.log('Values:', values);
           
             try {
               const res = await db.query(query, values);
-              console.log('Insert sales item query result: ', res);
             } catch (error) {
-              console.error('Error adding bulk items:', error);
+              await presentToast('Error adding bulk items:');
+              throw error;
             }
           }
     } catch (error) {
-        console.log('Error adding bulk items ',error)
+      await presentToast('Error adding bulk items:');
+      throw error;
     }
 }
 
@@ -288,12 +243,11 @@ export const updatebULKSalesItem = async (items: SALES_ITEM_DTO[]) => {
         }
       ]
       const res = await db.executeTransaction(transactionStatements);
-      console.log('update sales item query response ', res)
     }
     return true;
   } catch (error) {
-    console.log('update sales item error:', error);
-    return false;
+    await presentToast('Update sales item error')
+    throw error;
   }
 };
 
@@ -301,7 +255,6 @@ export const updateSalesItem = async (data: SALES_ITEM_DTO) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
-    console.log('update sales item', data)
     const transactionStatements = [
       {
         statement: `UPDATE ${SALES_ITEMS_TABLE}
@@ -338,7 +291,30 @@ export const updateSalesItem = async (data: SALES_ITEM_DTO) => {
     const res = await db.executeTransaction(transactionStatements);
     return { success: true, insertedId: data.id };
   } catch (error) {
-    console.log('update sales item error:', error);
     return { success: false, insertedId: 0 };
+  }
+};
+
+
+export const deleteSalesItem = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${SALES_ITEMS_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
   }
 };

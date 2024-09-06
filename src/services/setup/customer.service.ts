@@ -26,19 +26,19 @@ export const getCustomers = async () => {
     try {
         const customerServiceQuery = `SELECT * FROM ${CUSTOMERS_TABLE}`
         const res = await db.query(customerServiceQuery);
-        console.log('query results', res);
+        await presentToast('query results', res);
         if(res.values){
           data.value = res.values as CUSTOMER[];
         }
     
         if (res && Array.isArray(res.values)) {
           data.value = res.values as CUSTOMER[];
-          console.log(data.value )
+          await presentToast(data.value )
         }
         return data.value;
     } catch (error) {
-      console.log('get customers error');
-      console.log(error);
+      await presentToast('get customers error');
+      await presentToast(error);
       throw error;
     }
 };
@@ -51,7 +51,7 @@ export const getCustomerById = async (id:number) => {
       const params = [id];
       
       const result = await db.query(query, params);
-      console.log('Res Values', JSON.stringify(result.values));
+      await presentToast('Res Values', JSON.stringify(result.values));
       const customer = result.values?.map(customer => ({
         id: customer.id,
         customer_code: customer.customer_code,
@@ -68,12 +68,12 @@ export const getCustomerById = async (id:number) => {
         is_locked: customer.is_locked,
         is_default_value: customer.is_default_value
       }))[0];
-      console.log('query results', customer);
+      await presentToast('query results', customer);
      
       return customer;
   } catch (error) {
-    console.log('get customers error');
-    console.log(error);
+    await presentToast('get customers error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -85,10 +85,10 @@ export const getLastCustomerCode = async (): Promise<string> => {
     const query = `SELECT customer_code FROM ${CUSTOMERS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
     const lastSalesNumber =result?.values?.[0].sales_number;
-    console.log('last customer code',lastSalesNumber)
+    await presentToast('last customer code',lastSalesNumber)
     return lastSalesNumber || '0000000001';
   } catch (error) {
-    console.log(error)
+    await presentToast(error)
     return '0000000001';
   }
 }
@@ -117,10 +117,34 @@ export const addCustomers = async (data: CUSTOMER, processedImageSavePath: strin
         data.reward_number, processedImageSavePath,
       ];
     const res = await db.query(customerServiceQuery, values);
-    console.log('add customer query results', res);
+    await presentToast('add customer query results', res);
     return true;
   } catch (error) {
-    console.log('error adding customer', error);
+    await presentToast('error adding customer', error);
     return null;
   }
 }
+
+export const deleteCustomer = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${CUSTOMERS_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    await presentToast('cancel query response ', res)
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
+  }
+};

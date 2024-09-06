@@ -194,7 +194,7 @@ export default defineComponent({
             accordionStates.value[i] = !accordionStates.value[i];
         }
         onMounted(() =>{
-            console.log('Sidebar onMounted')
+            // TODO here
         })
         return{
             icons,

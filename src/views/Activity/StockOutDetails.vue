@@ -64,6 +64,7 @@
 <script lang="ts">
 import { STOCK_OUT, STOCK_OUT_DTO } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
+import { presentToast } from '@/plugins/toast.service';
 import { getStockInById, getStockIn } from '@/services/activity/stoc-in.service';
 import { addStockOut, getLastOTNumber, getStockOutById, updateStockOut } from '@/services/activity/stoc-out.service';
 import { onIonViewDidEnter } from '@ionic/vue';
@@ -91,31 +92,23 @@ export default defineComponent({
         }
 
         async function handleLock() {
-            console.log('handle lock here')
+            await presentToast('handle lock here')
         }
 
         async function handleSave() {
             if(stock_out_id.value == 0){
                 const response = await addStockOut(stock_out.value)
                 if(response.success){
-                    console.log('response', response);
-                    
-                    // router.push(`/Activity/Sales/Details/${response.insertedId}`);
-                    // alertMessage.value = 'Sales successfully created,\n do you want to close this form?';
-                    // alertTitle.value = 'Success';
+                    await presentToast('Stock Out successfully created');
                 }else{
-                    console.error('Add stock in error')
-                    // console.error('Failed to create sales')
-                    // alertTitle.value = 'Failed';
-                    // alertMessage.value = 'Failed to create sales';
+                    await presentToast('Add Stock Out error')
                 }
-                    // open_alert.value = true
             }else{
                 const response = await updateStockOut(stock_out.value)
                 if(response.success){
-                    console.log('response', response);
+                    await presentToast('Stock Out successfully updated', );
                 }else{
-                    console.error('Update stock in error')
+                    await presentToast('Update Stock Out error')
                 }
             }
         }
@@ -132,19 +125,18 @@ export default defineComponent({
                 out_number.value = formattedNextNumber;
                 stock_out.value.out_number = out_number.value;
                 stock_out.value.out_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
-                console.log('Out number', stock_out.value.out_number)
             }else{
             const response = await getStockOutById(routeParams) 
-            if(response){
-                stock_out.value ={
-                    id: response.id,
-                    user_id: response.user_id,
-                    out_number: response.out_number,
-                    out_date: response.out_date,
-                    remarks: response.remarks,
-                    status: response.status
-                }
-            }     
+                if(response){
+                    stock_out.value ={
+                        id: response.id,
+                        user_id: response.user_id,
+                        out_number: response.out_number,
+                        out_date: response.out_date,
+                        remarks: response.remarks,
+                        status: response.status
+                    }
+                }     
 
             }    
         }

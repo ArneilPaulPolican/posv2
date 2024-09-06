@@ -55,6 +55,7 @@ import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { Lock } from '@/services/lock';
 import { PAYTYPE } from '@/models/paytype.model';
 import { getPaytypesById } from '@/services/system/paytype.service';
+import { presentToast } from '@/plugins/toast.service';
 
 export default defineComponent({
     components: { 
@@ -82,43 +83,43 @@ export default defineComponent({
             router.push(`/System/Paytypes`);
         }
         const handleSave = async () => {
-            console.log("save event triggered");
+            await presentToast("save event triggered");
 
             setTimeout(async () => {
                 try {
                     if(paytype_id == 0){
-                        console.log('New')
+                        await presentToast('New')
                         const response = true; // await addTax(paytype.value);
                         alertSubTitle.value = 'Adding Item'
                         if(response){
                             // trigger here to open the alert component
-                            console.log('Tax successfully created')
+                            await presentToast('Tax successfully created')
                             alertMessage.value = 'Tax successfully created';
                             alertTitle.value = 'Success';
                         }else{
-                            console.error('Failed to create item')
+                            await presentToast('Failed to create item')
                             alertTitle.value = 'Failed';
                             alertMessage.value = 'Failed to create item';
                         }
                     }else{
-                        console.log('Update')
+                        await presentToast('Update')
                         const response = true ;//await updateTax(paytype.value);
                         alertSubTitle.value = 'Updating Item'
                         if(response){
-                            console.log('Tax successfully updated')
+                            await presentToast('Tax successfully updated')
                             alertMessage.value = 'Tax successfully updated';
                             alertTitle.value = 'Success';
                         }else{
-                            console.error('Failed to update item')
+                            await presentToast('Failed to update item')
                             alertMessage.value = 'Failed to update item';
                             alertTitle.value = 'Failed';
                         }
                     }
                     open_alert.value = true; // Open the alert
-                    console.log('open_alert value', open_alert.value)
+                    await presentToast('open_alert value')
                 } catch (err) {
                     dbLock.release(); // Release the lock after the operation
-                    console.error('Error adding data:', err)
+                    await presentToast('Error adding data:')
                 }
             }, 300);
         }
@@ -129,7 +130,7 @@ export default defineComponent({
             
             setTimeout(async () => {
                 const paytypeResult = await getPaytypesById(routeParams)
-                console.log("paytypeResult ", paytypeResult)
+                await presentToast("paytypeResult ")
                 if(paytypeResult){
                     paytype.value ={
                         id: paytypeResult.id,

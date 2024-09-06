@@ -14,7 +14,7 @@
                 <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
                 <ion-label>Save</ion-label>
             </ion-button>
-            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%">
+            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%" @click="handleLock">
                 <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>&nbsp;
                 <ion-label>Lock</ion-label>
             </ion-button>
@@ -177,12 +177,13 @@ import ItemListModal from '@/components/Modal/ItemListModal.vue';
 import SalesItemDetailsModal from '@/components/Modal/SalesItemDetailsModal.vue';
 import CustomerListModal from '@/components/Modal/CustomerListModal.vue';
 import DiscountListModal from '@/components/Modal/DiscountListModal.vue';
-import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, updateSales } from '@/services/activity/sales.service';
+import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, lockSales, updateSales } from '@/services/activity/sales.service';
 import { Lock } from '@/services/lock';
 import { addBulkSalesItem, getSalesItemBySalesId, updatebULKSalesItem } from '@/services/activity/sales-item.service';
 import { generateSales } from '@/composables/pdf-generator';
 import { disc } from 'ionicons/icons';
 import { DISCOUNT_DTO } from '@/models/discount.model';
+import { presentToast } from '@/plugins/toast.service';
 // import { generatePDF } from '@/composables/pdf-generator';
 
 export default defineComponent({
@@ -289,10 +290,10 @@ export default defineComponent({
         
         // BACK
         const handleReturn = async () => {
-            console.log('reuturn handler');
+            await presentToast('reuturn handler');
             open_alert.value = true; // Open the alert
             // if(sales_id == 0){
-            //     console.log('inside condition');
+            //     await presentToast('inside condition');
             //     alertTitle.value = 'Sales';
             //     alertMessage.value = 'Are you sure you want to quit without saving this transaction';
             // }else{
@@ -314,7 +315,6 @@ export default defineComponent({
             sales.value.customer_id = customer.id;
             sales.value.customer = customer.customer;
             open_customer_modal.value = false;
-            console.log('Picked customer:', sales.value.customer);
         };
 
         // Select Discount
@@ -323,7 +323,6 @@ export default defineComponent({
         }
         // Trigger when discount dialog is submitted
         async function handleDiscountPicked (discount: DISCOUNT_DTO) {
-            console.log('receive discount',discount)
             sales.value.discount_id = discount.id;
             sales.value.discount = discount.discount;
             sales.value.discount_rate = discount.discount_rate;
@@ -352,7 +351,7 @@ export default defineComponent({
         // edit sales item
         const handleEdit = async (item: any) => {
             sales_item.value = item;
-            console.log("SelectedItem ", item)
+            await presentToast("SelectedItem ", item)
             open_sales_item_modal.value = true;
         }
         //
@@ -379,7 +378,6 @@ export default defineComponent({
         // Trigger only if Discount has changed
         async function updateSalesItemDiscount() {
             const update_sales_items = ref<SALES_ITEM_DTO[]>([]);
-            console.log('items ', sales_item_list);
             let _total_amount = 0
             let _net_amount = 0
             sales_item_list.value.forEach((item) => {
@@ -399,7 +397,6 @@ export default defineComponent({
 
                 update_sales_items.value.push(item)
             });
-            console.log('update of total amount', _total_amount)
             sales.value.total_amount = _total_amount;
             sales.value.discount_amount = _total_amount - _net_amount;
             sales.value.net_amount = _net_amount;
@@ -414,13 +411,30 @@ export default defineComponent({
                     alertMessage.value = 'Sales successfully updated';
                     alertTitle.value = 'Success';
                 }else{
-                    console.error('Failed to update sales')
+                    await presentToast('Failed to update sales')
                     alertTitle.value = 'Failed';
                     alertMessage.value = 'Failed to update sales';
                 }
                 open_alert.value = true
             } catch (error) {
-                console.log(error)
+                await presentToast('Operation failed')
+            }
+        }
+
+        async function handleLock() {
+            try {
+                sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
+                const response = await lockSales(sales.value)
+                if(response.success){
+                    alertMessage.value = 'Sales successfully locked';
+                    alertTitle.value = 'Success';
+                }else{
+                    alertTitle.value = 'Failed';
+                    alertMessage.value = 'Failed to lock sales';
+                }
+                open_alert.value = true
+            } catch (error) {
+                await presentToast('Operation failed')
             }
         }
 
@@ -428,10 +442,13 @@ export default defineComponent({
             if(sales.value.total_amount != 0){
                 const response = await billOutSales(sales.value);
                 if(response.success){
+                    await presentToast('Sales successfully updated!');
+
                     alertMessage.value = 'Sales successfully updated';
                     alertTitle.value = 'Success';
                 }else{
-                    console.error('Failed to update sales')
+                    await presentToast('Sales successfully updated!');
+                    await presentToast('Failed to update sales')
                     alertTitle.value = 'Failed';
                     alertMessage.value = 'Failed to update sales';
                 }
@@ -511,6 +528,7 @@ export default defineComponent({
             confirmReturn,
 
             handleSave,
+            handleLock,
             handleBillOut,
 
             openDiscountModal,

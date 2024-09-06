@@ -20,11 +20,11 @@ export const getTables = async (): Promise<TABLE[]> => {
     
     const result = await db.query(taxServiceQuery);
    
-    console.log('Res Values', JSON.stringify(result.values));
+    await presentToast('Res Values', JSON.stringify(result.values));
     return result.values as TABLE[];
   } catch (error) {
-    console.log('get tables error');
-    console.log(error);
+    await presentToast('get tables error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -42,7 +42,7 @@ export const getTableById = async (id: number) => {
 
     
     const result = await db.query(query, params);
-    console.log('Res Values', JSON.stringify(result.values));
+    await presentToast('Res Values', JSON.stringify(result.values));
     const table = result.values?.map(table => ({
       id: table.id,
       table_code: table.table_code,
@@ -52,12 +52,12 @@ export const getTableById = async (id: number) => {
       image_path: table.image_path,
       is_locked: table.is_locked,
     }))[0];
-    console.log('table', JSON.stringify(table));
+    await presentToast('table', JSON.stringify(table));
     return table;
     
   } catch (error) {
-    console.log('get table error');
-    console.log(error);
+    await presentToast('get table error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -67,7 +67,7 @@ export const addTable = async (data: TABLE) => {
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
-    console.log('DATA ', data);
+    await presentToast('DATA ', data);
     
     const taxServiceQuery = 
     `
@@ -90,10 +90,10 @@ export const addTable = async (data: TABLE) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add table query results', res);
+    await presentToast('add table query results', res);
     return true;
   } catch (error) {
-    console.log('add table error:', error);
+    await presentToast('add table error:', error);
   }
 };
 
@@ -125,9 +125,33 @@ export const updateTable = async (data: TABLE) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add table query results', res);
+    await presentToast('add table query results', res);
     return true;
   } catch (error) {
-    console.log('add table error:', error);
+    await presentToast('add table error:', error);
   } 
+};
+
+export const deleteTable = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${TABLES_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    await presentToast('cancel query response ', res)
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
+  }
 };

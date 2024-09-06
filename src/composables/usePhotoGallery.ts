@@ -27,7 +27,6 @@ export const usePhotoGallery = async () => {
     const savedFileImage = await savePicture(photo, fileName);
     
     photos.value = [savedFileImage, ...photos.value];
-    console.log('phptos value ', photos.value);
     
         
     return photos.value;

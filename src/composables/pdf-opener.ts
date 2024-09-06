@@ -6,7 +6,6 @@ const platform = Capacitor.getPlatform();
 
 export async function openPDFBasedOnPlatform(pdfUrl:string , pdfBlob:Blob) {
     
-    console.log('platform', platform)
     if(platform === 'web'){
         window.open(pdfUrl); // for web 
     }else{
@@ -21,7 +20,7 @@ export async function openPDFBasedOnPlatform(pdfUrl:string , pdfBlob:Blob) {
         });
 
         const fileUri = `file://${uri}`;
-        console.log('fileUri',fileUri);
+        
         await FileOpener.openFile({
             path: fileUri,
         });

@@ -127,7 +127,6 @@ export default defineComponent({
         async function fetchList() {
             const discountData = await getDiscounts();
             discount_list.value = discountData;
-            console.log("getDiscounts result",discount_list.value)
         }
         
         onIonViewDidEnter(async () => {

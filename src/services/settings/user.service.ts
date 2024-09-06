@@ -1,6 +1,7 @@
 import { DBConnectionService } from '../database.connection';
 import {  USERS_TABLE} from '@/schema/tables';
 import USER from '@/models/user.model';
+import { presentToast } from '@/plugins/toast.service';
 
 interface ResultSet {
   rows: {
@@ -18,11 +19,9 @@ export const getUsers = async (): Promise<USER[]> => {
     
     const result = await db.query(userQuery);
    
-    console.log('Res Values', JSON.stringify(result.values));
     return result.values as USER[];
   } catch (error) {
-    console.log('get users error');
-    console.log(error);
+    await presentToast('Get Users failed');
     throw error;
   }
 };
@@ -41,7 +40,6 @@ export const getUserById = async () => {
   
       
       const result = await db.query(query);
-      console.log('Res Values', JSON.stringify(result.values));
       const user = result.values?.map(user => ({
         id: user.id,
         username: user.username,
@@ -51,12 +49,10 @@ export const getUserById = async () => {
         email: user.email,
         user_type: user.user_type,
       }))[0];
-      console.log('user', JSON.stringify(user));
       return user;
       
     } catch (error) {
-      console.log('get users error');
-      console.log(error);
+      await presentToast('Get User failed');
       throw error;
     }
   };
@@ -83,10 +79,32 @@ export const getUserById = async () => {
         },
       ];
       const res = await db.executeTransaction(transactionStatements);
-      console.log('add user query results', res);
       return true;
     } catch (error) {
-      console.log('add user error:', error);
+      await presentToast('Add User failed');
+      throw error;
     } 
   };
   
+export const deleteUser = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${USERS_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
+  }
+};

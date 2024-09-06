@@ -75,6 +75,7 @@
   
 <script lang="ts">
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
+import { presentToast } from '@/plugins/toast.service';
 import { getSalesItemById, updateSalesItem } from '@/services/activity/sales-item.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue';
@@ -127,14 +128,14 @@ export default defineComponent({
             try {
                 const res = await updateSalesItem(sales_item_local.value)
                 if(res){
-                    console.log('Update Succesful', res)
+                    await presentToast('Update Succesful!');
                 }else{
-                    console.log('Update unsuccesful')
+                    await presentToast('Update unsuccesful!');
                 }
                 emit('submit')
 
             } catch (error) {
-                console.log(error)
+                await presentToast('Error');
             }
         }
         function updateAmount(){
@@ -147,14 +148,12 @@ export default defineComponent({
 
             if(price != 0 && sales_item_local.value.discount_rate != 0){
                 net_price = parseFloat((price - (price * (sales_item_local.value.discount_rate / 100))).toFixed(2));
-                console.log(`net price ${net_price}`)
             }
 
 
             sales_item_local.value.net_price = net_price;
             _net_amount = parseFloat((_qty * net_price).toFixed(2))
             sales_item_local.value.amount = _net_amount;
-            console.log(`${_amount} and ${_net_amount}`)
             sales_item_local.value.discount_amount = parseFloat((_amount - _net_amount).toFixed(2));
         }
         async function fetchDetails(){
@@ -196,14 +195,13 @@ export default defineComponent({
                     }
                     
                 } catch (error) {
-                  console.log(error)
+                  await presentToast('Error')
                 }
             }, 300);
             await updateAmount()
 
         }
         onMounted(async () =>{
-            console.log(props.sales_item)
             if (props.sales_item) {
                 await fetchDetails()
             } 

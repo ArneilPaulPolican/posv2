@@ -70,43 +70,33 @@ export default defineComponent({
             router.push(`/System/Units`);
         }
         const handleSave = async () => {
-            console.log("save event triggered");
           
             setTimeout(async () => {
                 try {
                     if(unit_id == 0){
-                        console.log('New')
                         const response = await addUnit(unit.value);
                         alertSubTitle.value = 'Adding Unit'
                         if(response){
-                            // trigger here to open the alert component
-                            console.log('Tax successfully created')
                             alertMessage.value = 'Tax successfully created';
                             alertTitle.value = 'Success';
                         }else{
-                            console.error('Failed to create item')
                             alertTitle.value = 'Failed';
                             alertMessage.value = 'Failed to create item';
                         }
                     }else{
-                        console.log('Update')
                         const response = await updateUnit(unit.value);
                         alertSubTitle.value = 'Updating Item'
                         if(response){
-                            console.log('Tax successfully updated')
                             alertMessage.value = 'Tax successfully updated';
                             alertTitle.value = 'Success';
                         }else{
-                            console.error('Failed to update item')
                             alertMessage.value = 'Failed to update item';
                             alertTitle.value = 'Failed';
                         }
                     }
                     open_alert.value = true; // Open the alert
-                    console.log('open_alert value', open_alert.value)
                 } catch (err) {
                     dbLock.release(); // Release the lock after the operation
-                    console.error('Error adding data:', err)
                 }   
             }, 500);
         }

@@ -13,7 +13,6 @@
 </template>
 
 <script lang="ts">
-import { generatePDF } from '@/composables/pdf-generator';
 import { Capacitor } from '@capacitor/core';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, ref, computed, toRefs, onMounted } from 'vue';
@@ -31,11 +30,9 @@ export default defineComponent({
         // const { pdf_source } = toRefs(props);
         const local_src = ref(''); 
         onMounted(async () =>{
-            console.log(platform);
             if(platform == 'web'){
                 // local_src.value = await generatePDF()
             }
-            console.log('onMounted pdf template source', local_src.value);
         })
         return {
             local_src

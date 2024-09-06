@@ -57,6 +57,7 @@ import { addTax } from '@/services/system/tax.service';
 import { UNIT } from '@/models/unit.model';
 import { TAX } from '@/models/tax.model';
 import ItemDetail from './ItemDetail.vue';
+import { presentToast } from '@/plugins/toast.service';
 
 // Define the interface for your data
 interface DemoTableRow {
@@ -142,8 +143,6 @@ name: 'DashboardView', // Update the component name here
         
         async function fetchList() {
             items.value = await getItems()
-            console.log(items.value)
-            console.log('get items ',JSON.stringify(items.value));
         }
         onIonViewDidEnter(async () => {
             await fetchList()

@@ -65,6 +65,7 @@ import { addTax, getTaxes, getTaxesById, updateTax } from '@/services/system/tax
 import { Lock } from '@/services/lock';
 import { TAX } from '@/models/tax.model';
 import { onIonViewDidEnter } from '@ionic/vue';
+import { presentToast } from '@/plugins/toast.service';
 
 export default defineComponent({
     components: { 
@@ -96,43 +97,43 @@ export default defineComponent({
             router.go(-1);
         }
         const handleSave = async () => {
-            console.log("save event triggered");
+            await presentToast("save event triggered");
 
             setTimeout(async () => {
                 try {
                     if(tax_id == 0){
-                        console.log('New')
+                        await presentToast('New')
                         const response = await addTax(tax.value);
                         alertSubTitle.value = 'Adding Item'
                         if(response){
                             // trigger here to open the alert component
-                            console.log('Tax successfully created')
+                            await presentToast('Tax successfully created')
                             alertMessage.value = 'Tax successfully created';
                             alertTitle.value = 'Success';
                         }else{
-                            console.error('Failed to create item')
+                            await presentToast('Failed to create item')
                             alertTitle.value = 'Failed';
                             alertMessage.value = 'Failed to create item';
                         }
                     }else{
-                        console.log('Update')
+                        await presentToast('Update')
                         const response = await updateTax(tax.value);
                         alertSubTitle.value = 'Updating Item'
                         if(response){
-                            console.log('Tax successfully updated')
+                            await presentToast('Tax successfully updated')
                             alertMessage.value = 'Tax successfully updated';
                             alertTitle.value = 'Success';
                         }else{
-                            console.error('Failed to update item')
+                            await presentToast('Failed to update item')
                             alertMessage.value = 'Failed to update item';
                             alertTitle.value = 'Failed';
                         }
                     }
                     open_alert.value = true; // Open the alert
-                    console.log('open_alert value', open_alert.value)
                 } catch (err) {
                     dbLock.release(); // Release the lock after the operation
-                    console.error('Error adding data:', err)
+                    await presentToast('Error adding data:')
+                    
                 }
             }, 300);
         }

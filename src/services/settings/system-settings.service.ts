@@ -8,6 +8,7 @@ import { SQLiteDBConnection, SQLiteHook } from 'vue-sqlite-hook/dist';
 import { defineComponent, onMounted, getCurrentInstance } from 'vue';
 import { CUSTOMER } from '@/models/customer.model';
 import { SYS_SETTINGS } from '@/models/system-settings.model';
+import { presentToast } from '@/plugins/toast.service';
 
 const app = getCurrentInstance()
 const sqlite: SQLiteHook = app?.appContext.config.globalProperties.$sqlite;
@@ -53,12 +54,10 @@ export const getSystemSettings = async () => {
             license_key: sys_settings.license_key ?? ''
         }))[0];
 
-        console.log('sys_settings', sys_settings);
-
+        
         return sys_settings;
     } catch (error) {
-      console.log('get customers error');
-      console.log(error);
+      await presentToast('Get Customers error!')
       throw error;
     }
 };
@@ -113,15 +112,10 @@ export const updateSystemSettings = async (data: SYS_SETTINGS) => {
         ]
       }
     ]
-    console.log('query response ', transactionStatements[0].values)
 
     const res = await db.executeTransaction(transactionStatements);
-    // const res = await db.query(query,transactionStatements[0].values );
-    console.log('query response ', res)
-    // return true,Id;
     return { success: true, insertedId: data.id };
   } catch (error) {
-    console.log('update sales error:', error);
     return { success: false, insertedId: 0 };
   }
 };

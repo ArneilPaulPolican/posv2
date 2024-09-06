@@ -77,13 +77,11 @@ export default defineComponent({
 
         const handlePickedItem = async () =>{
             // return to the ItemDetail.vue the unit.id, unit.unit_code and unit.unit_description
-            // console.log("Selected item ",sales_items)
             emit('item-picked', sales_items);
             emit('close'); 
         }
 
         const updateQuantity = async (qty : number, item: ITEM_DTO) =>{
-            console.log("props sales ",props.sales)
             sales_items.value.push({
                 id:0,
                 sales_id:0, 
@@ -114,7 +112,6 @@ export default defineComponent({
                 user_id:1,
                 user:''
             })
-            console.log("Selected item ",sales_items.value)
 
             // emit('item-picked', sales_items);
             // emit('close'); 
@@ -124,7 +121,6 @@ export default defineComponent({
 
         async function fetchList() {
              items.value = await getItems()
-            console.log('get items ',JSON.stringify(items.value));
         }
         onIonViewDidEnter(async () => {
             await fetchList()

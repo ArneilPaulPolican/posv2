@@ -20,11 +20,11 @@ export const getDiscounts = async (): Promise<DISCOUNT[]> => {
     
     const result = await db.query(discountServiceQuery);
    
-    console.log('Res Values', JSON.stringify(result.values));
+    await presentToast('Res Values', JSON.stringify(result.values));
     return result.values as DISCOUNT[];
   } catch (error) {
-    console.log('get discounts error');
-    console.log(error);
+    await presentToast('get discounts error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -42,7 +42,7 @@ export const getDiscountById = async (id: number) => {
   
       
       const result = await db.query(query, params);
-      console.log('Res Values', JSON.stringify(result.values));
+      await presentToast('Res Values', JSON.stringify(result.values));
       const discount = result.values?.map(discount => ({
         id: discount.id,
         discount: discount.discount,
@@ -52,12 +52,12 @@ export const getDiscountById = async (id: number) => {
         is_locked: discount.is_locked,
         image_url: discount.image_url
       }))[0];
-      console.log('discount', JSON.stringify(discount));
+      await presentToast('discount', JSON.stringify(discount));
       return discount;
       
     } catch (error) {
-      console.log('get taxes error');
-      console.log(error);
+      await presentToast('get taxes error');
+      await presentToast(error);
       throw error;
     }
 };
@@ -67,7 +67,7 @@ export const addDiscouunt = async (data: DISCOUNT) => {
     const db = await dbConnectionService.getDatabaseConnection();
     let transaction;
     try {
-      console.log('DATA ', data);
+      await presentToast('DATA ', data);
       
       const taxServiceQuery = 
       `
@@ -88,9 +88,33 @@ export const addDiscouunt = async (data: DISCOUNT) => {
         },
       ];
       const res = await db.executeTransaction(transactionStatements);
-      console.log('add discount query results', res);
+      await presentToast('add discount query results', res);
       return true;
     } catch (error) {
-      console.log('add discount error:', error);
+      await presentToast('add discount error:', error);
+    }
+  };
+
+  export const deleteDiscount = async (id: number) => {
+    const dbConnectionService = await DBConnectionService.getInstance();
+    const db = await dbConnectionService.getDatabaseConnection();
+    try {
+    
+      const transactionStatements = [
+        {
+          statement: `DELETE ${DISCOUNTS_TABLE}
+          WHERE id=?`,
+          values: [ 
+            id
+          ]
+        }
+      ]
+    
+      const res = await db.executeTransaction(transactionStatements);
+      await presentToast('cancel query response ', res)
+      // return true,Id;
+      return { success: true};
+    } catch (error) {
+      return { success: false};
     }
   };

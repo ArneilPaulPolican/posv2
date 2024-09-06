@@ -51,7 +51,8 @@ import {
     IonAlert,
     IonSelect, IonSelectOption,
     IonPopover,
-    IonNavLink 
+    IonNavLink,
+    toastController 
     // ... add other Ionic components you need
   } from '@ionic/vue';
   import { App } from 'vue';
@@ -117,6 +118,7 @@ import {
       app.component('IonSelect', IonSelect);
       app.component('IonPopover', IonPopover);
       app.component('IonNavLink', IonNavLink);
+      app.component('toastController', toastController);
       
       
     // ... register other Ionic components here

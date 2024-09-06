@@ -80,6 +80,7 @@ import { Lock } from '@/services/lock';
 import { CUSTOMER } from '@/models/customer.model';
 import { addCustomers, getCustomerById, getLastCustomerCode } from '@/services/setup/customer.service';
 import { onIonViewDidEnter } from '@ionic/vue';
+import { presentToast } from '@/plugins/toast.service';
 
 export default defineComponent({
     components: { 
@@ -121,42 +122,29 @@ export default defineComponent({
             router.push(`/Setup/Customers`);
         }
         const handleSave = async () => {
-            console.log("save event triggered");
 
             setTimeout(async () => {
                 try {
                     if(customer_id == 0){
-                        console.log('New')
                         const response =  await addCustomers(customer.value, imagePath.value);
                         if(response){
                             // trigger here to open the alert component
-                            console.log('Customer successfully created')
-                            alertMessage.value = 'Customer successfully created';
-                            alertTitle.value = 'Success';
+                            await presentToast('Customer successfully created')
                         }else{
-                            console.error('Failed to create Customer')
-                            alertTitle.value = 'Failed';
-                            alertMessage.value = 'Failed to create Customer';
+                            await presentToast('Failed to create Customer')
                         }
                     }else{
-                        console.log('Update')
                         const response = true; //await updateTax(tax.value);
-                        alertSubTitle.value = 'Updating Customer'
                         if(response){
-                            console.log('Customer successfully updated')
-                            alertMessage.value = 'Customer successfully updated';
-                            alertTitle.value = 'Success';
+                            await presentToast('Customer successfully updated')
                         }else{
-                            console.error('Failed to update Customer')
-                            alertMessage.value = 'Failed to update Customer';
-                            alertTitle.value = 'Failed';
+                            await presentToast('Failed to update Customer')
                         }
                     }
                     open_alert.value = true; // Open the alert
-                    console.log('open_alert value', open_alert.value)
                 } catch (err) {
                     dbLock.release(); // Release the lock after the operation
-                    console.error('Error adding data:', err)
+                    await presentToast('Error adding customer')
                 }
             }, 300);
         }

@@ -40,9 +40,10 @@
 <script lang="ts">
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';
-import { getOpenSales, getSales } from '@/services/activity/sales.service';
-import { onIonViewDidEnter, actionSheetController } from '@ionic/vue';
-import { defineComponent, onActivated, onMounted, ref } from 'vue';
+import { presentToast } from '@/plugins/toast.service';
+import { deleteSales, getOpenSales, getSales } from '@/services/activity/sales.service';
+import { onIonViewDidEnter, actionSheetController, toastController } from '@ionic/vue';
+import { defineComponent, inject, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 
@@ -88,9 +89,16 @@ export default defineComponent({
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (tax: any) => {
-            throw new Error('Function not implemented.');
-        };
+        const handleDelete = async (sales: SALES_DTO) => {
+            if(sales.is_locked == false){
+                if(sales.balance_amount == sales.net_amount){
+                    const _deleteSales = await deleteSales(sales.id??0) 
+                }
+            }else{
+                await presentToast('Delete failed!');
+            }
+        }
+        
         const handleEdit = (sales: any) => {
             router.push(`/Activity/Sales/Details/${sales.id}`);
         }

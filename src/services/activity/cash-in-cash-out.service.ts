@@ -2,6 +2,7 @@ import { CASH_IN_OUTS } from '@/models/cashin-cashout.model';
 import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { CASH_IN_OUTS_TABLE } from '@/schema/tables';
+import { presentToast } from '@/plugins/toast.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<CASH_IN_OUTS[]>([])
@@ -22,10 +23,9 @@ export const getCashInCashOut = async (): Promise<CASH_IN_OUTS[]> => {
     const unitServiceQuery = `SELECT * FROM ${CASH_IN_OUTS_TABLE}`;
     const res = await db.query(unitServiceQuery);
 
-    console.log('Res Values', JSON.stringify(res.values));
     return res.values as CASH_IN_OUTS[];
   } catch (error) {
-    console.error('get cashin cashout error', error);
+    await presentToast('get cashin cashout error', error);
     throw error;
   } 
 };
@@ -68,10 +68,9 @@ export const getCashInCashOutById = async (id:number) => {
         status: cashin_cashout.status
       }))[0];
   
-      console.log('Res Values', JSON.stringify(cashin_cashout));
       return cashin_cashout;
     } catch (error) {
-      console.error('get cashin cashout error', error);
+      await presentToast('get cashin cashout error', error);
       throw error;
     } 
 };
@@ -84,10 +83,8 @@ export const getLastNumber = async (): Promise<string> => {
     const query = `SELECT cash_in_out_number FROM ${CASH_IN_OUTS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
     const lastNumber =result?.values?.[0].cash_in_out_number;
-    console.log('cash_in_out_number ',lastNumber)
     return lastNumber || '0000000001';
   } catch (error) {
-    console.log(error)
     return '0000000001';
   }
 }
@@ -98,7 +95,6 @@ export const addCashInCashOut = async (data: CASH_IN_OUTS) => {
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
-    console.log('DATA ', data);
     
     const taxServiceQuery = 
     `
@@ -136,10 +132,9 @@ export const addCashInCashOut = async (data: CASH_IN_OUTS) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add STOCK_OUTS_TABLE query results', res);
     return true;
   } catch (error) {
-    console.log('add STOCK_OUTS_TABLE error:', error);
+    await presentToast('Add error')
   }
 };
 
@@ -174,11 +169,29 @@ export const updateCashInCashOut = async (data: CASH_IN_OUTS) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add STOCK_OUTS_TABLE query results', res);
     return true;
   } catch (error) {
-    console.log('add STOCK_OUTS_TABLE error:', error);
+    await presentToast('Add error')
   } 
 };
 
-  
+export const deleteCashInCashOut = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const transactionStatements = [
+      {
+        statement: `DELETE ${CASH_IN_OUTS_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+    const res = await db.executeTransaction(transactionStatements);
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
+  }
+};

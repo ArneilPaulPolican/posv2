@@ -19,11 +19,11 @@ export const getTaxes = async (): Promise<TAX[]> => {
     
     const result = await db.query(taxServiceQuery);
    
-    console.log('Res Values', JSON.stringify(result.values));
+    await presentToast('Res Values', JSON.stringify(result.values));
     return result.values as TAX[];
   } catch (error) {
-    console.log('get taxes error');
-    console.log(error);
+    await presentToast('get taxes error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -41,7 +41,7 @@ export const getTaxesById = async (id: number) => {
 
     
     const result = await db.query(query, params);
-    console.log('Res Values', JSON.stringify(result.values));
+    await presentToast('Res Values', JSON.stringify(result.values));
     const tax = result.values?.map(tax => ({
       id: tax.id,
       tax_code: tax.tax_code,
@@ -49,12 +49,12 @@ export const getTaxesById = async (id: number) => {
       rate: tax.rate,
       is_inclusive: tax.is_inclusive,
     }))[0];
-    console.log('tax', JSON.stringify(tax));
+    await presentToast('tax', JSON.stringify(tax));
     return tax;
     
   } catch (error) {
-    console.log('get taxes error');
-    console.log(error);
+    await presentToast('get taxes error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -64,7 +64,7 @@ export const addTax = async (data: TAX) => {
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
-    console.log('DATA ', data);
+    await presentToast('DATA ', data);
     
     const taxServiceQuery = 
     `
@@ -85,10 +85,10 @@ export const addTax = async (data: TAX) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add tax query results', res);
+    await presentToast('add tax query results', res);
     return true;
   } catch (error) {
-    console.log('add tax error:', error);
+    await presentToast('add tax error:', error);
   }
 };
 
@@ -116,9 +116,33 @@ export const updateTax = async (data: TAX) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add tax query results', res);
+    await presentToast('add tax query results', res);
     return true;
   } catch (error) {
-    console.log('add tax error:', error);
+    await presentToast('add tax error:', error);
   } 
+};
+
+export const deleteTax = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${TAXES_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    await presentToast('cancel query response ', res)
+    // return true,Id;
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
 };

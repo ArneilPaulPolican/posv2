@@ -26,7 +26,6 @@ export default defineComponent({
         text: 'Cancel',
         role: 'cancel',
         handler: () => {
-          console.log('Cancel button clicked');
           emit('cancel');
         }
       },
@@ -34,7 +33,6 @@ export default defineComponent({
         text: 'Confirm',
         role: 'confirm',
         handler: () => {
-          console.log('Confirm button clicked');
           emit('confirm');
         }
       }

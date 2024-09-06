@@ -46,7 +46,6 @@ export default defineComponent({
 
         const handlePickedUnit = async (unit:UNIT) =>{
             // return to the ItemDetail.vue the unit.id, unit.unit_code and unit.unit_description
-            console.log("Selected unit ",unit)
             emit('unit-picked', unit);
             emit('close'); 
         }
@@ -56,7 +55,6 @@ export default defineComponent({
             setTimeout(async () => {
                 const unitsData = await getUnits();
                 units.value = unitsData;
-                console.log("getUnits result",units.value)
             }, 500);
         });
         return{

@@ -172,20 +172,7 @@ export default defineComponent({
     const accordionStates= ref<{ [key: string]: boolean }>({})
 
     const handleMenuClick = async () => {
-      // try {
-      //   console.log('menu button')
         const menu = document.querySelector('ion-menu');
-        console.log('menu ',menu)
-      //   if (menu) {
-      //     if (await menu.isOpen()) {
-      //       menu.close();
-      //     } else {
-      //       menu.open();
-      //     }
-      //   }
-      // } catch (error) {
-      //   console.log('error ',error)
-      // }
     };
 
     const selectedIndex = ref(0);

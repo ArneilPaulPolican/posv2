@@ -104,9 +104,7 @@ export default defineComponent({
         async function fetchDetails() {
             const result = await getSystemSettings()
             if(result){
-                console.log('result ',result)
                 company.value = { ...result };
-                console.log('pos_vendor ',company.value.pos_vendor)
 
                 // company.value = {
                 //     id: result.id,
@@ -130,7 +128,6 @@ export default defineComponent({
                 //     license_key: result.license_key
                 // }
             }
-            console.log('company ',company.value)
         }
         onMounted(async ()=>{
             await fetchDetails()

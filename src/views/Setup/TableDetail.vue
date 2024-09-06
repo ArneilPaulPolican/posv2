@@ -43,6 +43,7 @@
 <script lang="ts">
 import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
+import { presentToast } from '@/plugins/toast.service';
 import router from '@/router';
 import { getTableById, getTables } from '@/services/setup/table.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
@@ -78,7 +79,7 @@ export default defineComponent({
 
             setTimeout(async () => {
                 const tableResult = await getTableById(routeParams)
-                console.log("table ", tableResult)
+                await presentToast("table ")
                 if(tableResult){
                     table.value ={
                         id: tableResult.id,

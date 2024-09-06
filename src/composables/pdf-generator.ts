@@ -9,7 +9,6 @@ import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 
 export async function generateSales(sales: SALES_DTO, sales_items: SALES_ITEM_DTO[]) {
     const doc = new jsPDF();
-    console.log('sales ',sales);
     
     // // Add some text to the PDF
     doc.internal.pageSize.width = 80;
@@ -57,7 +56,7 @@ export async function generateSales(sales: SALES_DTO, sales_items: SALES_ITEM_DT
     
     marginY += 5;
     doc.text(sales.sales_number, availableWidth / 2, marginY, null, null, 'center');
-    console.log(sales.sales_date)
+    
     marginY += 5;
     doc.text(sales.sales_date, availableWidth / 2, marginY, null, null, 'center');
     

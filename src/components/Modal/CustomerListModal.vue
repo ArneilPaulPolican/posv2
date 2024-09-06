@@ -47,7 +47,6 @@ export default defineComponent({
 
         const handleCustomerPicked = async (customer:CUSTOMER) =>{
             // return to the ItemDetail.vue the unit.id, unit.unit_code and unit.unit_description
-            console.log("Selected customer ",customer)
             emit('customer-picked', customer);
             emit('close'); 
         }
@@ -56,7 +55,6 @@ export default defineComponent({
             setTimeout(async () => {
                 const customerData = await getCustomers();
                 customers.value = customerData;
-                console.log("getUnits result",customers.value)
             }, 500);
         });
         return{

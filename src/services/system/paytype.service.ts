@@ -19,11 +19,11 @@ export const getPaytypes = async (): Promise<PAYTYPE[]> => {
     
     const result = await db.query(taxServiceQuery);
    
-    console.log('Res Values', JSON.stringify(result.values));
+    await presentToast('Res Values', JSON.stringify(result.values));
     return result.values as PAYTYPE[];
   } catch (error) {
-    console.log('get paytype error');
-    console.log(error);
+    await presentToast('get paytype error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -41,18 +41,18 @@ export const getPaytypesById = async (id: number) => {
 
     
     const result = await db.query(query, params);
-    console.log('Res Values', JSON.stringify(result.values));
+    await presentToast('Res Values', JSON.stringify(result.values));
     const paytype = result.values?.map(paytype => ({
       id: paytype.id,
       paytype: paytype.paytype,
       is_default_value: paytype.is_default_value,
     }))[0];
-    console.log('paytype', JSON.stringify(paytype));
+    await presentToast('paytype', JSON.stringify(paytype));
     return paytype;
     
   } catch (error) {
-    console.log('get paytype error');
-    console.log(error);
+    await presentToast('get paytype error');
+    await presentToast(error);
     throw error;
   }
 };
@@ -62,7 +62,7 @@ export const addPaytype = async (data: PAYTYPE) => {
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
-    console.log('DATA ', data);
+    await presentToast('DATA ', data);
     
     const taxServiceQuery = 
     `
@@ -81,10 +81,10 @@ export const addPaytype = async (data: PAYTYPE) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add paytype query results', res);
+    await presentToast('add paytype query results', res);
     return true;
   } catch (error) {
-    console.log('add paytype error:', error);
+    await presentToast('add paytype error:', error);
   }
 };
 
@@ -108,9 +108,33 @@ export const updateTax = async (data: PAYTYPE) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add paytype query results', res);
+    await presentToast('add paytype query results', res);
     return true;
   } catch (error) {
-    console.log('add tax error:', error);
+    await presentToast('add tax error:', error);
   } 
+};
+
+export const deletePaytype = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${PAYTYPES_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    await presentToast('cancel query response ', res)
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
+  }
 };

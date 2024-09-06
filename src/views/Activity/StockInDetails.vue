@@ -68,6 +68,7 @@
 <script lang="ts">
 import { STOCK_IN, STOCK_IN_DTO } from '@/models/stock-in.model';
 import { icons } from '@/plugins/icons';
+import { presentToast } from '@/plugins/toast.service';
 import { getStockInById, getStockIn, getLastINNumber, addStockIn, updateStockIn } from '@/services/activity/stoc-in.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref } from 'vue';
@@ -94,31 +95,26 @@ export default defineComponent({
         }
 
         async function handleLock() {
-            console.log('handle lock here')
+            await presentToast('handle lock here')
         }
 
         async function handleSave() {
             if(stocki_in_id.value == 0){
                 const response = await addStockIn(stock_in.value)
                 if(response.success){
-                    console.log('response', response);
-                    
-                    // router.push(`/Activity/Sales/Details/${response.insertedId}`);
-                    // alertMessage.value = 'Sales successfully created,\n do you want to close this form?';
-                    // alertTitle.value = 'Success';
+                    await presentToast('Stock In successfully created',);
                 }else{
-                    console.error('Add stock in error')
-                    // console.error('Failed to create sales')
+                    await presentToast('Add stock in failed')
+                    // await presentToast('Failed to create sales')
                     // alertTitle.value = 'Failed';
                     // alertMessage.value = 'Failed to create sales';
                 }
-                    // open_alert.value = true
             }else{
                 const response = await updateStockIn(stock_in.value)
                 if(response.success){
-                    console.log('response', response);
+                    await presentToast('Update Stock In successful');
                 }else{
-                    console.error('Update stock in error')
+                    await presentToast('Update Stock In failed')
                 }
             }
         }
@@ -135,7 +131,6 @@ export default defineComponent({
                 in_number.value = formattedNextNumber;
                 stock_in.value.in_number = in_number.value;
                 stock_in.value.in_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
-                console.log('In number', stock_in.value.in_number)
             }else{
                 const response = await getStockInById(routeParams) 
                 if(response){

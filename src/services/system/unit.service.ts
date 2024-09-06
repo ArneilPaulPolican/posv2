@@ -22,10 +22,10 @@ export const getUnits = async (): Promise<UNIT[]> => {
     const unitServiceQuery = `SELECT * FROM ${UNITS_TABLE}`;
     const res = await db.query(unitServiceQuery);
 
-    console.log('Res Values', JSON.stringify(res.values));
+    await presentToast('Res Values', JSON.stringify(res.values));
     return res.values as UNIT[];
   } catch (error) {
-    console.error('get units error', error);
+    await presentToast('get units error', error);
     throw error;
   } 
 };
@@ -49,10 +49,10 @@ export const getUnitsById = async (id:number) => {
       unit: unit.unit,
     }))[0];
 
-    console.log('Res Values', JSON.stringify(unit));
+    await presentToast('Res Values', JSON.stringify(unit));
     return unit;
   } catch (error) {
-    console.error('get units error', error);
+    await presentToast('get units error', error);
     throw error;
   } 
 };
@@ -75,10 +75,10 @@ export const addUnit = async (data: UNIT) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add unit query results', res);
+    await presentToast('add unit query results', res);
     return true;
   } catch (error) {
-    console.log('add unit error:', error);
+    await presentToast('add unit error:', error);
   }
 };
 
@@ -102,9 +102,33 @@ export const updateUnit = async (data: UNIT) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    console.log('add tax query results', res);
+    await presentToast('add tax query results', res);
     return true;
   } catch (error) {
-    console.log('add tax error:', error);
+    await presentToast('add tax error:', error);
+  }
+};
+
+export const deleteUnit = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `DELETE ${UNITS_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    await presentToast('cancel query response ', res)
+    // return true,Id;
+    return { success: true};
+  } catch (error) {
+    return { success: false};
   }
 };
