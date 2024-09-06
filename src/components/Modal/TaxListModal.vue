@@ -36,6 +36,7 @@
 <script lang="ts">
 import { TAX } from '@/models/tax.model';
 import { icons } from '@/plugins/icons';
+import { presentToast } from '@/plugins/toast.service';
 import { getTaxes } from '@/services/system/tax.service';
 import { defineComponent, onMounted, ref } from 'vue';
 
@@ -53,8 +54,12 @@ export default defineComponent({
 
         onMounted(async () => {
             setTimeout(async () => {
-                const taxData = await getTaxes();
-                tax.value = taxData;
+                try {
+                    const taxData = await getTaxes();
+                    tax.value = taxData;
+                } catch (error) {
+                    await presentToast('Failed retreiving Tax list')
+                }
             }, 500);
         });
         return{

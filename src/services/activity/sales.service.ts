@@ -7,6 +7,7 @@ import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { addBulkSalesItem } from './sales-item.service';
 import { presentToast } from '@/plugins/toast.service';
+import { updateItemInventory } from '../module/inventory.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<SALES[]>([])
@@ -703,10 +704,12 @@ export const lockSales = async (data: SALES_DTO) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    // const res = await db.query(query,transactionStatements[0].values );
-    // return true,Id;
+    
+    await updateItemInventory('SI', data.id??0)
+
     return { success: true, insertedId: data.id };
   } catch (error) {
+    console.error(error)
     return { success: false, insertedId: 0 };
   }
 };

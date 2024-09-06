@@ -5,11 +5,16 @@ import { openPDFBasedOnPlatform } from './pdf-opener';
 import html2canvas from 'html2canvas';
 import { SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
+import { Storage } from '@capacitor/storage';
 
 
 export async function generateSales(sales: SALES_DTO, sales_items: SALES_ITEM_DTO[]) {
     const doc = new jsPDF();
-    
+
+    const { value } = await Storage.get({ key: 'sysSettings' });
+    const sysSettings = JSON.parse(value as string);
+    console.log(sysSettings)
+
     // // Add some text to the PDF
     doc.internal.pageSize.width = 80;
     doc.internal.pageSize.height = 1000;
@@ -28,25 +33,25 @@ export async function generateSales(sales: SALES_DTO, sales_items: SALES_ITEM_DT
     
     // Company Name
     marginY += 5;
-    doc.text('COMPANY NAME', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(sysSettings.customer ?? "TEST Company", availableWidth / 2, marginY, null, null, 'center');
 
     marginY += 5;
-    doc.text('Compnay full address', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(sysSettings.customer_address ?? "Address", availableWidth / 2, marginY, null, null, 'center');
 
     marginY += 5;
-    doc.text('TIN: Customer TIN', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(`TIN: ${sysSettings.customer_tin}`, availableWidth / 2, marginY, null, null, 'center');
 
     marginY += 5;
-    doc.text('SN: POS Serial Number', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(`SN: ${sysSettings.pos_serial_number}`, availableWidth / 2, marginY, null, null, 'center');
     
     marginY += 5;
-    doc.text('PN: Permit No.', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(`PN: ${sysSettings.pos_permit_number}`, availableWidth / 2, marginY, null, null, 'center');
 
     marginY += 5;
-    doc.text('ACRED No.: Accreditation Number', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(`ACRED No.: ${sysSettings.pos_accreditation_number}`, availableWidth / 2, marginY, null, null, 'center');
 
     marginY += 5;
-    doc.text('MIN: Accreditation Number', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(`MIN: ${sysSettings.pos_machine_identification_number}`, availableWidth / 2, marginY, null, null, 'center');
 
     marginY += 5;
     doc.text('SALES', availableWidth / 2, marginY, null, null, 'center');
@@ -221,16 +226,16 @@ export async function generateSales(sales: SALES_DTO, sales_items: SALES_ITEM_DT
     doc.line(0, dividingLine8Y, availableWidth, dividingLine8Y);
 
     y = dividingLine8Y + 5;
-    doc.text('POS VENDOR:', availableWidth / 2, y, null, null, 'center');
+    doc.text(`POS VENDOR: ${sysSettings.pos_vendor}`, availableWidth / 2, y, null, null, 'center');
 
     y += 5;
-    doc.text('Vendor Address', availableWidth / 2, y, null, null, 'center');
+    doc.text(`${sysSettings.pos_vendor_address}`, availableWidth / 2, y, null, null, 'center');
 
     y += 5;
-    doc.text('VAT REG TIN: ', availableWidth / 2, y, null, null, 'center');
+    doc.text(`VAT REG TIN: ${sysSettings.pos_vendor_tin}`, availableWidth / 2, y, null, null, 'center');
 
     y += 10;
-    doc.text('ACRED No.: Accreditation Number: ', availableWidth / 2, y, null, null, 'center');
+    doc.text(`ACRED No.: ${sysSettings.pos_vendor_accreditation_number}`, availableWidth / 2, y, null, null, 'center');
 
     y += 5;
     doc.text('Date Issued: ', availableWidth / 2, y, null, null, 'center');

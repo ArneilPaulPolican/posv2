@@ -65,8 +65,8 @@
 import { STOCK_OUT, STOCK_OUT_DTO } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
 import { presentToast } from '@/plugins/toast.service';
-import { getStockInById, getStockIn } from '@/services/activity/stoc-in.service';
-import { addStockOut, getLastOTNumber, getStockOutById, updateStockOut } from '@/services/activity/stoc-out.service';
+import { getStockInById, getStockIn } from '@/services/activity/stock-in.service';
+import { addStockOut, getLastOTNumber, getStockOutById, updateStockOut } from '@/services/activity/stock-out.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

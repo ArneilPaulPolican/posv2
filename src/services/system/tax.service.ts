@@ -19,11 +19,8 @@ export const getTaxes = async (): Promise<TAX[]> => {
     
     const result = await db.query(taxServiceQuery);
    
-    await presentToast('Res Values', JSON.stringify(result.values));
     return result.values as TAX[];
   } catch (error) {
-    await presentToast('get taxes error');
-    await presentToast(error);
     throw error;
   }
 };
@@ -41,7 +38,6 @@ export const getTaxesById = async (id: number) => {
 
     
     const result = await db.query(query, params);
-    await presentToast('Res Values', JSON.stringify(result.values));
     const tax = result.values?.map(tax => ({
       id: tax.id,
       tax_code: tax.tax_code,
@@ -49,12 +45,9 @@ export const getTaxesById = async (id: number) => {
       rate: tax.rate,
       is_inclusive: tax.is_inclusive,
     }))[0];
-    await presentToast('tax', JSON.stringify(tax));
     return tax;
     
   } catch (error) {
-    await presentToast('get taxes error');
-    await presentToast(error);
     throw error;
   }
 };
@@ -64,7 +57,6 @@ export const addTax = async (data: TAX) => {
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
-    await presentToast('DATA ', data);
     
     const taxServiceQuery = 
     `
@@ -85,10 +77,9 @@ export const addTax = async (data: TAX) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('add tax query results', res);
     return true;
   } catch (error) {
-    await presentToast('add tax error:', error);
+    throw error;
   }
 };
 
@@ -116,10 +107,9 @@ export const updateTax = async (data: TAX) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('add tax query results', res);
     return true;
   } catch (error) {
-    await presentToast('add tax error:', error);
+    throw error;
   } 
 };
 
@@ -139,8 +129,6 @@ export const deleteTax = async (id: number) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('cancel query response ', res)
-    // return true,Id;
     return { success: true };
   } catch (error) {
     return { success: false };

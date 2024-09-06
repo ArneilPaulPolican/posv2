@@ -202,7 +202,6 @@ export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) =>
     }
 }
 
-
 export const updatebULKSalesItem = async (items: SALES_ITEM_DTO[]) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
@@ -291,7 +290,8 @@ export const updateSalesItem = async (data: SALES_ITEM_DTO) => {
     const res = await db.executeTransaction(transactionStatements);
     return { success: true, insertedId: data.id };
   } catch (error) {
-    return { success: false, insertedId: 0 };
+    // return { success: false, insertedId: 0 };
+    throw error;
   }
 };
 
@@ -315,6 +315,7 @@ export const deleteSalesItem = async (id: number) => {
     // return true,Id;
     return { success: true};
   } catch (error) {
-    return { success: false};
+    // return { success: false};
+    throw error;
   }
 };

@@ -36,6 +36,7 @@
 <script lang="ts">
 import { UNIT } from '@/models/unit.model';
 import { icons } from '@/plugins/icons';
+import { presentToast } from '@/plugins/toast.service';
 import { getUnits } from '@/services/system/unit.service';
 import { defineComponent, onMounted, ref } from 'vue';
 
@@ -53,8 +54,12 @@ export default defineComponent({
 
         onMounted(async () => {
             setTimeout(async () => {
-                const unitsData = await getUnits();
-                units.value = unitsData;
+                try {
+                    const unitsData = await getUnits();
+                    units.value = unitsData;
+                } catch (error) {
+                    await presentToast('Failed retreiving Unit list')
+                }
             }, 500);
         });
         return{

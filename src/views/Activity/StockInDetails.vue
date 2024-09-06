@@ -69,7 +69,7 @@
 import { STOCK_IN, STOCK_IN_DTO } from '@/models/stock-in.model';
 import { icons } from '@/plugins/icons';
 import { presentToast } from '@/plugins/toast.service';
-import { getStockInById, getStockIn, getLastINNumber, addStockIn, updateStockIn } from '@/services/activity/stoc-in.service';
+import { getStockInById, getStockIn, getLastINNumber, addStockIn, updateStockIn } from '@/services/activity/stock-in.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

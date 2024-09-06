@@ -9,11 +9,40 @@
   </ion-app>
 </template>
 
-<script setup lang="ts">
-import { IonApp, IonRouterOutlet } from '@ionic/vue';
+<script lang="ts">
+import { IonApp, IonRouterOutlet, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
+import { defineComponent, getCurrentInstance, onMounted } from 'vue';
+import { getSystemSettings } from './services/settings/system-settings.service';
+import { Storage } from '@capacitor/storage';
 
-const header = ''; 
+export default defineComponent({
+  components:{
+    HeaderComponent
+  },
+  setup(){// Create a storage instance
+
+    // Store a value
+
+    async function fetchSettings() {
+      const result = await getSystemSettings()
+      await Storage.set({
+        key: 'sysSettings',
+        value: JSON.stringify(result) as string
+      });
+    }
+    onIonViewDidEnter(async () => {
+        await fetchSettings()
+    });
+    onMounted(async () => {
+        await fetchSettings()
+    });
+
+    return{
+      header: ''
+    }
+  }
+})
 </script>
 
 

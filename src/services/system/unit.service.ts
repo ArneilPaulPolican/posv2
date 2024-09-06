@@ -22,10 +22,8 @@ export const getUnits = async (): Promise<UNIT[]> => {
     const unitServiceQuery = `SELECT * FROM ${UNITS_TABLE}`;
     const res = await db.query(unitServiceQuery);
 
-    await presentToast('Res Values', JSON.stringify(res.values));
     return res.values as UNIT[];
   } catch (error) {
-    await presentToast('get units error', error);
     throw error;
   } 
 };
@@ -49,10 +47,8 @@ export const getUnitsById = async (id:number) => {
       unit: unit.unit,
     }))[0];
 
-    await presentToast('Res Values', JSON.stringify(unit));
     return unit;
   } catch (error) {
-    await presentToast('get units error', error);
     throw error;
   } 
 };
@@ -75,10 +71,9 @@ export const addUnit = async (data: UNIT) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('add unit query results', res);
     return true;
   } catch (error) {
-    await presentToast('add unit error:', error);
+    throw new Error("Add unit error", );
   }
 };
 
@@ -102,10 +97,9 @@ export const updateUnit = async (data: UNIT) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('add tax query results', res);
     return true;
   } catch (error) {
-    await presentToast('add tax error:', error);
+    throw error;
   }
 };
 
@@ -125,8 +119,6 @@ export const deleteUnit = async (id: number) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('cancel query response ', res)
-    // return true,Id;
     return { success: true};
   } catch (error) {
     return { success: false};

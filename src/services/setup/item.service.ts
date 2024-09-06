@@ -30,7 +30,6 @@ export const getItems = async () => {
   const db = await dbConnectionService.getDatabaseConnection();
   try {
 
-    await presentToast('Query string');
     // const db = await getDBConnection();
     const itemServiceQuery = `
         SELECT ${ITEMS_TABLE}.id,
@@ -66,25 +65,19 @@ export const getItems = async () => {
     // const itemServiceQuery = `SELECT * FROM customer`
     // const result = await db?.execute(itemServiceQuery);
     const res = await db.query(itemServiceQuery);
-    await presentToast('item query results', res);
     if(res.values){
       data.value = res.values as ITEM_DTO[];
     }
 
     if (res && Array.isArray(res.values)) {
       data.value = res.values as ITEM_DTO[];
-      await presentToast(data.value )
     }
 
     return data.value;
 
   } catch (error) {
-    await presentToast('get items error');
-    await presentToast(error);
     throw error;
-  } finally {
-    // await db.close(); // Close the database connection
-  }
+  } 
 };
 
 export const getItemById = async (id: number) => {
@@ -136,7 +129,6 @@ export const getItemById = async (id: number) => {
 
     // Retrieve the results after the transaction
     const result = await db.query(query, params);
-    await presentToast('get item by id result:',result);
     const item = result.values?.map(item => ({
       id: item.id,
       item_code: item.item_code,
@@ -161,13 +153,11 @@ export const getItemById = async (id: number) => {
       expiry_date:  item.expiry_date,
       lot_number:  item.expiry_date,
     }))[0];
-
+    console.log(item)
     return item;
 
   } catch (error) {
-    await presentToast('get item by id transaction error:');
-    await presentToast(error);
-    return null;
+    throw error;
   }
 };
 
@@ -178,10 +168,8 @@ export const getLastItemCode = async (): Promise<string> => {
     const query = `SELECT item_code FROM ${ITEMS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
     const last_code =result?.values?.[0].sales_number;
-    await presentToast('last code',last_code)
     return last_code || '0000000001';
   } catch (error) {
-    await presentToast(error)
     return '0000000001';
   }
 }
@@ -225,34 +213,16 @@ export const addItem = async (data: ITEM, processedImageSavePath: string): Promi
 
     return true;
   } catch (err: any) {
-    await presentToast('Error in addItem transaction:', err);
     return false;
   }
 };
 
 export const updateItem = async (data: ITEM, processedImageSavePath: string) => {
-
-  // if (data.image_path) {
-  //   try {
-  //     processedImageSavePath = await saveImage(
-  //       data.image_path,
-  //       data.file_extension as string,
-  //       'item-image',
-  //       data.item_code,
-  //     );
-  //   } catch (error) {
-  //     await presentToast('add item: error trying to save image');
-  //     await presentToast(error);
-  //     throw error;
-  //   }
-  // }
-  // const db = await db_connection.getDatabaseConnection(); // get the database connection
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
 
   try {
-    await presentToast(data)        
-
+    console.log(data.is_inventory)
     const transactionStatements = [
       {
         statement: `
@@ -263,7 +233,6 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
             category = ?,
             price = ?,
             cost = ?,
-            quantity = ?,
             unit_id = ?,
             is_inventory = ?,
             generic_name = ?,
@@ -283,7 +252,6 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
           data.category,
           data.price,
           data.cost,
-          data.quantity,
           data.unit_id,
           data.is_inventory,
           data.generic_name,
@@ -300,14 +268,11 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
       // Add additional statements here if needed
     ];
 
-    await presentToast(transactionStatements.values);
     // Execute the transaction
     await db.executeTransaction(transactionStatements);
-    await presentToast('Execute the transaction:');
     return true;
   } catch (error) {
-    await presentToast('update item transaction error:');
-    await presentToast(error);
+    throw error;
   }
 };
 
@@ -327,8 +292,6 @@ export const deleteItem = async (id: number) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('cancel query response ', res)
-    // return true,Id;
     return { success: true};
   } catch (error) {
     return { success: false};

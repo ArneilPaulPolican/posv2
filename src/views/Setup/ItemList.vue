@@ -3,7 +3,7 @@
         <!-- <HeaderComponent :title="header" /> -->
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
             <ion-nav-link router-direction="forward" :component="component">
-                <ion-fab-button size="small" @click="openItemDetailForm">
+                <ion-fab-button size="small" @click="addNewItem">
                     <ion-icon :icon="icons.addSharp"></ion-icon>
                 </ion-fab-button>
             </ion-nav-link>
@@ -31,6 +31,7 @@
                     <ion-label slot="end">
                         <p v-if="item.is_locked">Active</p><p v-else>Inactive</p>
                         <p v-if="item.is_inventory">Inventory</p> <p v-else>Non-inventory</p>
+                        <p>{{ item.quantity }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -51,7 +52,7 @@ import { Lock } from '@/services/lock';
 import { DBConnectionService } from '@/services/database.connection';
 import { addItem, getItems } from '@/services/setup/item.service';
 
-import { ITEM } from '@/models/item.model';
+import ITEM_DTO, { ITEM } from '@/models/item.model';
 import { addUnit } from '@/services/system/unit.service';
 import { addTax } from '@/services/system/tax.service';
 import { UNIT } from '@/models/unit.model';
@@ -74,6 +75,27 @@ name: 'DashboardView', // Update the component name here
     setup() {
         const router = useRouter();
         const items = ref<ITEM[]>([])
+        const item = ref<ITEM>({
+            id:0,
+            item_code: '',
+            bar_code: '',
+            item_description: '',
+            alias: '',
+            category: '',
+            price: 0,
+            cost: 0,
+            quantity: 0,
+            unit_id: 1,
+            is_inventory: false,
+            generic_name: '',
+            tax_id: 1,
+            remarks: '',
+            image_path: '',
+            is_package: false,
+            is_locked: false,
+            expiry_date:'',
+            lot_number:''
+        });
 
         const imagePath = ref('');
         const dbLock = new Lock(); // Create a new lock
@@ -137,8 +159,13 @@ name: 'DashboardView', // Update the component name here
         //#endregion
 
 
-        const openItemDetailForm = async() => {
-            router.push(`/Setup/Item/Details/0`);
+        const addNewItem = async() => {
+            try {
+                const result = await addItem(item.value, '')
+            } catch (error) {
+                await presentToast('Erro adding new item')
+            }
+            // router.push(`/Setup/Item/Details/0`);
         }
         
         async function fetchList() {
@@ -160,7 +187,7 @@ name: 'DashboardView', // Update the component name here
             imagePath,
             
             // events
-            openItemDetailForm,
+            addNewItem,
 
             openActionSheet,
             handleDelete,

@@ -14,7 +14,7 @@
                 <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
                 <ion-label>Save</ion-label>
             </ion-button>
-            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%" @click="handleLock">
+            <ion-button v-if="!sales.is_locked?? false" size="medium" expand="block" style="height: 90%" @click="handleLock">
                 <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>&nbsp;
                 <ion-label>Lock</ion-label>
             </ion-button>
@@ -423,16 +423,15 @@ export default defineComponent({
 
         async function handleLock() {
             try {
-                sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
-                const response = await lockSales(sales.value)
-                if(response.success){
-                    alertMessage.value = 'Sales successfully locked';
-                    alertTitle.value = 'Success';
-                }else{
-                    alertTitle.value = 'Failed';
-                    alertMessage.value = 'Failed to lock sales';
+                if(!sales.value.is_locked){
+                    sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
+                    const response = await lockSales(sales.value)
+                    if(response.success){
+                        await presentToast('Sales successfully locked')
+                    }else{
+                        await presentToast('Failed to lock sales')
+                    }
                 }
-                open_alert.value = true
             } catch (error) {
                 await presentToast('Operation failed')
             }

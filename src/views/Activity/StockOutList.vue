@@ -32,8 +32,8 @@
 import { STOCK_IN } from '@/models/stock-in.model';
 import { STOCK_OUT } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
-import { getStockInById, getStockIn } from '@/services/activity/stoc-in.service';
-import { getStockOut } from '@/services/activity/stoc-out.service';
+import { getStockInById, getStockIn } from '@/services/activity/stock-in.service';
+import { getStockOut } from '@/services/activity/stock-out.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';

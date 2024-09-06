@@ -32,6 +32,7 @@
                         <ion-note>Barcode:&nbsp;{{ item.bar_code }}</ion-note><br>
                         <ion-note>Cost:&nbsp;{{ item.cost % 1 === 0 ? item.cost + '.00' : item.cost.toFixed(2) }}</ion-note><br>
                         <ion-note>Price:&nbsp;{{ item.price % 1 === 0 ? item.price + '.00' : item.price.toFixed(2) }} </ion-note><br>
+                        <ion-note>Qty:&nbsp;{{ item.quantity % 1 === 0 ? item.quantity + '.00' : item.quantity.toFixed(2) }} </ion-note><br>
                     </ion-label>
                     <ion-select slot="end" interface="pop-over" placeholder="Qty" v-model="quantity" @ionChange="updateQuantity(quantity, item)">
                         <ion-select-option :value="0">0</ion-select-option>

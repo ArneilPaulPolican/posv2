@@ -709,6 +709,5 @@ export const createTables = async (db: SQLiteDBConnection) => {
         await presentToast('Add defaults ended')
     } catch (error) {
         await presentToast('create tables error')
-        await presentToast('create tables error', error);
     }
 };

@@ -50,6 +50,16 @@
                             </ion-col>
                         </ion-row>
                     </ion-item>
+                    
+                    <ion-item>
+                        <ion-row>
+                            <ion-col>
+                                <ion-checkbox v-model="item.is_inventory" label-placement="start">Is Inventory</ion-checkbox>
+                            </ion-col>
+                            <ion-col  size="8">
+                            </ion-col>
+                        </ion-row>
+                    </ion-item>
                     <ion-item>
                         <ion-row>
                             <ion-col>
@@ -88,17 +98,10 @@
                 <UnitListModal @unit-picked="handleUnitPicked"  @close="open_unit_modal = false"/>
             </ion-modal>
             <ion-modal :is-open="open_tax_modal" @close="open_tax_modal = false">
-                <TaxListModal @unit-picked="handleTaxPicked"  @close="open_tax_modal = false"/>
+                <TaxListModal @tax-picked="handleTaxPicked"  @close="open_tax_modal = false"/>
             </ion-modal>
         </ion-content>
         
-        <!-- <AlertComponent v-if="open_alert"
-        :title="alertTitle"
-        :sub_title="alertSubTitle"
-        :message="alertMessage"
-        @cancel="open_alert = false"
-        @confirm="confirmReturn"
-        /> -->
     </ion-page>
 </template>
 
@@ -113,7 +116,6 @@ import { Lock } from '@/services/lock';
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import UnitListModal from '@/components/Modal/UnitListModal.vue';
 import TaxListModal from '@/components/Modal/TaxListModal.vue';
-// import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/plugins/toast.service';
 
@@ -122,7 +124,6 @@ export default defineComponent({
     components: { 
         UnitListModal,
         TaxListModal,
-        // AlertComponent
     },
     setup() {
         //#region VARIABLES
@@ -207,6 +208,7 @@ export default defineComponent({
                         await presentToast('Failed to create item')
                     }
                 }else{
+                    console.log(item.value)
                     const response = await updateItem(item.value, imagePath.value);
                     if(response){
                         await presentToast('Item successfully updated')
@@ -249,13 +251,12 @@ export default defineComponent({
                             is_package: itemRes.is_package,
                             // item_components: itemRes.item_components || [], // Handle optional properties
                             is_locked: itemRes.is_locked ,
-                            expiry_date: itemRes.expiry_date ,
+                            expiry_date: itemRes.expiry_date,
                             lot_number: itemRes.lot_number,
                         };
                     }else{ 
-                        alertTitle.value = 'Not Found';
-                        alertMessage.value = 'No Item exist';
-                        open_alert.value = true; // Open the alert
+                        await presentToast('No item found');
+                        icon_is_clicked()
                     }
                 }else{
                     const item_code = await getLastItemCode();
@@ -269,7 +270,7 @@ export default defineComponent({
         }
         //#endregion
         onMounted(async () => {
-            // await fetchDetails();
+            await fetchDetails();
         });
         onIonViewDidEnter(async () => {
             await fetchDetails()

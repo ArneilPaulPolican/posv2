@@ -17,9 +17,12 @@ export class STOCK_IN_ITEMS_DTO {
     in_number:string ='';
     date_time: string ='';
     item_id: number =0;
+    item_code: string = '';
     item_barcode: string = '';
     item_description:string = '';
+    item_image_path: string = '';
     unit_id: number =0;
+    unit_code:string ='';
     unit:string ='';
     quantity: number=0;
     cost: number =0;
