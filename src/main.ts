@@ -74,16 +74,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   /* SQLite Global Variables*/
 
   // Only if you want to use the onProgressImport/Export events
-  const [jsonListeners, setJsonListeners] = useState(false);
-  const [isModal, setIsModal] = useState(false);
-  const [message, setMessage] = useState("");
-  app.config.globalProperties.$isModalOpen = {isModal: isModal, setIsModal: setIsModal};
-  app.config.globalProperties.$isJsonListeners = {jsonListeners: jsonListeners, setJsonListeners: setJsonListeners};
-  app.config.globalProperties.$messageContent = {message: message, setMessage: setMessage};
+  // const [jsonListeners, setJsonListeners] = useState(false);
+  // const [isModal, setIsModal] = useState(false);
+  // const [message, setMessage] = useState("");
+  // app.config.globalProperties.$isModalOpen = {isModal: isModal, setIsModal: setIsModal};
+  // app.config.globalProperties.$isJsonListeners = {jsonListeners: jsonListeners, setJsonListeners: setJsonListeners};
+  // app.config.globalProperties.$messageContent = {message: message, setMessage: setMessage};
 
   //  Existing Connections Store
-  const [existConn, setExistConn] = useState(false);
-  app.config.globalProperties.$existingConn = {existConn: existConn, setExistConn: setExistConn};
+  // const [existConn, setExistConn] = useState(false);
+  // app.config.globalProperties.$existingConn = {existConn: existConn, setExistConn: setExistConn};
   let db: SQLiteDBConnection | null = null;
   try {
     await dbLock.acquire(); // Acquire the lock

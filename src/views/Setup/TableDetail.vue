@@ -43,7 +43,7 @@
 <script lang="ts">
 import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 import router from '@/router';
 import { getTableById, getTables } from '@/services/setup/table.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
@@ -78,32 +78,17 @@ export default defineComponent({
             table_id.value = routeParams; 
 
             setTimeout(async () => {
-                const tableResult = await getTableById(routeParams)
-                await presentToast("table ")
-                if(tableResult){
+                const result = await getTableById(routeParams)
+                if(result.success && result.data){
                     table.value ={
-                        id: tableResult.id,
-                        table_code: tableResult.table_code,
-                        table_name: tableResult.table_name,
-                        category: tableResult.category,
-                        pax: tableResult.pax,
-                        image_path: tableResult.image_path,
-                        is_locked: tableResult.is_locked,
+                        id: result.data.id,
+                        table_code: result.data.table_code,
+                        table_name: result.data.table_name,
+                        category: result.data.category,
+                        pax: result.data.pax,
+                        image_path: result.data.image_path,
+                        is_locked: result.data.is_locked,
                     }
-                }else{
-                    // if(routeParams !=0 ){
-                        
-                    //     alertTitle.value = 'Not Found';
-                    //     alertSubTitle.value = 'TAX Not Found'
-                    //     alertMessage.value = 'No tax exist';
-                    //     open_alert.value = true; // Open the alert
-                    // }else{
-                    //     table.value ={
-                    //         id:0,
-                    //         table: '',
-                    //         is_default_value: false,
-                    //     }
-                    // }
                 }
             }, 500);
         }

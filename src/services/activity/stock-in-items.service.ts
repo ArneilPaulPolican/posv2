@@ -1,7 +1,6 @@
 import { STOCK_IN_ITEMS } from "@/models/stock-in-item.model";
 import { DBConnectionService } from "../database.connection";
 import { ITEMS_TABLE, STOCK_IN_ITEMS_TABLE, STOCK_INS_TABLE, UNITS_TABLE, USERS_TABLE } from "@/schema/tables";
-import { presentToast } from "@/plugins/toast.service";
 
 export const getItemsByStockInId = async (id: number) => {
     const dbConnectionService = await DBConnectionService.getInstance();
@@ -95,7 +94,6 @@ export const addBulkStockInItem = async (stock_in_id:number, data: STOCK_IN_ITEM
             try {
                 const res = await db.query(query, values);
             } catch (error) {
-                await presentToast('Error adding bulk items:');
                 throw error;
             }
         }

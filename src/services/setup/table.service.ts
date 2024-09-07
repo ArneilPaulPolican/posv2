@@ -8,7 +8,7 @@ interface ResultSet {
     raw: () => any[];
   };
 }
-export const getTables = async (): Promise<TABLE[]> => {
+export const getTables = async ()  => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -20,11 +20,8 @@ export const getTables = async (): Promise<TABLE[]> => {
     
     const result = await db.query(taxServiceQuery);
    
-    await presentToast('Res Values', JSON.stringify(result.values));
-    return result.values as TABLE[];
+    return { success: true, data: result.values as TABLE[] };
   } catch (error) {
-    await presentToast('get tables error');
-    await presentToast(error);
     throw error;
   }
 };
@@ -42,7 +39,6 @@ export const getTableById = async (id: number) => {
 
     
     const result = await db.query(query, params);
-    await presentToast('Res Values', JSON.stringify(result.values));
     const table = result.values?.map(table => ({
       id: table.id,
       table_code: table.table_code,
@@ -52,12 +48,8 @@ export const getTableById = async (id: number) => {
       image_path: table.image_path,
       is_locked: table.is_locked,
     }))[0];
-    await presentToast('table', JSON.stringify(table));
-    return table;
-    
+    return { success: true, data: table };
   } catch (error) {
-    await presentToast('get table error');
-    await presentToast(error);
     throw error;
   }
 };
@@ -67,7 +59,6 @@ export const addTable = async (data: TABLE) => {
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
-    await presentToast('DATA ', data);
     
     const taxServiceQuery = 
     `
@@ -90,10 +81,9 @@ export const addTable = async (data: TABLE) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('add table query results', res);
-    return true;
+    return { success: true };
   } catch (error) {
-    await presentToast('add table error:', error);
+    throw error;
   }
 };
 
@@ -125,10 +115,9 @@ export const updateTable = async (data: TABLE) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('add table query results', res);
-    return true;
+    return { success: true };
   } catch (error) {
-    await presentToast('add table error:', error);
+    throw error;
   } 
 };
 
@@ -148,10 +137,8 @@ export const deleteTable = async (id: number) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('cancel query response ', res)
-    // return true,Id;
     return { success: true};
   } catch (error) {
-    return { success: false};
+    throw error;
   }
 };

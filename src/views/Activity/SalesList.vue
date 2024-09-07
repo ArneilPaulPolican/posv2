@@ -32,7 +32,7 @@ export default defineComponent({
         const openDetailForm = async() => {
             const response = await newSales();
             if(response.success){
-                router.push(`/Activity/Sales/Details/${response.insertedId}`);
+                router.push(`/Activity/Sales/Details/${response.data}`);
             }
         }
         return{

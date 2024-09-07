@@ -73,7 +73,7 @@ export const getItems = async () => {
       data.value = res.values as ITEM_DTO[];
     }
 
-    return data.value;
+    return { success: true, data: data.value }
 
   } catch (error) {
     throw error;
@@ -153,8 +153,8 @@ export const getItemById = async (id: number) => {
       expiry_date:  item.expiry_date,
       lot_number:  item.expiry_date,
     }))[0];
-    console.log(item)
-    return item;
+
+    return { success: true , data:item }
 
   } catch (error) {
     throw error;
@@ -167,7 +167,8 @@ export const getLastItemCode = async (): Promise<string> => {
   try {
     const query = `SELECT item_code FROM ${ITEMS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
-    const last_code =result?.values?.[0].sales_number;
+    console.log(result?.values?.[0])
+    const last_code =result?.values?.[0].item_code;
     return last_code || '0000000001';
   } catch (error) {
     return '0000000001';
@@ -178,14 +179,12 @@ export const addItem = async (data: ITEM, processedImageSavePath: string) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
-
     
-  let item_code = await getLastItemCode();
-  const currentItemCode = parseInt(item_code, 10);
-  const nextItemCode = currentItemCode + 1;
-  const formattedNextSalesNumber = nextItemCode.toString().padStart(10, '0');
-  item_code = formattedNextSalesNumber;
-
+    let item_code = await getLastItemCode();
+    const currentItemCode = parseInt(item_code, 10);
+    const nextItemCode = currentItemCode + 1;
+    const formattedNextSalesNumber = nextItemCode.toString().padStart(10, '0');
+    item_code = formattedNextSalesNumber;
     const transaction: any = [
       {
         statement: `
@@ -285,7 +284,94 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
 
     // Execute the transaction
     await db.executeTransaction(transactionStatements);
-    return true;
+    return { success: true }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const lockItem = async (data: ITEM, processedImageSavePath: string) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+
+  try {
+    const transactionStatements = [
+      {
+        statement: `
+          UPDATE ${ITEMS_TABLE} SET
+            bar_code = ?,
+            item_description = ?,
+            alias = ?,
+            category = ?,
+            price = ?,
+            cost = ?,
+            unit_id = ?,
+            is_inventory = ?,
+            generic_name = ?,
+            tax_id = ?,
+            remarks = ?,
+            image_path = ?,
+            is_package = ?,
+            is_locked = ?,
+            expiry_date = ?,
+            lot_number = ?
+          WHERE id = ?
+        `,
+        values: [
+          data.item_description,
+          data.bar_code,
+          data.alias,
+          data.category,
+          data.price,
+          data.cost,
+          data.unit_id,
+          data.is_inventory,
+          data.generic_name,
+          data.tax_id,
+          data.remarks,
+          processedImageSavePath,
+          data.is_package,
+          true,
+          data.expiry_date,
+          data.lot_number,
+          data.id,
+        ],
+      },
+      // Add additional statements here if needed
+    ];
+
+    // Execute the transaction
+    await db.executeTransaction(transactionStatements);
+    return { success: true }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const unlockItem = async (data: ITEM) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+
+  try {
+    console.log(data.is_inventory)
+    const transactionStatements = [
+      {
+        statement: `
+          UPDATE ${ITEMS_TABLE} SET
+            is_locked = ?
+          WHERE id = ?
+        `,
+        values: [
+          false,
+          data.id
+        ],
+      },
+      // Add additional statements here if needed
+    ];
+
+    // Execute the transaction
+    await db.executeTransaction(transactionStatements);
+    return { success: true }
   } catch (error) {
     throw error;
   }

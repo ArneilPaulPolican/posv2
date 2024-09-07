@@ -5,7 +5,6 @@ import { SALES, SALES_DTO } from '@/models/sales.model';
 import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM, SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { presentToast } from '@/plugins/toast.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<SALES_ITEM[]>([])
@@ -67,7 +66,6 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
      
       return result.values as SALES_ITEM_DTO[];
     } catch (error) {
-      await presentToast('Error')
       throw error;
     }
 };
@@ -152,7 +150,6 @@ export const getSalesItemById = async (id:number) => {
    
     return sales_item;
   } catch (error) {
-    await presentToast
     throw error;
   }
 };
@@ -192,12 +189,10 @@ export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) =>
             try {
               const res = await db.query(query, values);
             } catch (error) {
-              await presentToast('Error adding bulk items:');
               throw error;
             }
           }
     } catch (error) {
-      await presentToast('Error adding bulk items:');
       throw error;
     }
 }
@@ -245,7 +240,6 @@ export const updatebULKSalesItem = async (items: SALES_ITEM_DTO[]) => {
     }
     return true;
   } catch (error) {
-    await presentToast('Update sales item error')
     throw error;
   }
 };

@@ -28,6 +28,7 @@
 </template>
 
 <script lang="ts">
+import { presentToast } from '@/composables/toast.service';
 import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
 import router from '@/router';
@@ -91,8 +92,14 @@ export default defineComponent({
         }
         
         async function fetchList() {
-            const response = await getTables()
-            tables.value = response
+            try {
+                const result = await getTables();
+                if(result.success){
+                    tables.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         onMounted(async () => {
           await fetchList()

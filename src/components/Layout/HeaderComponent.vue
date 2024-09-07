@@ -10,9 +10,11 @@
         </ion-buttons>
         <ion-title>{{ title }}</ion-title>
         <router-link v-if="$route.path.toLowerCase() !== '/dashboard' " to="/"  slot="end" style="margin-right: 10px;">
-          <ion-buttons size="large">
-            <ion-icon :icon="icons.homeSharp"></ion-icon>
-          </ion-buttons>
+            <!-- <ion-icon :icon="icons.homeSharp"></ion-icon> -->
+            <ion-avatar style="align-content: center;">
+                <img src="../../../public/favicon.png" style="height: 60%; width: 60%; align-self: center; object-fit: contain; margin: auto;"/>
+                <!-- <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon> -->
+            </ion-avatar>
         </router-link>
       </ion-toolbar>
     </ion-header>

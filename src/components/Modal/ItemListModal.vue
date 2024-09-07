@@ -2,7 +2,6 @@
     <ion-page>
         <ion-header :translucent="true">
             <ion-toolbar>
-            <ion-title>Select Item</ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-item>
@@ -55,6 +54,7 @@ import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { getItems } from '@/services/setup/item.service';
 import NumberInput from '../NumberInput.vue';
+import { presentToast } from '@/composables/toast.service';
 
 export default defineComponent({
     components:{
@@ -121,7 +121,14 @@ export default defineComponent({
         }
 
         async function fetchList() {
-             items.value = await getItems()
+            try {
+                const result = await getItems();
+                if(result.success){
+                    items.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         onIonViewDidEnter(async () => {
             await fetchList()

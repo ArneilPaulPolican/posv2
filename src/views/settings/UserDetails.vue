@@ -55,8 +55,10 @@ export default defineComponent({
             router.push(`/Settings/Users`);
         }
         async function fetchList() {
-            const response = await getUserById()
-            user.value = { ... response }
+            const result = await getUserById();
+            if(result.success && result.data){
+                user.value = { ... result.data }
+            }
         }
         onMounted(async () =>{
             await fetchList();

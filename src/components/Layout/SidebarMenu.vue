@@ -2,7 +2,11 @@
     <ion-page>
         <ion-content>
           <ion-list id="inbox-list">
-            <!-- <img src="/public/favicon.png" style="justify-self: center;"> -->
+            <ion-item>
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <img src="/public/favicon.png" style="justify-self: center;">
+                </div>
+            </ion-item>
             <ion-item>
                 <h1>Company</h1>
             </ion-item>

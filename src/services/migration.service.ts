@@ -8,7 +8,6 @@ import { SQLiteDBConnection, SQLiteHook } from 'vue-sqlite-hook/dist';
 import { defineComponent, onMounted, getCurrentInstance } from 'vue';
 import MIGRATION from '@/models/migration.model';
 import { sync } from 'ionicons/icons';
-import { presentToast } from '@/plugins/toast.service';
 // import { alterSalesTable } from '@/migration-script/001_add_amounts_to_sales_table';
 
 const app = getCurrentInstance()
@@ -38,7 +37,6 @@ export const getMigrations = async () => {
         }
         return data.value;
     } catch (error) {
-      await presentToast('Error');
       throw error;
     }
 };

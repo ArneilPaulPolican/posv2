@@ -65,7 +65,7 @@ import { addTax, getTaxes, getTaxesById, updateTax } from '@/services/system/tax
 import { Lock } from '@/services/lock';
 import { TAX } from '@/models/tax.model';
 import { onIonViewDidEnter } from '@ionic/vue';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 
 export default defineComponent({
     components: { 
@@ -141,14 +141,14 @@ export default defineComponent({
             const routeParams = +route.params.id;
             tax_id = routeParams ; 
             if(tax_id != 0){
-                const taxResult = await getTaxesById(routeParams)
-                if(taxResult){
+                const result = await getTaxesById(routeParams)
+                if(result.success && result.data){
                     tax.value ={
-                        id: taxResult.id,
-                        tax_code: taxResult.tax_code,
-                        tax: taxResult.tax,
-                        rate: taxResult.rate,
-                        is_inclusive: taxResult.is_inclusive
+                        id: result.data.id,
+                        tax_code: result.data.tax_code,
+                        tax: result.data.tax,
+                        rate: result.data.rate,
+                        is_inclusive: result.data.is_inclusive
                     }
                 }else{
                     alertTitle.value = 'Not Found';

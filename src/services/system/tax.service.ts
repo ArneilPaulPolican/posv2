@@ -7,7 +7,7 @@ interface ResultSet {
     raw: () => any[];
   };
 }
-export const getTaxes = async (): Promise<TAX[]> => {
+export const getTaxes = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -19,7 +19,7 @@ export const getTaxes = async (): Promise<TAX[]> => {
     
     const result = await db.query(taxServiceQuery);
    
-    return result.values as TAX[];
+    return { success: true, data: result.values as TAX[]};
   } catch (error) {
     throw error;
   }
@@ -45,8 +45,7 @@ export const getTaxesById = async (id: number) => {
       rate: tax.rate,
       is_inclusive: tax.is_inclusive,
     }))[0];
-    return tax;
-    
+    return { success: true, data: tax};
   } catch (error) {
     throw error;
   }
@@ -77,7 +76,7 @@ export const addTax = async (data: TAX) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
+    return { success: true};
   } catch (error) {
     throw error;
   }
@@ -107,7 +106,7 @@ export const updateTax = async (data: TAX) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
+    return { success: true};
   } catch (error) {
     throw error;
   } 
@@ -131,6 +130,6 @@ export const deleteTax = async (id: number) => {
     const res = await db.executeTransaction(transactionStatements);
     return { success: true };
   } catch (error) {
-    return { success: false };
+    throw error;
   }
 };

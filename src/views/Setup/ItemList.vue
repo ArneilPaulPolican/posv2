@@ -20,7 +20,6 @@
                 <!-- List -->
                 <ion-item v-for="item in items" :key="item.item_code" @click="openActionSheet(item)">
                     <ion-avatar aria-hidden="true" slot="start">
-                        <!-- <img alt="" v-if="item.image" :src="item.image" /> -->
                         <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
                     </ion-avatar>
                     <ion-label>
@@ -58,7 +57,7 @@ import { addTax } from '@/services/system/tax.service';
 import { UNIT } from '@/models/unit.model';
 import { TAX } from '@/models/tax.model';
 import ItemDetail from './ItemDetail.vue';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 
 // Define the interface for your data
 interface DemoTableRow {
@@ -166,12 +165,17 @@ name: 'DashboardView', // Update the component name here
                     router.push(`/Setup/Item/Details/${result.insertedId}`);
                 }
             } catch (error) {
-                await presentToast('Erro adding new item')
+                await presentToast(`Erroe adding new item ${error}`)
             }
         }
         
         async function fetchList() {
-            items.value = await getItems()
+            const result = await getItems()
+            if(result.success){
+                items.value = result.data;
+            }else{
+                await presentToast('No item found');
+            }
         }
         onIonViewDidEnter(async () => {
             await fetchList()

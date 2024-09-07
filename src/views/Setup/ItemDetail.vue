@@ -1,17 +1,39 @@
 <template>
-    <ion-page :key="$route.path">
+    <ion-page>
         <!-- <HeaderComponent :title="header" /> -->
 
         <ion-item>
-            <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="icon_is_clicked"></ion-icon>
-            <ion-button slot="end" size="medium" expand="block" style="height: 100%"
-                @click="handleSave()">
-                <ion-label>Save</ion-label>
-            </ion-button>
-            <ion-button slot="end" size="medium" expand="block" style="height: 100%"
-                @click="">
-                <ion-label>Save</ion-label>
-            </ion-button>
+            <div style="display: flex; overflow-x: auto; white-space: nowrap; width: 100%; padding-right: 10px;height: 100%; align-items: center;">
+                <!-- <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleBackButton"></ion-icon> -->
+                <ion-button size="medium" expand="block" style="height: 90%"
+                    @click="handleBackButton()" >
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                        <ion-label>Back</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="!item.is_locked" size="medium" expand="block" style="height: 90%"
+                    @click="handleSave()" :disabled="buttonDisabled">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.saveSharp"></ion-icon>
+                        <ion-label>Save</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="!item.is_locked" size="medium" expand="block" style="height: 90%"
+                    @click="handleLock()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
+                        <ion-label>Lock</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="item.is_locked" size="medium" expand="block" style="height: 90%"
+                    @click="handleUnlock()" :disabled="!buttonDisabled">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.lockOpenSharp"></ion-icon>
+                        <ion-label>Unlock</ion-label>
+                    </div>
+                </ion-button>
+            </div>
         </ion-item>
         
         <ion-item>
@@ -65,18 +87,8 @@
                         </ion-row>
                     </ion-item>
                     <ion-item>
-                        <ion-row>
-                            <ion-col>
-                                <ion-label position="stacked">Tax :</ion-label>
-                                <ion-input :readonly="true" v-model="item.tax" placeholder="VAT" @click="openTaxModal(true)"></ion-input>
-                            </ion-col>
-                            <ion-col  size="8">
-                                <ion-datetime-button v-model="item.expiry_date" datetime="datetime"></ion-datetime-button>
-                                <ion-modal :keep-contents-mounted="true">
-                                    <ion-datetime id="datetime"></ion-datetime>
-                                </ion-modal>
-                            </ion-col>
-                        </ion-row>
+                        <ion-label position="stacked">Tax :</ion-label>
+                        <ion-input :readonly="true" v-model="item.tax" placeholder="VAT" @click="openTaxModal"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Alias :</ion-label>
@@ -111,17 +123,17 @@
 
 <script  lang="ts">
 import { icons } from '@/plugins/icons';
-import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
-import { addItem, getItemById, getItems, getLastItemCode, updateItem } from '@/services/setup/item.service';
+import { addItem, getItemById, getItems, getLastItemCode, lockItem, unlockItem, updateItem } from '@/services/setup/item.service';
 import { Lock } from '@/services/lock';
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import UnitListModal from '@/components/Modal/UnitListModal.vue';
 import TaxListModal from '@/components/Modal/TaxListModal.vue';
 import { onIonViewDidEnter } from '@ionic/vue';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 import { reload } from 'ionicons/icons';
 
 
@@ -136,7 +148,6 @@ export default defineComponent({
         const dbLock = new Lock(); // Create a new lock
         const router = useRouter();
         const imagePath = ref('');
-        // const item = ref<any>({});
         const item = ref<ITEM_DTO>({
             id:0,
             item_code: '',
@@ -168,11 +179,13 @@ export default defineComponent({
         const alertSubTitle = ref('');
         const alertMessage = ref('');
         const not_found = ref(false);
+
+        const buttonDisabled = ref(false);
         //#endregion
 
         //#region FUNCTIONS
         // Back
-        function icon_is_clicked(){
+        function handleBackButton(){
             router.push(`/Setup/Items`);
         }
         
@@ -192,17 +205,15 @@ export default defineComponent({
         }
         
         
-        function openTaxModal(isOpen: boolean) {
-            open_tax_modal.value = isOpen
+        function openTaxModal() {
+            open_tax_modal.value = !open_tax_modal.value
         }
         const handleTaxPicked = (tax: any) => {
-            // Handle the picked unit data here
-            open_tax_modal.value = false;
+            open_tax_modal.value = !open_tax_modal.value
             item.value.tax_id = tax.id;
-            // Process the unit data as needed
+            item.value.tax = tax.tax;
         };
 
-        // add data
         const handleSave = async () => {
             try {
                 const response = await updateItem(item.value, imagePath.value);
@@ -218,52 +229,76 @@ export default defineComponent({
             }
         }
 
+        const handleLock = async () => {
+            try {
+                const response = await lockItem(item.value, imagePath.value);
+                if(response.success){
+                    await presentToast('Item successfully locked');
+                }else{
+                    await presentToast('Failed to lock item')
+                }
+            } catch (err) {
+                await presentToast('Error adding data:')
+            }
+        }
+
+        const handleUnlock = async () => {
+            try {
+                const response = await unlockItem(item.value);
+                if(response.success){
+                    await presentToast('Item successfully unlock');
+                }else{
+                    await presentToast('Failed to unlock item')
+                }
+            } catch (err) {
+                await presentToast(`Unlock operation unsuccesful: ${err}`)
+            }
+        }
+
         async function fetchDetails() {
             const routeParams = +route.params.id;
-            item_id = routeParams ;
-            setTimeout(async() => {
-                if(item_id != 0){
-                    const itemRes = await getItemById(routeParams)
-                    if(itemRes){
+            item_id = routeParams;
+
+            setTimeout(async () => {
+                const itemRes = await getItemById(routeParams)
+                if(itemRes.success){
+                    if(itemRes.data){
+                        console.log(itemRes.data)
                         item.value = {
-                            id: itemRes.id,
-                            item_code: itemRes.item_code,
-                            item_description: itemRes.item_description ,
-                            bar_code: itemRes.bar_code ,
-                            alias: itemRes.alias ,
-                            category: itemRes.category,
-                            price: itemRes.price,
-                            cost: itemRes.cost ,
-                            quantity: itemRes.quantity,
-                            unit_id: itemRes.unitId, // Map unitId to unit_id
-                            unit: itemRes.unit_code,
-                            is_inventory: itemRes.is_inventory ,
-                            generic_name: itemRes.generic_name,
-                            tax_id: itemRes.taxId, // Map taxId to tax_id
-                            tax: itemRes.tax_code,
-                            remarks: itemRes.remarks,
-                            image_path: itemRes.image_path,
-                            // file_extension: itemRes.file_extension || '',
-                            is_package: itemRes.is_package,
-                            // item_components: itemRes.item_components || [], // Handle optional properties
-                            is_locked: itemRes.is_locked ,
-                            expiry_date: itemRes.expiry_date,
-                            lot_number: itemRes.lot_number,
+                            id: itemRes.data.id,
+                            item_code: itemRes.data.item_code,
+                            item_description: itemRes.data.item_description ,
+                            bar_code: itemRes.data.bar_code ,
+                            alias: itemRes.data.alias ,
+                            category: itemRes.data.category,
+                            price: itemRes.data.price,
+                            cost: itemRes.data.cost ,
+                            quantity: itemRes.data.quantity,
+                            unit_id: itemRes.data.unitId, // Map unitId to unit_id
+                            unit: itemRes.data.unit_code,
+                            is_inventory: itemRes.data.is_inventory ,
+                            generic_name: itemRes.data.generic_name,
+                            tax_id: itemRes.data.taxId,
+                            tax: itemRes.data.tax_code,
+                            remarks: itemRes.data.remarks,
+                            image_path: itemRes.data.image_path,
+                            is_package: itemRes.data.is_package,
+                            is_locked: itemRes.data.is_locked ,
+                            expiry_date: itemRes.data.expiry_date,
+                            lot_number: itemRes.data.lot_number,
                         };
-                    }else{ 
-                        await presentToast('No item found');
-                        icon_is_clicked()
+
                     }
-                }else{
-                    const item_code = await getLastItemCode();
-                    const current_code = parseInt(item_code, 10);
-                    const next_code = current_code + 1;
-                    const formatted_next_code = next_code.toString().padStart(10, '0');
-                    item.value.item_code = formatted_next_code;
+                }else{ 
+                    await presentToast('No item found');
+                    handleBackButton()
                 }
                 
-            }, 500);
+            }, 300);
         }
+        watch(() => item.value.is_locked, (newValue) => {
+            buttonDisabled.value = newValue;
+        });
         //#endregion
         onMounted(async () => {
             await fetchDetails();
@@ -271,6 +306,7 @@ export default defineComponent({
         onIonViewDidEnter(async () => {
             await fetchDetails()
         });
+        
         return{
             header:'ITEM DETAILS',
             icons,
@@ -278,7 +314,7 @@ export default defineComponent({
             open_unit_modal,
             open_tax_modal,
             handleUnitPicked,
-            icon_is_clicked,
+            handleBackButton,
 
             open_alert,
             alertMessage,
@@ -286,12 +322,16 @@ export default defineComponent({
             alertSubTitle,
             not_found,
 
+            buttonDisabled,
+
             handleSave,
             openUnitModal,
             openTaxModal,
             handleTaxPicked,
             confirmReturn,
-            reload
+
+            handleLock,
+            handleUnlock
         }
     }
 });

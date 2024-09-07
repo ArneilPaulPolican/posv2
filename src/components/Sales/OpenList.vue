@@ -40,7 +40,7 @@
 <script lang="ts">
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 import { deleteSales, getOpenSales, getSales } from '@/services/activity/sales.service';
 import { onIonViewDidEnter, actionSheetController, toastController } from '@ionic/vue';
 import { defineComponent, inject, onActivated, onMounted, ref } from 'vue';
@@ -104,8 +104,14 @@ export default defineComponent({
         }
 
         async function fetchData() {
-            const response = await getOpenSales()
-            sales_list.value = response
+            try {
+                const result = await getOpenSales()
+                if(result){
+                    sales_list.value = result.data
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         
         onIonViewDidEnter(async () => {

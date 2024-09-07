@@ -11,7 +11,7 @@ interface ResultSet {
   };
 }
 
-export const getUnits = async (): Promise<UNIT[]> => {
+export const getUnits = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -22,7 +22,7 @@ export const getUnits = async (): Promise<UNIT[]> => {
     const unitServiceQuery = `SELECT * FROM ${UNITS_TABLE}`;
     const res = await db.query(unitServiceQuery);
 
-    return res.values as UNIT[];
+    return { success: true, data: res.values as UNIT[]};
   } catch (error) {
     throw error;
   } 
@@ -47,7 +47,7 @@ export const getUnitsById = async (id:number) => {
       unit: unit.unit,
     }))[0];
 
-    return unit;
+    return { success: true, data: unit};
   } catch (error) {
     throw error;
   } 
@@ -71,9 +71,9 @@ export const addUnit = async (data: UNIT) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
+    return { success: true};
   } catch (error) {
-    throw new Error("Add unit error", );
+    throw error;
   }
 };
 
@@ -97,7 +97,7 @@ export const updateUnit = async (data: UNIT) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
+    return { success: true};
   } catch (error) {
     throw error;
   }
@@ -121,6 +121,6 @@ export const deleteUnit = async (id: number) => {
     const res = await db.executeTransaction(transactionStatements);
     return { success: true};
   } catch (error) {
-    return { success: false};
+    throw error;
   }
 };

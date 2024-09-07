@@ -1,4 +1,3 @@
-// storage.service.js
 import { Storage } from '@capacitor/storage';
 
 class StorageService {

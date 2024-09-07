@@ -31,6 +31,7 @@ import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter, onIonViewWillEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { UNIT } from '@/models/unit.model';
+import { presentToast } from '@/composables/toast.service';
 
 
 export default defineComponent({
@@ -85,8 +86,14 @@ export default defineComponent({
         }
         
         async function fetchList() {
-            const response = await getUnits()
-            units.value = response
+            try {
+                const result = await getUnits()
+                if(result.success){
+                    units.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         onIonViewDidEnter(async () => {
             await fetchList()

@@ -31,6 +31,7 @@ import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { TAX } from '@/models/tax.model';
 import { getTaxes } from '@/services/system/tax.service';
+import { presentToast } from '@/composables/toast.service';
 
 
 export default defineComponent({
@@ -84,8 +85,14 @@ export default defineComponent({
         }
 
         async function fetchList() {
-            const response = await getTaxes()
-            taxes.value = response
+            try {
+                const result = await getTaxes();
+                if(result.success){
+                    taxes.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         onIonViewDidEnter(async () => {
             await fetchList()

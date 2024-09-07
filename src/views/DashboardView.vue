@@ -177,7 +177,7 @@ export default defineComponent({
 
 
 
-<style lang="css">
+<!-- <style lang="css">
 .icon-label-wrapper {
   display: flex;
   flex-direction: column;
@@ -193,4 +193,4 @@ export default defineComponent({
 .icon-label-wrapper span {
   font-size: 14px; /* adjust label size as needed */
 }
-</style>
+</style> -->

@@ -9,32 +9,56 @@
 
 
         <ion-item style="position: relative;">
-            <div style="display: flex; overflow-x: auto; white-space: nowrap; width: 100%; padding-right: 10px;height: 100%">
-            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%" @click="handleSave">
-                <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
-                <ion-label>Save</ion-label>
-            </ion-button>
-            <ion-button v-if="!sales.is_locked?? false" size="medium" expand="block" style="height: 90%" @click="handleLock">
-                <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>&nbsp;
-                <ion-label>Lock</ion-label>
-            </ion-button>
-            <ion-button v-if="!sales.is_billed_out?? false" size="medium" expand="block" style="height: 90%" @click="handleBillOut">
-                <ion-icon :icon="icons.receiptSharp"></ion-icon>&nbsp;
-                <ion-label>Bill Out</ion-label>
-            </ion-button>
-            <ion-button size="medium" expand="block" style="height: 90%" @click="printInvoice">
-                <ion-icon :icon="icons.printSharp"></ion-icon>&nbsp;
-                <ion-label>Print</ion-label>
-            </ion-button>
-            <ion-button @click="confirmReturn" size="medium" expand="block" style="height: 90%">
-                <ion-icon :icon="icons.arrowBackSharp"></ion-icon>&nbsp;
-                <ion-label>Back</ion-label>
-            </ion-button>
-            <ion-button v-if="!sales.is_cancelled && sales.is_locked" @click="confirmReturn" size="medium" expand="block" style="height: 90%">
-                <ion-icon :icon="icons.closeCircle"></ion-icon>&nbsp;
-                <ion-label>Cancel</ion-label>
-            </ion-button>
-        </div>
+            <div style="display: flex; overflow-x: auto; white-space: nowrap; width: 100%; padding-right: 10px;height: 100%; align-items: center;">
+                <ion-button @click="confirmReturn" size="medium" expand="block" style="height: 90%">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                        <ion-label>Back</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="!sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleSave()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
+                        <ion-label>Save</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button size="medium" expand="block" style="height: 90%" @click="handleCheckOut()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.basketSharp"></ion-icon>
+                        <ion-label>Check Out</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="!sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleLock()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>
+                        <ion-label>Lock</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleUnlock()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>
+                        <ion-label>Unlock</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleBillOut()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.receiptSharp"></ion-icon>
+                        <ion-label>Bill</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handlePrint()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.printSharp"></ion-icon>
+                        <ion-label>Print</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button v-if="!sales.is_cancelled && sales.is_locked && sales.is_billed_out" @click="confirmReturn" size="medium" expand="block" style="height: 90%">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.closeCircle"></ion-icon>
+                        <ion-label>Cancel</ion-label>
+                    </div>
+                </ion-button>
+            </div>
         </ion-item>
 
         <div style="background-color: black;">
@@ -149,7 +173,11 @@
             <ion-modal :is-open="open_sales_item_modal" @close="open_sales_item_modal = false">
                 <SalesItemDetailsModal :sales_item="sales_item" 
                 @close="open_sales_item_modal = false"
-                @submit="() => { calculateAmount(); open_sales_item_modal = false; }"/>
+                @submit="() => { handleUpdateSalesItem(); open_sales_item_modal = false; }"/>
+            </ion-modal>
+            
+            <ion-modal :is-open="open_checkout_modal" @close="open_checkout_modal = false">
+                <CheckOutModal :sales="sales" @submit="submitCheckOut()"  @close="open_checkout_modal = false"/>
             </ion-modal>
 
         </ion-content>
@@ -177,13 +205,15 @@ import ItemListModal from '@/components/Modal/ItemListModal.vue';
 import SalesItemDetailsModal from '@/components/Modal/SalesItemDetailsModal.vue';
 import CustomerListModal from '@/components/Modal/CustomerListModal.vue';
 import DiscountListModal from '@/components/Modal/DiscountListModal.vue';
-import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, lockSales, updateSales } from '@/services/activity/sales.service';
+import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, lockSales, unlockSales, updateSales } from '@/services/activity/sales.service';
 import { Lock } from '@/services/lock';
 import { addBulkSalesItem, getSalesItemBySalesId, updatebULKSalesItem } from '@/services/activity/sales-item.service';
 import { generateSales } from '@/composables/pdf-generator';
 import { disc } from 'ionicons/icons';
 import { DISCOUNT_DTO } from '@/models/discount.model';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
+import { unlockCustomers } from '@/services/setup/customer.service';
+import CheckOutModal from '@/components/Modal/CheckOutModal.vue';
 // import { generatePDF } from '@/composables/pdf-generator';
 
 export default defineComponent({
@@ -194,13 +224,11 @@ export default defineComponent({
         SalesItemDetailsModal,
         CustomerListModal,
         DiscountListModal,
+        CheckOutModal
     },
     setup(){
         const route = useRoute();
-        const dbLock = new Lock(); // Create a new lock
         const router = useRouter();
-        const amount = ref(0);
-        const sales_number = ref('');
         const sales =  ref<SALES_DTO>({
             id: undefined,
             user_id: 0,
@@ -240,15 +268,14 @@ export default defineComponent({
         const alertSubTitle = ref('');
         const alertMessage = ref('');
         const not_found = ref(false);
-        const date_today = new Date;
         const sales_item_list = ref<SALES_ITEM_DTO[]>([]);
         const open_customer_modal =  ref(false);
         const open_discount_modal =  ref(false);
         const open_item_modal =  ref(false);
         const open_sales_item_modal = ref(false);
         const sales_item = ref(null);
-        const pdf_src = ref('');
-        const open_pdf_modal =  ref(false);
+
+        const open_checkout_modal =  ref(false);
 
         //#region   Actionsheet
         const actionSheetButtons = (item:any) => [
@@ -371,6 +398,7 @@ export default defineComponent({
                 _net_amount += (item.quantity * (item.net_price ?? 0));
             });
             sales.value.total_amount = _amount;
+            sales.value.balance_amount = _amount;
             sales.value.discount_amount = _disc_amount;
             sales.value.net_amount = parseFloat(_net_amount.toFixed(2));
         }
@@ -408,16 +436,13 @@ export default defineComponent({
                 sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
                 const response = await updateSales(sales.value)
                 if(response.success){
-                    alertMessage.value = 'Sales successfully updated';
-                    alertTitle.value = 'Success';
+                    await presentToast(`Sales successfully updated`)
                 }else{
                     await presentToast('Failed to update sales')
-                    alertTitle.value = 'Failed';
-                    alertMessage.value = 'Failed to update sales';
                 }
                 open_alert.value = true
             } catch (error) {
-                await presentToast('Operation failed')
+                await presentToast(`Operation failed: ${error}`)
             }
         }
 
@@ -433,32 +458,50 @@ export default defineComponent({
                     }
                 }
             } catch (error) {
-                await presentToast('Operation failed')
+                await presentToast(`Operation failed: ${error}`)
+            }
+        }
+        
+        async function handleUnlock() {
+            try {
+                const response = await unlockSales(sales.value)
+                if(response.success){
+                    await presentToast('Sales successfully unlocked')
+                }else{
+                    await presentToast('Failed to unlocked sales')
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
             }
         }
 
         async function handleBillOut() {
-            if(sales.value.total_amount != 0){
+            try {
                 const response = await billOutSales(sales.value);
                 if(response.success){
-                    await presentToast('Sales successfully updated!');
-
-                    alertMessage.value = 'Sales successfully updated';
-                    alertTitle.value = 'Success';
+                    await presentToast('Sales successfully billed out!');
                 }else{
-                    await presentToast('Sales successfully updated!');
-                    await presentToast('Failed to update sales')
-                    alertTitle.value = 'Failed';
-                    alertMessage.value = 'Failed to update sales';
+                    await presentToast('Failed to bill out sales')
                 }
                 open_alert.value = true
+                
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
             }
             
         }
 
-        async function printInvoice() {
+        async function handlePrint() {
             await generateSales(sales.value, sales_item_list.value)
         }
+
+        async function handleCheckOut() {
+            open_checkout_modal.value = true;
+        }
+        async function submitCheckOut() {
+            open_checkout_modal.value = false;
+        }
+
 
         async function fetchDetails(){
             open_alert.value = false;
@@ -466,7 +509,7 @@ export default defineComponent({
             open_discount_modal.value =  false;
             open_item_modal.value = false;
             open_sales_item_modal.value =false;
-            open_pdf_modal.value = false;
+            open_checkout_modal.value =false;
 
             const routeParams = +route.params.id;
             sales_id = routeParams ; 
@@ -474,7 +517,7 @@ export default defineComponent({
                 try {
                     const result = await getSalesById(routeParams)
                     if(result){
-                        sales.value = {... result}
+                        sales.value = { ... result}
                         sales_item_list.value = await getSalesItemBySalesId(routeParams)
                     }else{
                         alertTitle.value = 'Not Found';
@@ -498,23 +541,21 @@ export default defineComponent({
         return{
             header:'Sales Details',
             sales,
-            icons,
-            amount,
-            date_today,
             sales_item_list,
+            sales_item,
+            icons,
             open_customer_modal,
             open_discount_modal,
             open_item_modal,
             open_sales_item_modal,
-            open_pdf_modal,
-            sales_item,
+            open_checkout_modal,
+            
             
             open_alert,
             alertMessage,
             alertTitle,
             alertSubTitle,
             not_found,
-
 
             openCustomerModal,
             handleCustomerPicked,
@@ -523,17 +564,22 @@ export default defineComponent({
             handleSubmitItems,
 
             openActionSheet,
+            handleUpdateSalesItem,
+
             handleReturn,
             confirmReturn,
 
             handleSave,
             handleLock,
             handleBillOut,
+            handleUnlock,
+            handleCheckOut,
+            submitCheckOut,
 
             openDiscountModal,
             handleDiscountPicked,
-            printInvoice,
-            calculateAmount
+            handlePrint,
+            calculateAmount,
         }
     }
 })

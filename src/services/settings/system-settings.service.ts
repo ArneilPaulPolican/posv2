@@ -8,7 +8,6 @@ import { SQLiteDBConnection, SQLiteHook } from 'vue-sqlite-hook/dist';
 import { defineComponent, onMounted, getCurrentInstance } from 'vue';
 import { CUSTOMER } from '@/models/customer.model';
 import { SYS_SETTINGS } from '@/models/system-settings.model';
-import { presentToast } from '@/plugins/toast.service';
 
 const app = getCurrentInstance()
 const sqlite: SQLiteHook = app?.appContext.config.globalProperties.$sqlite;
@@ -57,7 +56,6 @@ export const getSystemSettings = async () => {
         
         return sys_settings;
     } catch (error) {
-      await presentToast('Get Customers error!')
       throw error;
     }
 };

@@ -64,7 +64,7 @@
 <script lang="ts">
 import { STOCK_OUT, STOCK_OUT_DTO } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 import { getStockInById, getStockIn } from '@/services/activity/stock-in.service';
 import { addStockOut, getLastOTNumber, getStockOutById, updateStockOut } from '@/services/activity/stock-out.service';
 import { onIonViewDidEnter } from '@ionic/vue';

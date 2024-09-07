@@ -105,12 +105,12 @@ export default defineComponent({
             const routeParams = +route.params.id;
             unit_id = routeParams;
             if(unit_id != 0){
-                const unitResult = await getUnitsById(routeParams)
-                if(unitResult){
+                const result = await getUnitsById(routeParams)
+                if(result.success && result.data){
                     unit.value = {
-                        id: unitResult.id,
-                        unit_code: unitResult.unit_code,
-                        unit: unitResult.unit
+                        id: result.data.id,
+                        unit_code: result.data.unit_code,
+                        unit: result.data.unit
                     }
                 }else{
                     alertTitle.value = 'Not Found';

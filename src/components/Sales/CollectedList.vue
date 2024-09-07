@@ -38,6 +38,7 @@
 <script lang="ts">
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';
+import { presentToast } from '@/composables/toast.service';
 import { getCollectedSales, getOpenSales, getSales } from '@/services/activity/sales.service';
 import { onIonViewDidEnter, actionSheetController } from '@ionic/vue';
 import { defineComponent, onActivated, onMounted, ref } from 'vue';
@@ -56,22 +57,12 @@ export default defineComponent({
         //#region   Actionsheet
         const actionSheetButtons = (sales:any) => [
             {
-                text: 'Delete',
-                role: 'destructive',
+                text: 'Open',
                 handler: () => {
-                    handleDelete(sales);
+                    handleOpen(sales);
                 },
                 data: {
-                    action: 'delete',
-                },
-            },
-            {
-                text: 'Edit',
-                handler: () => {
-                    handleEdit(sales);
-                },
-                data: {
-                    action: 'Edit',
+                    action: 'Open',
                 },
             },
         ];
@@ -86,16 +77,19 @@ export default defineComponent({
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (tax: any) => {
-            throw new Error('Function not implemented.');
-        };
-        const handleEdit = (sales: any) => {
+        const handleOpen = (sales: any) => {
             router.push(`/Activity/Sales/Details/${sales.id}`);
         }
 
         async function fetchData() {
-            const response = await getCollectedSales()
-            sales_list.value = response
+            try {
+                const result = await getCollectedSales();
+                if(result.success){
+                    sales_list.value = result.data
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         
         onIonViewDidEnter(async () => {

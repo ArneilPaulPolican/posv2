@@ -24,21 +24,21 @@ export const getCustomers = async () => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
-        const customerServiceQuery = `SELECT * FROM ${CUSTOMERS_TABLE}`
-        const res = await db.query(customerServiceQuery);
-        await presentToast('query results', res);
-        if(res.values){
-          data.value = res.values as CUSTOMER[];
-        }
-    
-        if (res && Array.isArray(res.values)) {
-          data.value = res.values as CUSTOMER[];
-          await presentToast(data.value )
-        }
-        return data.value;
+      if (!db) {
+        throw new Error('Database connection not open');
+      }
+      const customerServiceQuery = `SELECT * FROM ${CUSTOMERS_TABLE}`
+      const res = await db.query(customerServiceQuery);
+      console.log(res)
+      if(res.values){
+        data.value = res.values as CUSTOMER[];
+      }
+  
+      if (res && Array.isArray(res.values)) {
+        data.value = res.values as CUSTOMER[];
+      }
+      return { success: true, data: data }
     } catch (error) {
-      await presentToast('get customers error');
-      await presentToast(error);
       throw error;
     }
 };
@@ -51,7 +51,6 @@ export const getCustomerById = async (id:number) => {
       const params = [id];
       
       const result = await db.query(query, params);
-      await presentToast('Res Values', JSON.stringify(result.values));
       const customer = result.values?.map(customer => ({
         id: customer.id,
         customer_code: customer.customer_code,
@@ -68,12 +67,9 @@ export const getCustomerById = async (id:number) => {
         is_locked: customer.is_locked,
         is_default_value: customer.is_default_value
       }))[0];
-      await presentToast('query results', customer);
      
-      return customer;
+      return { success: true, data: customer }
   } catch (error) {
-    await presentToast('get customers error');
-    await presentToast(error);
     throw error;
   }
 };
@@ -84,11 +80,9 @@ export const getLastCustomerCode = async (): Promise<string> => {
   try {
     const query = `SELECT customer_code FROM ${CUSTOMERS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
-    const lastSalesNumber =result?.values?.[0].sales_number;
-    await presentToast('last customer code',lastSalesNumber)
-    return lastSalesNumber || '0000000001';
+    const lastCustomerCode =result?.values?.[0].customer_code;
+    return lastCustomerCode || '0000000001';
   } catch (error) {
-    await presentToast(error)
     return '0000000001';
   }
 }
@@ -97,31 +91,177 @@ export const addCustomers = async (data: CUSTOMER, processedImageSavePath: strin
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
+    let customer_code = await getLastCustomerCode();
+    const currentCustomerCode = parseInt(customer_code, 10);
+    const nextCustomerCode = currentCustomerCode + 1;
+    const formattedNextSalesNumber = nextCustomerCode.toString().padStart(10, '0');
+    customer_code = formattedNextSalesNumber;
+
+
+
     const customerServiceQuery = 
       `INSERT INTO ${CUSTOMERS_TABLE} (
         customer_code, customer, contact_number,
         contact_person, credit_limit, category,
-        email, address, tin,
+        address, tin,
         reward_number, image_path
       ) VALUES (
         ?, ?, ?,
         ?, ?, ?,
-        ?, ?, ?,
+        ?, ?,
         ?, ?
       )
       `;
       const values = [
-        data.customer_code, data.customer, data.contact_number,
+        customer_code, data.customer, data.contact_number,
         data.contact_person, data.credit_limit, data.category,
-        data.email, data.address, data.tin,
+        data.address, data.tin,
         data.reward_number, processedImageSavePath,
       ];
     const res = await db.query(customerServiceQuery, values);
-    await presentToast('add customer query results', res);
-    return true;
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId;
+    } else {
+      Id = 0;
+    }
+
+    return { success: true, data: Id }
   } catch (error) {
-    await presentToast('error adding customer', error);
-    return null;
+    throw error;
+  }
+}
+
+export const updateCustomers = async (data: CUSTOMER) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    let customer_code = await getLastCustomerCode();
+    const currentCustomerCode = parseInt(customer_code, 10);
+    const nextCustomerCode = currentCustomerCode + 1;
+    const formattedNextSalesNumber = nextCustomerCode.toString().padStart(10, '0');
+    customer_code = formattedNextSalesNumber;
+
+    const transactionStatements = [
+      {
+        statement :
+        `UPDATE ${CUSTOMERS_TABLE} SET
+          customer =?, 
+          contact_number =?,
+          contact_person =?, 
+          credit_limit =?, 
+          category =?,
+          address =?, 
+          tin =?, 
+          reward_number =?,
+          image_path =?
+          WHERE id = ?
+          `,
+          
+        values: [
+          data.customer, 
+          data.contact_number,
+          data.contact_person, 
+          data.credit_limit, 
+          data.category,
+          data.address, 
+          data.tin,
+          data.reward_number, 
+          data.image_path,
+          data.id
+        ],
+      }
+    ];
+    await db.executeTransaction(transactionStatements);
+
+    return { success: true }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const lockCustomers = async (data: CUSTOMER) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    let customer_code = await getLastCustomerCode();
+    const currentCustomerCode = parseInt(customer_code, 10);
+    const nextCustomerCode = currentCustomerCode + 1;
+    const formattedNextSalesNumber = nextCustomerCode.toString().padStart(10, '0');
+    customer_code = formattedNextSalesNumber;
+
+    const transactionStatements = [
+      {
+        statement :
+        `UPDATE ${CUSTOMERS_TABLE} SET
+          customer =?, 
+          contact_number =?,
+          contact_person =?, 
+          credit_limit =?, 
+          category =?,
+          address =?, 
+          tin =?, 
+          reward_number =?,
+          image_path =?,
+          is_locked
+          WHERE id = ?
+          `,
+          
+        values: [
+          data.customer, 
+          data.contact_number,
+          data.contact_person, 
+          data.credit_limit, 
+          data.category,
+          data.address, 
+          data.tin,
+          data.reward_number, 
+          data.image_path,
+          true,
+          data.id
+        ],
+      }
+    ];
+    await db.executeTransaction(transactionStatements);
+
+    return { success: true }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const unlockCustomers = async (data: CUSTOMER) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    let customer_code = await getLastCustomerCode();
+    const currentCustomerCode = parseInt(customer_code, 10);
+    const nextCustomerCode = currentCustomerCode + 1;
+    const formattedNextSalesNumber = nextCustomerCode.toString().padStart(10, '0');
+    customer_code = formattedNextSalesNumber;
+
+    const transactionStatements = [
+      {
+        statement :
+        `UPDATE ${CUSTOMERS_TABLE} SET
+          is_locked
+          WHERE id = ?
+          `,
+          
+        values: [
+          false,
+          data.id
+        ],
+      }
+    ];
+    await db.executeTransaction(transactionStatements);
+
+    return { success: true }
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -141,10 +281,9 @@ export const deleteCustomer = async (id: number) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    await presentToast('cancel query response ', res)
     // return true,Id;
     return { success: true};
   } catch (error) {
-    return { success: false};
+    throw error;
   }
 };

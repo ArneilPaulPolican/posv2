@@ -1,6 +1,7 @@
 export interface COLLECTIONS {
     id: number;
-    date_time: string;
+    ci_date: string;
+    ci_number: string;
     customer_id: number;
     sales_id: number;
     total_amount: number;
@@ -10,7 +11,8 @@ export interface COLLECTIONS {
 
 export class COLLECTIONS_DTO {
     id: number =0;
-    date_time: string ='';
+    ci_date: string='';
+    ci_number: string='';
     customer_id: number =0;
     customer: string ='';
     sales_id: number=0;

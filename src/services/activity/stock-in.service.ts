@@ -2,7 +2,6 @@ import { STOCK_IN } from '@/models/stock-in.model';
 import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { STOCK_INS_TABLE } from '@/schema/tables';
-import { presentToast } from '@/plugins/toast.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<STOCK_IN[]>([])
@@ -25,7 +24,6 @@ export const getStockIn = async (): Promise<STOCK_IN[]> => {
 
     return res.values as STOCK_IN[];
   } catch (error) {
-    await presentToast('Get Stock In error!')
     throw error;
   } 
 };
@@ -54,7 +52,6 @@ export const getStockInById = async (id:number) => {
   
       return stock_in;
     } catch (error) {
-      await presentToast('Get Stock In error!')
       throw error;
     } 
 };

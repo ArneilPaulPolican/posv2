@@ -1,7 +1,7 @@
 <template>
   <HeaderComponent :title="header"/>
   <ion-app>
-    <ion-split-pane content-id="main-content" style="margin-top: 60px;">
+    <ion-split-pane content-id="main-content" style="margin-top: 65px;">
       <ion-router-outlet id="main-content" >
         <router-view :key="$route.fullPath"/>
       </ion-router-outlet>
@@ -37,7 +37,6 @@ export default defineComponent({
     onMounted(async () => {
         await fetchSettings()
     });
-
     return{
       header: ''
     }

@@ -6,8 +6,7 @@ import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { addBulkSalesItem } from './sales-item.service';
-import { presentToast } from '@/plugins/toast.service';
-import { updateItemInventory } from '../module/inventory.service';
+import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../module/inventory.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<SALES[]>([])
@@ -76,12 +75,11 @@ export const getSales = async (): Promise<SALES_DTO[]> => {
      
       return result.values as SALES_DTO[];
     } catch (error) {
-      await presentToast('Get sales failed!')
       throw error;
     }
 };
 
-export const getOpenSales = async (): Promise<SALES_DTO[]> => {
+export const getOpenSales = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -140,14 +138,13 @@ export const getOpenSales = async (): Promise<SALES_DTO[]> => {
     
     const result = await db.query(saleServiceQuery);
     
-    return result.values as SALES_DTO[];
+    return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
-    await presentToast('Get sales error!')
     throw error;
   }
 };
 
-export const getBilledSales = async (): Promise<SALES_DTO[]> => {
+export const getBilledSales = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -205,14 +202,13 @@ export const getBilledSales = async (): Promise<SALES_DTO[]> => {
     
     const result = await db.query(saleServiceQuery);
     
-    return result.values as SALES_DTO[];
+    return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
-    await presentToast('Get Bill error')
     throw error;
   }
 };
 
-export const getCollectedSales = async (): Promise<SALES_DTO[]> => {
+export const getCollectedSales = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -262,21 +258,19 @@ export const getCollectedSales = async (): Promise<SALES_DTO[]> => {
       ON ${SALES_ITEMS_TABLE}.item_id=${ITEMS_TABLE}.id
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
-      WHERE ${SALES_TABLE}.is_locked = 1 AND ${SALES_TABLE}.balance_amount = 0
+      WHERE ${SALES_TABLE}.is_locked = 1 AND ${SALES_TABLE}.paid_amount = ${SALES_TABLE}.net_amount
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
       `;
     
     const result = await db.query(saleServiceQuery);
-    
-    return result.values as SALES_DTO[];
+    return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
-    await presentToast('Get Collected failed!')
     throw error;
   }
 };
 
-export const getCancelledSales = async (): Promise<SALES_DTO[]> => {
+export const getCancelledSales = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -334,9 +328,8 @@ export const getCancelledSales = async (): Promise<SALES_DTO[]> => {
     
     const result = await db.query(saleServiceQuery);
     
-    return result.values as SALES_DTO[];
+    return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
-    await presentToast('Get Cancelled failed!')
     throw error;
   }
 };
@@ -439,24 +432,24 @@ try {
     senior_pwd_id: sales.senior_pwd_id
   }))[0];
   
-  return sales;
+    // return { success: true, data: sales };
+    return sales
 } catch (error) {
-    await presentToast('Get Sales  failed!')
     throw error;
 }
 };
 
 export const getLastSalesNumber = async (): Promise<string> => {
-const dbConnectionService = await DBConnectionService.getInstance();
-const db = await dbConnectionService.getDatabaseConnection();
-try {
-  const query = `SELECT sales_number FROM ${SALES_TABLE} ORDER BY id DESC LIMIT 1`;
-  const result = await db?.query(query);
-  const lastSalesNumber =result?.values?.[0].sales_number;
-  return lastSalesNumber || '0000000000';
-} catch (error) {
-  return '0000000000';
-}
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const query = `SELECT sales_number FROM ${SALES_TABLE} ORDER BY id DESC LIMIT 1`;
+    const result = await db?.query(query);
+    const lastSalesNumber =result?.values?.[0].sales_number;
+    return lastSalesNumber || '0000000000';
+  } catch (error) {
+    return '0000000000';
+  }
 }
 
 export const newSales = async () => {
@@ -543,117 +536,117 @@ try {
     Id = 0;
   }
   // return true,Id;
-  return { success: true, insertedId: Id };
+  return { success: true, data: Id };
 } catch (error) {
-  return { success: false, insertedId: 0 };
+  throw error
 }
 };
 
 export const addSales = async (data: SALES_DTO, data_line: SALES_ITEM_DTO[]) => {
-const dbConnectionService = await DBConnectionService.getInstance();
-const db = await dbConnectionService.getDatabaseConnection();
-try {
-  const query = `INSERT INTO ${SALES_TABLE} (
-    user_id,          sales_date,          sales_number,
-    terminal_number,      customer_id,        table_id,
-    total_amount,     balance_amount,         paid_amount,
-    discount_amount,      no_of_pax,          remarks,
-    status, discount_id, discount_rate
-  ) VALUES (
-    ?, ?, ?,
-    ?, ?, ?,
-    ?, ?, ?,
-    ?, ?, ?,
-    ?, ?, ?
-  )`;
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const query = `INSERT INTO ${SALES_TABLE} (
+      user_id,          sales_date,          sales_number,
+      terminal_number,      customer_id,        table_id,
+      total_amount,     balance_amount,         paid_amount,
+      discount_amount,      no_of_pax,          remarks,
+      status, discount_id, discount_rate
+    ) VALUES (
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?
+    )`;
 
-  const transactionStatements = [
-    {
-      statement: query,
-      values: [1 , data.sales_date, data.sales_number, 
-        data.terminal_number, data.customer_id, data.table_id,
-        data.total_amount, data.balance_amount, data.paid_amount,
-        data.discount_amount, data.no_of_pax, data.remarks,
-        data.status, data.discount_id, data.discount_rate
-      ],
-    },
-  ];
+    const transactionStatements = [
+      {
+        statement: query,
+        values: [1 , data.sales_date, data.sales_number, 
+          data.terminal_number, data.customer_id, data.table_id,
+          data.total_amount, data.balance_amount, data.paid_amount,
+          data.discount_amount, data.no_of_pax, data.remarks,
+          data.status, data.discount_id, data.discount_rate
+        ],
+      },
+    ];
 
-  const res = await db.query(query,transactionStatements[0].values );
-  const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
-  const lastIdRes = await db.query(getLastIdQuery);
-  let Id =  0;
-  // const insertedId = lastIdRes.values?[0].values['lastId'];
-  if (lastIdRes.values && lastIdRes.values.length > 0) {
-    Id =  lastIdRes.values[0].lastId
+    const res = await db.query(query,transactionStatements[0].values );
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+    // const insertedId = lastIdRes.values?[0].values['lastId'];
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId
 
-    // call here add sales line
-    await addBulkSalesItem(Id, data_line)
-    
-  } else {
-    Id = 0;
+      // call here add sales line
+      await addBulkSalesItem(Id, data_line)
+      
+    } else {
+      Id = 0;
+    }
+    // return true,Id;
+    return { success: true, data: Id };
+  } catch (error) {
+    throw error; 
   }
-  // return true,Id;
-  return { success: true, insertedId: Id };
-} catch (error) {
-  return { success: false, insertedId: 0 };
-}
 };
 
 export const updateSales = async (data: SALES_DTO) => {
-const dbConnectionService = await DBConnectionService.getInstance();
-const db = await dbConnectionService.getDatabaseConnection();
-try {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
 
-  const transactionStatements = [
-    {
-      statement: `UPDATE ${SALES_TABLE}
-        SET customer_id=?,
-        table_id=?,
-        total_amount=?,
-        net_amount=?,
-        balance_amount=?,
-        paid_amount=?,
-        discount_amount=?,
-        no_of_pax=?,
-        remarks=?,
-        status=?,
-        discount_id=?,
-        discount_rate=?,
-        is_locked =?,
-        is_billed_out=?,
-        senior_pwd_id=?,
-        senior_pwd_name=?
-      WHERE id=?`,
-      values: [
-        data.customer_id,
-        data.table_id,
-        data.total_amount,
-        data.net_amount,
-        data.balance_amount,
-        data.paid_amount,
-        data.discount_amount,
-        data.no_of_pax,
-        data.remarks,
-        data.status,
-        data.discount_id ?? 1,
-        data.discount_rate ?? 0,
-        data.is_locked ?? false,
-        data.is_billed_out ?? false,
-        data.senior_pwd_id ?? '',
-        data.senior_pwd_name ?? '',
-        data.id
-      ]
-    }
-  ]
+    const transactionStatements = [
+      {
+        statement: `UPDATE ${SALES_TABLE}
+          SET customer_id=?,
+          table_id=?,
+          total_amount=?,
+          net_amount=?,
+          balance_amount=?,
+          paid_amount=?,
+          discount_amount=?,
+          no_of_pax=?,
+          remarks=?,
+          status=?,
+          discount_id=?,
+          discount_rate=?,
+          is_locked =?,
+          is_billed_out=?,
+          senior_pwd_id=?,
+          senior_pwd_name=?
+        WHERE id=?`,
+        values: [
+          data.customer_id,
+          data.table_id,
+          data.total_amount,
+          data.net_amount,
+          data.balance_amount,
+          data.paid_amount,
+          data.discount_amount,
+          data.no_of_pax,
+          data.remarks,
+          data.status,
+          data.discount_id ?? 1,
+          data.discount_rate ?? 0,
+          data.is_locked ?? false,
+          data.is_billed_out ?? false,
+          data.senior_pwd_id ?? '',
+          data.senior_pwd_name ?? '',
+          data.id
+        ]
+      }
+    ]
 
-  const res = await db.executeTransaction(transactionStatements);
-  // const res = await db.query(query,transactionStatements[0].values );
-  // return true,Id;
-  return { success: true, insertedId: data.id };
-} catch (error) {
-  return { success: false, insertedId: 0 };
-}
+    const res = await db.executeTransaction(transactionStatements);
+    // const res = await db.query(query,transactionStatements[0].values );
+    // return true,Id;
+    return { success: true, data: data.id };
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const lockSales = async (data: SALES_DTO) => {
@@ -705,12 +698,39 @@ export const lockSales = async (data: SALES_DTO) => {
   
     const res = await db.executeTransaction(transactionStatements);
     
-    await updateItemInventory('SI', data.id??0)
+    await onLockUpdateItemInventory('SI', data.id??0)
 
-    return { success: true, insertedId: data.id };
+    return { success: true, data: data.id };
   } catch (error) {
-    console.error(error)
-    return { success: false, insertedId: 0 };
+    throw error;
+  }
+};
+
+export const unlockSales = async (data: SALES_DTO) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+  
+    const transactionStatements = [
+      {
+        statement: `UPDATE ${SALES_TABLE}
+          SET 
+          is_locked =?
+        WHERE id=?`,
+        values: [
+          false,
+          data.id
+        ]
+      }
+    ]
+  
+    const res = await db.executeTransaction(transactionStatements);
+    
+    await onUnlockUpdateItemInventory('SI', data.id??0)
+
+    return { success: true, data: data.id };
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -758,55 +778,55 @@ try {
   const res = await db.executeTransaction(transactionStatements);
   // const res = await db.query(query,transactionStatements[0].values );
   // return true,Id;
-  return { success: true, insertedId: data.id };
+  return { success: true, data: data.id };
 } catch (error) {
-  return { success: false, insertedId: 0 };
+  throw error;
 }
 };
 
 export const cancelSales = async (data: SALES_DTO) => {
-const dbConnectionService = await DBConnectionService.getInstance();
-const db = await dbConnectionService.getDatabaseConnection();
-try {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
 
-  const transactionStatements = [
-    {
-      statement: `UPDATE ${SALES_TABLE}
-        SET is_locked =?,
-        is_cancelled=?
-      WHERE id=?`,
-      values: [ true,
-        true,
-        data.id
-      ]
-    }
-  ]
+    const transactionStatements = [
+      {
+        statement: `UPDATE ${SALES_TABLE}
+          SET is_locked =?,
+          is_cancelled=?
+        WHERE id=?`,
+        values: [ true,
+          true,
+          data.id
+        ]
+      }
+    ]
 
-  const res = await db.executeTransaction(transactionStatements);
-  return { success: true, insertedId: data.id };
-} catch (error) {
-  return { success: false, insertedId: 0 };
-}
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true, data: data.id };
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const deleteSales = async (id: number) => {
-const dbConnectionService = await DBConnectionService.getInstance();
-const db = await dbConnectionService.getDatabaseConnection();
-try {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
 
-  const transactionStatements = [
-    {
-      statement: `DELETE ${SALES_TABLE}
-      WHERE id=?`,
-      values: [ 
-        id
-      ]
-    }
-  ]
+    const transactionStatements = [
+      {
+        statement: `DELETE ${SALES_TABLE}
+        WHERE id=?`,
+        values: [ 
+          id
+        ]
+      }
+    ]
 
-  const res = await db.executeTransaction(transactionStatements);
-  return { success: true};
-} catch (error) {
-  return { success: false };
-}
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true};
+  } catch (error) {
+    throw error;
+  }
 };

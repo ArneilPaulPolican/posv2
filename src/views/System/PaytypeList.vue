@@ -31,6 +31,7 @@ import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { PAYTYPE } from '@/models/paytype.model';
 import { getPaytypes } from '@/services/system/paytype.service';
+import { presentToast } from '@/composables/toast.service';
 
 export default defineComponent({
     components:{
@@ -86,8 +87,14 @@ export default defineComponent({
         }
         
         async function fetchList() {
-            const response = await getPaytypes()
-            paytypes.value = response
+            try {
+                const result = await getPaytypes()
+                if(result.success){
+                    paytypes.value = result.data
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         onMounted(async () => {
           await fetchList()

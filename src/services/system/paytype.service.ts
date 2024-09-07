@@ -7,7 +7,7 @@ interface ResultSet {
     raw: () => any[];
   };
 }
-export const getPaytypes = async (): Promise<PAYTYPE[]> => {
+export const getPaytypes = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -18,8 +18,8 @@ export const getPaytypes = async (): Promise<PAYTYPE[]> => {
     const taxServiceQuery = `SELECT * FROM ${PAYTYPES_TABLE}`;
     
     const result = await db.query(taxServiceQuery);
-   
-    return result.values as PAYTYPE[];
+    
+    return { success: true, data: result.values as PAYTYPE[]};
   } catch (error) {
     throw error;
   }

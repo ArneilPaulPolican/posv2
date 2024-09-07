@@ -2,7 +2,6 @@ import { CASH_IN_OUTS } from '@/models/cashin-cashout.model';
 import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { CASH_IN_OUTS_TABLE } from '@/schema/tables';
-import { presentToast } from '@/plugins/toast.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<CASH_IN_OUTS[]>([])
@@ -12,7 +11,7 @@ interface ResultSet {
   };
 }
 
-export const getCashInCashOut = async (): Promise<CASH_IN_OUTS[]> => {
+export const getCashInCashOut = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -23,9 +22,8 @@ export const getCashInCashOut = async (): Promise<CASH_IN_OUTS[]> => {
     const unitServiceQuery = `SELECT * FROM ${CASH_IN_OUTS_TABLE}`;
     const res = await db.query(unitServiceQuery);
 
-    return res.values as CASH_IN_OUTS[];
+    return { success: true, data: res.values as CASH_IN_OUTS[]};
   } catch (error) {
-    await presentToast('get cashin cashout error', error);
     throw error;
   } 
 };
@@ -68,9 +66,8 @@ export const getCashInCashOutById = async (id:number) => {
         status: cashin_cashout.status
       }))[0];
   
-      return cashin_cashout;
+      return { success: true, data: cashin_cashout };
     } catch (error) {
-      await presentToast('get cashin cashout error', error);
       throw error;
     } 
 };
@@ -132,9 +129,9 @@ export const addCashInCashOut = async (data: CASH_IN_OUTS) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
+    return { success: true };
   } catch (error) {
-    await presentToast('Add error')
+    throw error;
   }
 };
 
@@ -169,9 +166,9 @@ export const updateCashInCashOut = async (data: CASH_IN_OUTS) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
+    return { success: true };
   } catch (error) {
-    await presentToast('Add error')
+    throw error;
   } 
 };
 
@@ -189,9 +186,8 @@ export const deleteCashInCashOut = async (id: number) => {
       }
     ]
     const res = await db.executeTransaction(transactionStatements);
-    // return true,Id;
     return { success: true};
   } catch (error) {
-    return { success: false};
+    throw error;
   }
 };

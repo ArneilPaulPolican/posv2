@@ -36,7 +36,7 @@
 <script lang="ts">
 import { TAX } from '@/models/tax.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 import { getTaxes } from '@/services/system/tax.service';
 import { defineComponent, onMounted, ref } from 'vue';
 
@@ -48,7 +48,7 @@ export default defineComponent({
         const handleTaxPicked = async (tax:TAX) =>{
             // return to the ItemDetail.vue the unit.id, unit.unit_code and unit.unit_description
             emit('tax-picked', tax);
-            emit('close'); 
+            // emit('close'); 
         }
 
 

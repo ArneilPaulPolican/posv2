@@ -40,7 +40,7 @@ import { generateSales, generateZReading } from '@/composables/pdf-generator';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 import { SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 
 const options: DocumentViewerOptions = {
   title: 'My PDF'

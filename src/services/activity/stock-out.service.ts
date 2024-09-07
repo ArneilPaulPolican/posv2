@@ -2,7 +2,6 @@ import { STOCK_OUT } from '@/models/stock-out.model';
 import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { STOCK_OUTS_TABLE } from '@/schema/tables';
-import { presentToast } from '@/plugins/toast.service';
 
 // const db_connection = new DBConnectionService()
 const data = ref<STOCK_OUT[]>([])

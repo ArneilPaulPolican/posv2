@@ -153,7 +153,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         contact_person TEXT NOT NULL,
         credit_limit REAL NOT NULL,
         category TEXT NOT NULL,
-        email TEXT DEFAULT 'NA' UNIQUE,
+        email TEXT,
         address TEXT NOT NULL,
         tin TEXT NOT NULL,
         reward_number TEXT,
@@ -424,7 +424,8 @@ export const createTables = async (db: SQLiteDBConnection) => {
     const createCollectionsTableQuery = `
       CREATE TABLE IF NOT EXISTS ${COLLECTIONS_TABLE} (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        date_time TEXT NOT NULL DEFAULT current_timestamp,
+        ci_date TEXT NOT NULL DEFAULT current_timestamp,
+        ci_number TEXT NOT NULL,
         customer_id INTEGER NOT NULL,
         sales_id INTEGER NOT NULL,
         total_amount REAL NOT NULL,
@@ -592,29 +593,17 @@ export const createTables = async (db: SQLiteDBConnection) => {
         if (!existingSysSettings.values?.length) {
           const insertSysSettingsQuery = `
             INSERT INTO ${SYS_SETTINGS_TABLE} (
-              customer,
-              customer_address,
-              customer_tin,
-              terminal_number,
-              pos_serial_number,
-              pos_permit_number,
-              pos_accreditation_number,
-              pos_machine_identification_number,
-              pos_vendor,
-              pos_vendor_address,
-              pos_vendor_tin,
-              pos_vendor_accreditation_number,
-              pos_vendor_accreditation_expiry_date,
-              serial_number
+              customer, customer_address, customer_tin,
+              terminal_number, pos_serial_number, pos_permit_number,
+              pos_accreditation_number, pos_machine_identification_number, pos_vendor,
+              pos_vendor_address, pos_vendor_tin, pos_vendor_accreditation_number,
+              pos_vendor_accreditation_expiry_date, serial_number
             ) VALUES (
-              '', '', '', '',
-              '', '', '', '',
-              'Liteclerk Corp',
-              '211 V Rama Avenue Cebu City',
-              '010 045 930 000',
-              '0820100459302021061436',
-              '',
-              '${deviceId}'
+              'Test Company', 'Cebu City', '000-000-000-0000',
+              '001', 'G6JY81100KQZ', 'FP082021-0810298152-00001', 
+              '000000000000', '21081708162465140', 'Liteclerk Corp',
+              '211 V Rama Avenue Cebu City', '010 045 930 000', '0820100459302021061436',
+              '', '${deviceId}'
             )`;
           const resSYS_SETTINGS_TABLE = await db.query(insertSysSettingsQuery);
 

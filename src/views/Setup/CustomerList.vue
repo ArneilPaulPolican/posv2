@@ -2,7 +2,7 @@
     <ion-page>
         <!-- <HeaderComponent :title="header" /> -->
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button size="small" @click="openDetailForm">
+            <ion-fab-button size="small" @click="addNewCustomer">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -38,7 +38,8 @@ import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { CUSTOMER } from '@/models/customer.model';
-import { getCustomers } from '@/services/setup/customer.service';
+import { addCustomers, getCustomers } from '@/services/setup/customer.service';
+import { presentToast } from '@/composables/toast.service';
 
 export default defineComponent({
     components: { 
@@ -47,6 +48,22 @@ export default defineComponent({
     setup(){
         const router = useRouter();
         const customers = ref<CUSTOMER[]>([])
+        const customer = ref<CUSTOMER>({
+            id: 0,
+            customer_code:'NA',
+            customer: 'NA',
+            contact_number: 'NA',
+            contact_person: 'NA',
+            credit_limit: 0,
+            category: 'NA',
+            email: 'NA',
+            address: 'NA',
+            tin: 'NA',
+            reward_number: 'NA',
+            image_path: '',
+            is_locked: false,
+            is_default_value: false,
+        });
 
         
         //#region   Actionsheet
@@ -90,13 +107,27 @@ export default defineComponent({
             router.push(`/Setup/Customer/Details/${customer.id}`);
         };
         
-        const openDetailForm = async() => {
-            router.push(`/Setup/Customer/Details/0`);
+        // const openDetailForm = async() => {
+        //     router.push(`/Setup/Customer/Details/0`);
+        // }
+
+        const addNewCustomer = async() => {
+            try {
+                const result = await addCustomers(customer.value, '')
+                if(result.success){
+                    router.push(`/Setup/Customer/Details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Error adding new customer ${error}`)
+            }
         }
         
         async function fetchList() {
             const response = await getCustomers();
-            customers.value = response
+            if(response.success && response.data){
+                console.log(response.data)
+                customers.value = response.data.value
+            }
         }
         onIonViewDidEnter(async () => {
             await fetchList()
@@ -109,7 +140,7 @@ export default defineComponent({
             icons,
             customers,
 
-            openDetailForm,
+            addNewCustomer,
             openActionSheet,
             
         }

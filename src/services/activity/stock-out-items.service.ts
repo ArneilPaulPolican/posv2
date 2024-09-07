@@ -1,6 +1,5 @@
 import { DBConnectionService } from "../database.connection";
 import { ITEMS_TABLE,  STOCK_INS_TABLE, STOCK_OUT_ITEMS_TABLE, UNITS_TABLE, USERS_TABLE } from "@/schema/tables";
-import { presentToast } from "@/plugins/toast.service";
 import { STOCK_OUT_ITEMS, STOCK_OUT_ITEMS_DTO } from "@/models/stock-out-item.model";
 
 export const getItemsByStockOutId = async (id: number) => {
@@ -95,7 +94,6 @@ export const addBulkStockOutItem = async (stock_in_id:number, data: STOCK_OUT_IT
             try {
                 const res = await db.query(query, values);
             } catch (error) {
-                await presentToast('Error adding bulk items:');
                 throw error;
             }
         }

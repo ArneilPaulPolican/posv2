@@ -1,14 +1,13 @@
 import { DBConnectionService } from '../database.connection';
 import {  USERS_TABLE} from '@/schema/tables';
 import USER from '@/models/user.model';
-import { presentToast } from '@/plugins/toast.service';
 
 interface ResultSet {
   rows: {
     raw: () => any[];
   };
 }
-export const getUsers = async (): Promise<USER[]> => {
+export const getUsers = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -19,9 +18,8 @@ export const getUsers = async (): Promise<USER[]> => {
     
     const result = await db.query(userQuery);
    
-    return result.values as USER[];
+    return { success: true, data: result.values as USER[]};
   } catch (error) {
-    await presentToast('Get Users failed');
     throw error;
   }
 };
@@ -36,8 +34,6 @@ export const getUserById = async () => {
       }
   
       const query = `SELECT * FROM ${USERS_TABLE} LIMIT 1`;
-    //   const params = [id];
-  
       
       const result = await db.query(query);
       const user = result.values?.map(user => ({
@@ -49,10 +45,8 @@ export const getUserById = async () => {
         email: user.email,
         user_type: user.user_type,
       }))[0];
-      return user;
-      
+      return { success: true, data: user};
     } catch (error) {
-      await presentToast('Get User failed');
       throw error;
     }
   };
@@ -79,9 +73,8 @@ export const getUserById = async () => {
         },
       ];
       const res = await db.executeTransaction(transactionStatements);
-      return true;
+      return { success: true};
     } catch (error) {
-      await presentToast('Add User failed');
       throw error;
     } 
   };
@@ -102,9 +95,8 @@ export const deleteUser = async (id: number) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    // return true,Id;
     return { success: true};
   } catch (error) {
-    return { success: false};
+    throw error;
   }
 };

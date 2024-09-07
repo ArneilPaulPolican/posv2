@@ -28,6 +28,7 @@
 </template>
 
 <script lang="ts">
+import { presentToast } from '@/composables/toast.service';
 import USER from '@/models/user.model';
 import { icons } from '@/plugins/icons';
 import { getUsers } from '@/services/settings/user.service';
@@ -86,8 +87,14 @@ export default defineComponent({
         }
 
         async function fetchList() {
-            const response = await getUsers()
-            users.value = response
+            try {
+                const result = await getUsers();
+                if(result.success){
+                    users.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         onMounted(async () =>{
             await fetchList();

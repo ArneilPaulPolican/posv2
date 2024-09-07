@@ -230,3 +230,19 @@ http://ionicframework.com/docs/theming/ */
       --ion-card-background: #1e1e1e;
     }
   }
+
+  .icon-label-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 60px;
+  }
+  
+  .icon-label-wrapper ion-icon {
+    font-size: 24px; /* adjust icon size as needed */
+    margin-bottom: 8px; /* adjust margin as needed */
+  }
+  
+  .icon-label-wrapper span {
+    font-size: 14px; /* adjust label size as needed */
+  }

@@ -3,13 +3,38 @@
         <!-- <HeaderComponent :title="header" /> -->
         
         <ion-item>
-            <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon>
-            <ion-button slot="end" size="medium" expand="block" style="height: 100%"
-                @click="handleSave()">
-                <ion-label position="stacked">Save</ion-label>
-            </ion-button>
+            <div style="display: flex; overflow-x: auto; white-space: nowrap; width: 100%; padding-right: 10px;height: 100%; align-items: center;">
+                <!-- <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon> -->
+                <ion-button size="small" expand="block" style="height: 100%"
+                    @click="handleReturn()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                        <ion-label >Back</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button size="small" expand="block" style="height: 100%"
+                    @click="handleSave()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.saveSharp"></ion-icon>
+                        <ion-label >Save</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button size="small" expand="block" style="height: 100%"
+                    @click="handleLock()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
+                        <ion-label >Lock</ion-label>
+                    </div>
+                </ion-button>
+                <ion-button size="small" expand="block" style="height: 100%"
+                    @click="handleUnlock()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
+                        <ion-label >Unlock</ion-label>
+                    </div>
+                </ion-button>
+            </div>
         </ion-item>
-        
         <ion-item>
             <h1>{{ customer.customer_code }}</h1>
         </ion-item>
@@ -78,9 +103,9 @@ import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 // import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { Lock } from '@/services/lock';
 import { CUSTOMER } from '@/models/customer.model';
-import { addCustomers, getCustomerById, getLastCustomerCode } from '@/services/setup/customer.service';
+import { addCustomers, getCustomerById, getLastCustomerCode, lockCustomers, unlockCustomers, updateCustomers } from '@/services/setup/customer.service';
 import { onIonViewDidEnter } from '@ionic/vue';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 
 export default defineComponent({
     components: { 
@@ -121,30 +146,48 @@ export default defineComponent({
         const handleReturn = () => {
             router.push(`/Setup/Customers`);
         }
-        const handleSave = async () => {
 
+        const handleSave = async () => {
             setTimeout(async () => {
                 try {
-                    if(customer_id == 0){
-                        const response =  await addCustomers(customer.value, imagePath.value);
-                        if(response){
-                            // trigger here to open the alert component
-                            await presentToast('Customer successfully created')
-                        }else{
-                            await presentToast('Failed to create Customer')
-                        }
+                    const response = await updateCustomers(customer.value)
+                    if(response){
+                        await presentToast('Customer successfully updated')
                     }else{
-                        const response = true; //await updateTax(tax.value);
-                        if(response){
-                            await presentToast('Customer successfully updated')
-                        }else{
-                            await presentToast('Failed to update Customer')
-                        }
+                        await presentToast('Failed to update Customer')
                     }
-                    open_alert.value = true; // Open the alert
                 } catch (err) {
-                    dbLock.release(); // Release the lock after the operation
-                    await presentToast('Error adding customer')
+                    await presentToast(`Update operation failed: ${err}`)
+                }
+            }, 300);
+        }
+        
+        const handleLock = async () => {
+            setTimeout(async () => {
+                try {
+                    const response = await lockCustomers(customer.value)
+                    if(response){
+                        await presentToast('Customer successfully lock')
+                    }else{
+                        await presentToast('Failed to lock Customer')
+                    }
+                } catch (err) {
+                    await presentToast(`Lock operation failed : ${err}`)
+                }
+            }, 300);
+        }
+        
+        const handleUnlock = async () => {
+            setTimeout(async () => {
+                try {
+                    const response = await unlockCustomers(customer.value)
+                    if(response){
+                        await presentToast('Customer successfully unlock')
+                    }else{
+                        await presentToast('Failed to unlock Customer')
+                    }
+                } catch (err) {
+                    await presentToast(`Unlock operation failed : ${err}`)
                 }
             }, 300);
         }
@@ -152,37 +195,33 @@ export default defineComponent({
         async function fetchDetails() {
             const routeParams = +route.params.id;
             customer_id = routeParams ; 
-            if(customer_id!=0){
+            try {
                 const result = await getCustomerById(routeParams)
-                if(result){
+                if(result.success && result.data){
                     customer.value = {
-                        id: result.id,
-                        customer_code: result.customer_code,
-                        customer: result.customer,
-                        contact_number: result.contact_number,
-                        contact_person: result.contact_person,
-                        credit_limit: result.credit_limit,
-                        category: result.category,
-                        email: result.email,
-                        address: result.address,
-                        tin: result.tin,
-                        reward_number: result.reward_number,
-                        image_path: result.image_path,
-                        is_locked: result.is_locked,
-                        is_default_value: result.is_default_value,
+                        id: result.data.id,
+                        customer_code: result.data.customer_code,
+                        customer: result.data.customer,
+                        contact_number: result.data.contact_number,
+                        contact_person: result.data.contact_person,
+                        credit_limit: result.data.credit_limit,
+                        category: result.data.category,
+                        email: result.data.email,
+                        address: result.data.address,
+                        tin: result.data.tin,
+                        reward_number: result.data.reward_number,
+                        image_path: result.data.image_path,
+                        is_locked: result.data.is_locked,
+                        is_default_value: result.data.is_default_value,
                     }
                 }else{ 
-                    alertTitle.value = 'Not Found';
-                    alertMessage.value = 'No Customer exist';
-                    open_alert.value = true; // Open the alert
+                    await presentToast('No customer found');
+                    handleReturn();
                 }
-            }else{
                 
-                const customer_code = await getLastCustomerCode();
-                const current_code = parseInt(customer_code, 10);
-                const next_code = current_code + 1;
-                const formatted_next_code = next_code.toString().padStart(10, '0');
-                customer.value.customer_code = formatted_next_code;
+            } catch (error) {
+                await presentToast(`Error retreiving customer:  ${error}`);
+                handleReturn();
             }
         }
         onMounted(async () =>{
@@ -205,7 +244,9 @@ export default defineComponent({
             not_found,
 
             handleReturn,
-            handleSave
+            handleSave,
+            handleLock,
+            handleUnlock
         }
     }
 });

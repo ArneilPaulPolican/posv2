@@ -33,6 +33,7 @@ import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { DISCOUNT } from '@/models/discount.model';
 import { getDiscounts } from '@/services/system/discount.service';
+import { presentToast } from '@/composables/toast.service';
 
 export default defineComponent({
     components:{
@@ -89,7 +90,14 @@ export default defineComponent({
         }
 
         async function fetchList() {
-            discounts.value = await getDiscounts()
+            try {
+                const result = await getDiscounts();
+                if(result.success){
+                    discounts.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         onIonViewDidEnter(async () => {
             await fetchList()

@@ -38,7 +38,8 @@
 <script lang="ts">
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';
-import { getBilledSales, getOpenSales, getSales } from '@/services/activity/sales.service';
+import { presentToast } from '@/composables/toast.service';
+import { cancelSales, getBilledSales, getOpenSales, getSales } from '@/services/activity/sales.service';
 import { onIonViewDidEnter, actionSheetController } from '@ionic/vue';
 import { defineComponent, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -66,12 +67,12 @@ export default defineComponent({
                 },
             },
             {
-                text: 'Edit',
+                text: 'Cancel',
                 handler: () => {
-                    handleEdit(sales);
+                    handleCancel(sales);
                 },
                 data: {
-                    action: 'Edit',
+                    action: 'Cancel',
                 },
             },
         ];
@@ -89,13 +90,28 @@ export default defineComponent({
         const handleDelete = (tax: any) => {
             throw new Error('Function not implemented.');
         };
-        const handleEdit = (sales: any) => {
-            router.push(`/Activity/Sales/Details/${sales.id}`);
+        const handleCancel = async (sales: any) => {
+            try {
+                const result = await cancelSales(sales)
+                if(result.success){
+                    await presentToast('Cancelation successful')
+                }else{
+                    await presentToast('Cancelation failed')
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`);
+            }
         }
 
         async function fetchData() {
-            const response = await getBilledSales()
-            sales_list.value = response
+            try {
+                const result = await getBilledSales();
+                if(result.success){
+                    sales_list.value = result.data
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         }
         
         onIonViewDidEnter(async () => {

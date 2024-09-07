@@ -8,7 +8,7 @@ interface ResultSet {
   };
 }
 
-export const getDiscounts = async (): Promise<DISCOUNT[]> => {
+export const getDiscounts = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -20,11 +20,8 @@ export const getDiscounts = async (): Promise<DISCOUNT[]> => {
     
     const result = await db.query(discountServiceQuery);
    
-    await presentToast('Res Values', JSON.stringify(result.values));
-    return result.values as DISCOUNT[];
+    return { success: true, data: result.values as DISCOUNT[]};
   } catch (error) {
-    await presentToast('get discounts error');
-    await presentToast(error);
     throw error;
   }
 };
@@ -42,7 +39,6 @@ export const getDiscountById = async (id: number) => {
   
       
       const result = await db.query(query, params);
-      await presentToast('Res Values', JSON.stringify(result.values));
       const discount = result.values?.map(discount => ({
         id: discount.id,
         discount: discount.discount,
@@ -52,12 +48,8 @@ export const getDiscountById = async (id: number) => {
         is_locked: discount.is_locked,
         image_url: discount.image_url
       }))[0];
-      await presentToast('discount', JSON.stringify(discount));
-      return discount;
-      
+      return { success: true, data: discount};
     } catch (error) {
-      await presentToast('get taxes error');
-      await presentToast(error);
       throw error;
     }
 };
@@ -67,8 +59,6 @@ export const addDiscouunt = async (data: DISCOUNT) => {
     const db = await dbConnectionService.getDatabaseConnection();
     let transaction;
     try {
-      await presentToast('DATA ', data);
-      
       const taxServiceQuery = 
       `
       INSERT INTO ${DISCOUNTS_TABLE} (
@@ -88,10 +78,9 @@ export const addDiscouunt = async (data: DISCOUNT) => {
         },
       ];
       const res = await db.executeTransaction(transactionStatements);
-      await presentToast('add discount query results', res);
-      return true;
+      return { success: true};
     } catch (error) {
-      await presentToast('add discount error:', error);
+      throw error;
     }
   };
 
@@ -111,10 +100,8 @@ export const addDiscouunt = async (data: DISCOUNT) => {
       ]
     
       const res = await db.executeTransaction(transactionStatements);
-      await presentToast('cancel query response ', res)
-      // return true,Id;
       return { success: true};
     } catch (error) {
-      return { success: false};
+      throw error;
     }
   };

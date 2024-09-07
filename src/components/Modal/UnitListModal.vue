@@ -36,7 +36,7 @@
 <script lang="ts">
 import { UNIT } from '@/models/unit.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 import { getUnits } from '@/services/system/unit.service';
 import { defineComponent, onMounted, ref } from 'vue';
 

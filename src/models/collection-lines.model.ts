@@ -12,6 +12,7 @@ export class COLLECTIONS_LINES_DTO {
     collection_id: number =0;
     paytype_id: number =0;
     paytype:string ='';
+    is_default_value: boolean = false;
     particulars: string ='';
     amount: number =0;
     change: number =0;

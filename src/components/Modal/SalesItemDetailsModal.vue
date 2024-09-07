@@ -75,7 +75,7 @@
   
 <script lang="ts">
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { presentToast } from '@/plugins/toast.service';
+import { presentToast } from '@/composables/toast.service';
 import { getSalesItemById, updateSalesItem } from '@/services/activity/sales-item.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref, toRefs, watch } from 'vue';
