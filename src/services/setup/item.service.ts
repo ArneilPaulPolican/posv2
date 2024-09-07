@@ -174,10 +174,17 @@ export const getLastItemCode = async (): Promise<string> => {
   }
 }
 
-export const addItem = async (data: ITEM, processedImageSavePath: string): Promise<boolean> => {
+export const addItem = async (data: ITEM, processedImageSavePath: string) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
+
+    
+  let item_code = await getLastItemCode();
+  const currentItemCode = parseInt(item_code, 10);
+  const nextItemCode = currentItemCode + 1;
+  const formattedNextSalesNumber = nextItemCode.toString().padStart(10, '0');
+  item_code = formattedNextSalesNumber;
 
     const transaction: any = [
       {
@@ -199,7 +206,7 @@ export const addItem = async (data: ITEM, processedImageSavePath: string): Promi
           )
         `,
         values: [
-          data.item_code,  data.bar_code, data.item_description,
+          item_code,  item_code, data.item_description,
           data.alias, data.category, data.price,
           data.cost, data.quantity, data.unit_id, 
           data.is_inventory, data.is_package,data.is_locked,
@@ -209,11 +216,19 @@ export const addItem = async (data: ITEM, processedImageSavePath: string): Promi
       },
     ];
 
-    await db.executeTransaction(transaction);
+    const res = await db.executeTransaction(transaction);
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
 
-    return true;
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId;
+    } else {
+      Id = 0;
+    }
+    return { success: true, insertedId: Id };
   } catch (err: any) {
-    return false;
+    throw err;
   }
 };
 

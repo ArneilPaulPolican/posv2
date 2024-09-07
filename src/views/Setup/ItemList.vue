@@ -77,24 +77,24 @@ name: 'DashboardView', // Update the component name here
         const items = ref<ITEM[]>([])
         const item = ref<ITEM>({
             id:0,
-            item_code: '',
-            bar_code: '',
-            item_description: '',
-            alias: '',
-            category: '',
+            item_code: 'NA',
+            bar_code: 'NA',
+            item_description: 'NA',
+            alias: 'NA',
+            category: 'NA',
             price: 0,
             cost: 0,
             quantity: 0,
             unit_id: 1,
             is_inventory: false,
-            generic_name: '',
+            generic_name: 'NA',
             tax_id: 1,
-            remarks: '',
-            image_path: '',
+            remarks: 'NA',
+            image_path: 'NA',
             is_package: false,
             is_locked: false,
-            expiry_date:'',
-            lot_number:''
+            expiry_date:'NA',
+            lot_number:'NA'
         });
 
         const imagePath = ref('');
@@ -162,10 +162,12 @@ name: 'DashboardView', // Update the component name here
         const addNewItem = async() => {
             try {
                 const result = await addItem(item.value, '')
+                if(result.success){
+                    router.push(`/Setup/Item/Details/${result.insertedId}`);
+                }
             } catch (error) {
                 await presentToast('Erro adding new item')
             }
-            // router.push(`/Setup/Item/Details/0`);
         }
         
         async function fetchList() {

@@ -8,6 +8,10 @@
                 @click="handleSave()">
                 <ion-label>Save</ion-label>
             </ion-button>
+            <ion-button slot="end" size="medium" expand="block" style="height: 100%"
+                @click="">
+                <ion-label>Save</ion-label>
+            </ion-button>
         </ion-item>
         
         <ion-item>
@@ -46,7 +50,7 @@
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Onhand Quantity :</ion-label>
-                                <ion-input v-model="item.quantity" type="number" placeholder="0.00"></ion-input>
+                                <ion-input v-model="item.quantity" type="number" placeholder="0.00" disabled></ion-input>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -118,6 +122,7 @@ import UnitListModal from '@/components/Modal/UnitListModal.vue';
 import TaxListModal from '@/components/Modal/TaxListModal.vue';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/plugins/toast.service';
+import { reload } from 'ionicons/icons';
 
 
 export default defineComponent({
@@ -200,21 +205,12 @@ export default defineComponent({
         // add data
         const handleSave = async () => {
             try {
-                if(item_id == 0){
-                    const response = await addItem(item.value, imagePath.value);
-                    if(response){
-                        await presentToast('Item successfully created')
-                    }else{
-                        await presentToast('Failed to create item')
-                    }
+                const response = await updateItem(item.value, imagePath.value);
+                if(response){
+                    await presentToast('Item successfully updated');
+                    router.push(`/Setup/Items`);
                 }else{
-                    console.log(item.value)
-                    const response = await updateItem(item.value, imagePath.value);
-                    if(response){
-                        await presentToast('Item successfully updated')
-                    }else{
-                        await presentToast('Failed to update item')
-                    }
+                    await presentToast('Failed to update item')
                 }
             } catch (err) {
                 dbLock.release(); // Release the lock after the operation
@@ -294,7 +290,8 @@ export default defineComponent({
             openUnitModal,
             openTaxModal,
             handleTaxPicked,
-            confirmReturn
+            confirmReturn,
+            reload
         }
     }
 });
