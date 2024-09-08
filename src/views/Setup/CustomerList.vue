@@ -24,6 +24,7 @@
                     <ion-label>
                         <h2>{{ customer.customer_code }}</h2>
                         <p>{{ customer.customer }}</p>
+                        <p v-if="customer.is_locked">Locked</p><p v-else>Unlocked</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -126,7 +127,7 @@ export default defineComponent({
             const response = await getCustomers();
             if(response.success && response.data){
                 console.log(response.data)
-                customers.value = response.data.value
+                customers.value = response.data
             }
         }
         onIonViewDidEnter(async () => {

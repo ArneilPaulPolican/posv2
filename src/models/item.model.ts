@@ -18,6 +18,7 @@ export interface ITEM {
   image_path: string;
   is_package: boolean;
   is_locked: boolean;
+  is_vat_inclusive: boolean;
   expiry_date: string;
   lot_number: string;
 }
@@ -46,6 +47,7 @@ export default class ITEM_DTO {
   is_inventory: boolean = false;
   generic_name: string = '';
   tax?: string = '';
+  tax_code?: string = '';
   tax_rate?: number = 0;
   is_tax_rate_inclusive?: boolean = false;
   tax_id: number = 0;
@@ -53,6 +55,7 @@ export default class ITEM_DTO {
   image_path: string = '';
   is_package: boolean = false;
   is_locked: boolean = true;
+  is_vat_inclusive: boolean = false;
   expiry_date: string = '';
   lot_number: string = '';
 }

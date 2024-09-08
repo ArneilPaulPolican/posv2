@@ -23,14 +23,14 @@
                         <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
                     </ion-avatar>
                     <ion-label>
-                        <h2>{{ item.bar_code }}</h2>
+                        <h2>{{ item.item_code }}</h2>
+                        <p>{{ item.bar_code }}</p>
                         <p>{{ item.item_description }}</p>
-                        <p>{{ item.generic_name }}</p>
                     </ion-label>
                     <ion-label slot="end">
-                        <p v-if="item.is_locked">Active</p><p v-else>Inactive</p>
-                        <p v-if="item.is_inventory">Inventory</p> <p v-else>Non-inventory</p>
-                        <p>{{ item.quantity }}</p>
+                        <p v-if="item.is_locked">Locked</p><p v-else>Unlocked</p>
+                        <p v-if="item.is_inventory">Inv.</p> <p v-else>Non-Inv.</p>
+                        <p>Qty: {{ item.quantity }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>

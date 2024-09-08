@@ -93,6 +93,8 @@ export default defineComponent({
             if(sales.is_locked == false){
                 if(sales.balance_amount == sales.net_amount){
                     const _deleteSales = await deleteSales(sales.id??0) 
+                    await presentToast('Deelte successful!');
+                    await fetchData()
                 }
             }else{
                 await presentToast('Delete failed!');

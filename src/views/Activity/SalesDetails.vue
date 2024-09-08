@@ -16,7 +16,7 @@
                         <ion-label>Back</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleSave()">
+                <ion-button v-if="!is_locked" :disbaled="is_locked" size="medium" expand="block" style="height: 90%" @click="handleSave()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
                         <ion-label>Save</ion-label>
@@ -28,31 +28,31 @@
                         <ion-label>Check Out</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleLock()">
+                <ion-button v-if="!is_locked" size="medium" expand="block" style="height: 90%" @click="handleLock()">
                     <div class="icon-label-wrapper">
                         <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>
                         <ion-label>Lock</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleUnlock()">
+                <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%" @click="handleUnlock()">
                     <div class="icon-label-wrapper">
                         <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>
                         <ion-label>Unlock</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handleBillOut()">
+                <ion-button v-if="is_locked && !sales.is_billed_out" size="medium" expand="block" style="height: 90%" @click="handleBillOut()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.receiptSharp"></ion-icon>
                         <ion-label>Bill</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="sales.is_locked" size="medium" expand="block" style="height: 90%" @click="handlePrint()">
+                <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%" @click="handlePrint()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.printSharp"></ion-icon>
                         <ion-label>Print</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!sales.is_cancelled && sales.is_locked && sales.is_billed_out" @click="confirmReturn" size="medium" expand="block" style="height: 90%">
+                <ion-button v-if="!sales.is_cancelled && is_locked && sales.is_billed_out" @click="confirmReturn" size="medium" expand="block" style="height: 90%">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.closeCircle"></ion-icon>
                         <ion-label>Cancel</ion-label>
@@ -111,7 +111,7 @@
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">No. PAX</ion-label>
-                                <ion-input v-model="sales.no_of_pax" placeholder="No. PAX"></ion-input>
+                                <ion-input :disabled="is_locked" v-model="sales.no_of_pax" placeholder="No. PAX"></ion-input>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Status</ion-label>
@@ -145,7 +145,7 @@
                         <ion-label>
                             <h1>{{ item.item_barcode }}</h1>
                             <p>{{ item.item_description }}</p>
-                            <p>Tax:&nbsp;{{ item.tax }}</p>
+                            <p>Tax:&nbsp;{{ item.tax_code }}</p>
                             <p>Rate:&nbsp;{{ item.tax_rate.toFixed(2) }}</p>
                             <p>Amount:&nbsp;{{ item.tax_amount?.toFixed(2) }}</p>
                         </ion-label>
@@ -260,7 +260,8 @@ export default defineComponent({
             discount: '',
             discount_rate: 0,
             senior_pwd_name:'NA',
-            senior_pwd_id: 'NA'
+            senior_pwd_id: 'NA',
+            discounted_pax:0
         });
         let sales_id = 0;
         const open_alert = ref(false);
@@ -276,6 +277,8 @@ export default defineComponent({
         const sales_item = ref(null);
 
         const open_checkout_modal =  ref(false);
+        const is_locked = ref(false);
+        const is_billed_out = ref(false);
 
         //#region   Actionsheet
         const actionSheetButtons = (item:any) => [
@@ -316,20 +319,7 @@ export default defineComponent({
         };
         
         // BACK
-        const handleReturn = async () => {
-            await presentToast('reuturn handler');
-            open_alert.value = true; // Open the alert
-            // if(sales_id == 0){
-            //     await presentToast('inside condition');
-            //     alertTitle.value = 'Sales';
-            //     alertMessage.value = 'Are you sure you want to quit without saving this transaction';
-            // }else{
-            //     await handleSave();
-                // confirmReturn();
-            // }
-        }
         const confirmReturn =() => {
-            open_alert.value = false;
             router.push(`/Activity/Sales/Open`);
         }
         
@@ -353,7 +343,7 @@ export default defineComponent({
             sales.value.discount_id = discount.id;
             sales.value.discount = discount.discount;
             sales.value.discount_rate = discount.discount_rate;
-            sales.value.discount_amount = discount.discount_amount;
+            sales.value.discount_amount = discount.discount_amount ?? 0;
             sales.value.senior_pwd_id= discount.senior_pwd_id;
             sales.value.senior_pwd_name= discount.senior_pwd_name;
             open_discount_modal.value = false;
@@ -434,7 +424,7 @@ export default defineComponent({
         async function handleSave() {
             try {
                 sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
-                const response = await updateSales(sales.value)
+                const response = await updateSales(sales.value as SALES_DTO)
                 if(response.success){
                     await presentToast(`Sales successfully updated`)
                 }else{
@@ -453,6 +443,7 @@ export default defineComponent({
                     const response = await lockSales(sales.value)
                     if(response.success){
                         await presentToast('Sales successfully locked')
+                        is_locked.value = true;
                     }else{
                         await presentToast('Failed to lock sales')
                     }
@@ -467,6 +458,7 @@ export default defineComponent({
                 const response = await unlockSales(sales.value)
                 if(response.success){
                     await presentToast('Sales successfully unlocked')
+                    is_locked.value = false;
                 }else{
                     await presentToast('Failed to unlocked sales')
                 }
@@ -480,6 +472,7 @@ export default defineComponent({
                 const response = await billOutSales(sales.value);
                 if(response.success){
                     await presentToast('Sales successfully billed out!');
+                    is_billed_out.value = true;
                 }else{
                     await presentToast('Failed to bill out sales')
                 }
@@ -502,7 +495,6 @@ export default defineComponent({
             open_checkout_modal.value = false;
         }
 
-
         async function fetchDetails(){
             open_alert.value = false;
             open_customer_modal.value =false;
@@ -516,19 +508,17 @@ export default defineComponent({
             setTimeout(async () => {
                 try {
                     const result = await getSalesById(routeParams)
-                    if(result){
-                        sales.value = { ... result}
-                        sales_item_list.value = await getSalesItemBySalesId(routeParams)
+                    if(result.success && result.data){
+                        sales.value = result.data;
+                        is_locked.value = result.data.is_locked;
+                        is_billed_out.value = result.data.is_billed_out;
+                        sales_item_list.value = await getSalesItemBySalesId(routeParams);
                     }else{
-                        alertTitle.value = 'Not Found';
-                        alertMessage.value = 'No Customer exist';
-                        open_alert.value = true; // Open the alert
+                        await presentToast('No Sales exist');
+                        confirmReturn();
                     }
-                    
                 } catch (error) {
-                    alertTitle.value = 'ERROR';
-                    alertMessage.value = 'Error on fetching sales';
-                    open_alert.value = true; // Open the alert
+                    await presentToast(`Operation failed: ${error}`);
                 }
             }, 300);
         }
@@ -544,6 +534,7 @@ export default defineComponent({
             sales_item_list,
             sales_item,
             icons,
+            is_locked,
             open_customer_modal,
             open_discount_modal,
             open_item_modal,
@@ -566,7 +557,6 @@ export default defineComponent({
             openActionSheet,
             handleUpdateSalesItem,
 
-            handleReturn,
             confirmReturn,
 
             handleSave,

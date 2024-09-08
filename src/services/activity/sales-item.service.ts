@@ -33,6 +33,7 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
                 ${ITEMS_TABLE}.image_path as item_image_path,
                 ${ITEMS_TABLE}.category as item_category,
                 ${ITEMS_TABLE}.is_inventory,
+                ${ITEMS_TABLE}.is_vat_inclusive,
                 ${SALES_ITEMS_TABLE}.unit_id,
                 ${UNITS_TABLE}.unit_code,
                 ${SALES_ITEMS_TABLE}.quantity,
@@ -46,6 +47,7 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
                 ${SALES_ITEMS_TABLE}.tax_id,
                 ${SALES_ITEMS_TABLE}.tax_rate,
                 ${SALES_ITEMS_TABLE}.tax_amount,
+                ${TAXES_TABLE}.tax,
                 ${TAXES_TABLE}.tax_code,
                 ${TAXES_TABLE}.is_inclusive,
                 ${SALES_ITEMS_TABLE}.particulars,
@@ -90,6 +92,7 @@ export const getSalesItemById = async (id:number) => {
         ${ITEMS_TABLE}.image_path as item_image_path,
         ${ITEMS_TABLE}.category as item_category,
         ${ITEMS_TABLE}.is_inventory,
+        ${ITEMS_TABLE}.is_vat_inclusive,
         ${SALES_ITEMS_TABLE}.unit_id,
         ${UNITS_TABLE}.unit_code,
         ${UNITS_TABLE}.unit,
@@ -128,6 +131,7 @@ export const getSalesItemById = async (id:number) => {
         item_alias: sales_item?.item_alias || '',
         item_category: sales_item?.item_category || '',
         item_cost: sales_item?.item_cost || 0,
+        is_vat_inclusive: sales_item?.is_vat_inclusive || 0,
         unit_id: sales_item.unit_id,
         unit: sales_item.unit,
         unit_code: sales_item.unit_code,
@@ -154,21 +158,21 @@ export const getSalesItemById = async (id:number) => {
   }
 };
 
-export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) => {
+export const addBulkSalesItem = async(sales_id:number, data: SALES_ITEM_DTO[]) => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
         for (const item of data) {
             const query = `
               INSERT INTO ${SALES_ITEMS_TABLE} (
-                sales_id, item_id,
-                unit_id, quantity, price,
+                sales_id, item_id, unit_id, 
+                quantity, price, net_price,
                 discount_id, discount_rate, discount_amount,
                 net_price, amount, tax_id,
                 tax_rate, tax_amount, particulars,
                 user_id
               ) VALUES (
-                ?, ?, 
+                ?, ?, ?,
                 ?, ?, ?, 
                 ?, ?, ?, 
                 ?, ?, ?, 
@@ -177,8 +181,8 @@ export const addBulkSalesItem = async(sales_id:number,data: SALES_ITEM_DTO[]) =>
               )
             `;
             const values = [
-              sales_id, item.item_id,
-              item.unit_id, item.quantity, item.price,
+              sales_id, item.item_id, item.unit_id, 
+              item.quantity, item.price, item.net_price,
               item.discount_id, item.discount_rate, item.discount_amount,
               item.net_price, item.amount, item.tax_id,
               item.tax_rate, item.tax_amount, item.particulars,

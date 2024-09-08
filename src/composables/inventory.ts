@@ -1,5 +1,5 @@
 import ITEM_DTO from "@/models/item.model";
-import { DBConnectionService } from "../database.connection";
+import { DBConnectionService } from "../services/database.connection";
 import { ITEMS_TABLE, SALES_ITEMS_TABLE, STOCK_IN_ITEMS_TABLE, STOCK_INS_TABLE, STOCK_OUT_ITEMS_TABLE } from "@/schema/tables";
 import { SALES_ITEM_DTO } from "@/models/sales-item.model";
 import { ref } from "vue";

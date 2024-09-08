@@ -13,11 +13,11 @@
             <ion-list :inset="true" style="margin: 10px">
                 <div style="padding: 10px;">
                     <ion-item>
-                        <ion-label position="stacked">Tax code :</ion-label>
+                        <ion-label position="stacked">Unit code :</ion-label>
                         <ion-input v-model="unit.unit_code" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Tax :</ion-label>
+                        <ion-label position="stacked">Unit :</ion-label>
                         <ion-input v-model="unit.unit" placeholder="Tax Name"></ion-input>
                     </ion-item>
                 </div>

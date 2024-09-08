@@ -72,6 +72,7 @@
 </template>
 
 <script lang="ts">
+import { presentToast } from '@/composables/toast.service';
 import { DISCOUNT, DISCOUNT_DTO } from '@/models/discount.model';
 import { TAX } from '@/models/tax.model';
 import { icons } from '@/plugins/icons';
@@ -125,8 +126,14 @@ export default defineComponent({
 
 
         async function fetchList() {
-            const discountData = await getDiscounts();
-            discount_list.value = discountData;
+            try {
+                const result = await getDiscounts();
+                if(result.success){
+                    discount_list.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`);
+            }
         }
         
         onIonViewDidEnter(async () => {

@@ -2,11 +2,12 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import TabsPage from '../views/TabsPage.vue'
 import DashboardView from '@/views/DashboardView.vue';
+import LoginView from '@/views/LoginView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/dashboard'
+    redirect: '/login'
   },
   {
     path: '/tabs/',
@@ -30,6 +31,13 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/Tab3Page.vue')
       }
     ]
+  },
+  {
+    path: '/login',
+    component: LoginView,
+    meta: { title: 'Login',
+      breadcrumb: 'Login',
+     }
   },
   {
     path: '/dashboard',

@@ -32,6 +32,7 @@ export interface SALES_ITEM {
     item_category: string = '';
     item_cost: number = 0;
     item_image:string = '';
+    is_vat_inclusive?: boolean = false;
     unit_id: number = 0;
     unit: string = '';
     unit_code: string = '';
@@ -45,6 +46,7 @@ export interface SALES_ITEM {
     amount?: number = 0;
     tax_id: number = 0;
     tax:string = '';
+    tax_code:string = '';
     tax_rate:number = 0;
     tax_amount?: number = 0;
     particulars?: string = '';

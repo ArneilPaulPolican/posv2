@@ -12,7 +12,7 @@ export interface CUSTOMER {
   tin: string;
   reward_number: string;
   image_path?: string;
-  is_locked?: boolean;
+  is_locked: boolean;
   is_default_value?: boolean;
 }
 

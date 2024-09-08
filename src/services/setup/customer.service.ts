@@ -27,7 +27,23 @@ export const getCustomers = async () => {
       if (!db) {
         throw new Error('Database connection not open');
       }
-      const customerServiceQuery = `SELECT * FROM ${CUSTOMERS_TABLE}`
+      const customerServiceQuery = 
+      `SELECT 
+        ${CUSTOMERS_TABLE}.id,
+        ${CUSTOMERS_TABLE}.customer_code,
+        ${CUSTOMERS_TABLE}.customer,
+        ${CUSTOMERS_TABLE}.contact_number,
+        ${CUSTOMERS_TABLE}.contact_person,
+        ${CUSTOMERS_TABLE}.credit_limit,
+        ${CUSTOMERS_TABLE}.category,
+        ${CUSTOMERS_TABLE}.email,
+        ${CUSTOMERS_TABLE}.address,
+        ${CUSTOMERS_TABLE}.tin,
+        ${CUSTOMERS_TABLE}.reward_number,
+        ${CUSTOMERS_TABLE}.image_path,
+        ${CUSTOMERS_TABLE}.is_locked,
+        ${CUSTOMERS_TABLE}.is_default_value
+      FROM ${CUSTOMERS_TABLE}`
       const res = await db.query(customerServiceQuery);
       console.log(res)
       if(res.values){
@@ -37,7 +53,7 @@ export const getCustomers = async () => {
       if (res && Array.isArray(res.values)) {
         data.value = res.values as CUSTOMER[];
       }
-      return { success: true, data: data }
+      return { success: true, data: data.value }
     } catch (error) {
       throw error;
     }
@@ -81,7 +97,13 @@ export const getLastCustomerCode = async (): Promise<string> => {
     const query = `SELECT customer_code FROM ${CUSTOMERS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
     const lastCustomerCode =result?.values?.[0].customer_code;
-    return lastCustomerCode || '0000000001';
+    
+    const currentCustomerCode = parseInt(lastCustomerCode, 10);
+    const nextCustomerCode = currentCustomerCode + 1;
+    const formattedNextSalesNumber = nextCustomerCode.toString().padStart(10, '0');
+    const customer_code = formattedNextSalesNumber;
+
+    return customer_code;
   } catch (error) {
     return '0000000001';
   }
@@ -92,12 +114,6 @@ export const addCustomers = async (data: CUSTOMER, processedImageSavePath: strin
   const db = await dbConnectionService.getDatabaseConnection();
   try {
     let customer_code = await getLastCustomerCode();
-    const currentCustomerCode = parseInt(customer_code, 10);
-    const nextCustomerCode = currentCustomerCode + 1;
-    const formattedNextSalesNumber = nextCustomerCode.toString().padStart(10, '0');
-    customer_code = formattedNextSalesNumber;
-
-
 
     const customerServiceQuery = 
       `INSERT INTO ${CUSTOMERS_TABLE} (
@@ -206,7 +222,7 @@ export const lockCustomers = async (data: CUSTOMER) => {
           tin =?, 
           reward_number =?,
           image_path =?,
-          is_locked
+          is_locked =?
           WHERE id = ?
           `,
           
@@ -237,17 +253,11 @@ export const unlockCustomers = async (data: CUSTOMER) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
-    let customer_code = await getLastCustomerCode();
-    const currentCustomerCode = parseInt(customer_code, 10);
-    const nextCustomerCode = currentCustomerCode + 1;
-    const formattedNextSalesNumber = nextCustomerCode.toString().padStart(10, '0');
-    customer_code = formattedNextSalesNumber;
-
     const transactionStatements = [
       {
         statement :
         `UPDATE ${CUSTOMERS_TABLE} SET
-          is_locked
+          is_locked =?
           WHERE id = ?
           `,
           

@@ -2,7 +2,6 @@
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { Capacitor } from '@capacitor/core';
 import { Lock } from '@/services/lock';
-import { presentToast } from '@/plugins/toast.service';
 
 
 export class DBConnectionService {
@@ -42,7 +41,6 @@ export class DBConnectionService {
                 await this.dbConnection.open();
             }
         } catch (error) {
-            await presentToast('Error initializing database connection:');
             throw error;
         } finally {
             this.dbLock.release(); // Release the lock after initializing
@@ -62,7 +60,6 @@ export class DBConnectionService {
             }
             return this.dbConnection!;
         } catch (error) {
-            await presentToast('Error getting database connection:');
             throw error;
         } finally {
             this.dbLock.release(); // Release the lock
@@ -74,7 +71,7 @@ export class DBConnectionService {
             try {
                 await this.dbConnection.close(); // Close the connection
             } catch (error) {
-                await presentToast('Error closing database connection:');
+                throw error
             } finally {
                 this.dbConnection = null; // Set the connection to null after closing
             }

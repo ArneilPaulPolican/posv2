@@ -21,11 +21,13 @@
                 <!-- List -->
                 <ion-item v-for="sales in sales_list" :key="sales.id" @click="openActionSheet(sales)">
                     <ion-label>
-                        <h2>{{ sales.sales_number }} {{ sales.sales_date }}</h2>
+                        <h2>{{ sales.sales_number }}</h2>
+                        <h2>{{ sales.sales_date }}</h2>
                         <p>{{ sales.customer }}</p>
                     </ion-label>
                     <ion-label slot="end" >
-                        <h2>Amnt: {{ sales.total_amount }}</h2>
+                        <h2>{{ sales.net_amount }}<ion-note>/Amnt.</ion-note></h2>
+                        <h2>{{ sales.balance_amount }}<ion-note>/Bal.</ion-note></h2>
                         <p>{{ sales.status }}</p>
                     </ion-label>
                 </ion-item>
@@ -57,13 +59,12 @@ export default defineComponent({
         //#region   Actionsheet
         const actionSheetButtons = (sales:any) => [
             {
-                text: 'Delete',
-                role: 'destructive',
+                text: 'View',
                 handler: () => {
-                    handleDelete(sales);
+                    handleView(sales);
                 },
                 data: {
-                    action: 'delete',
+                    action: 'view',
                 },
             },
             {
@@ -72,7 +73,7 @@ export default defineComponent({
                     handleCancel(sales);
                 },
                 data: {
-                    action: 'Cancel',
+                    action: 'cancel',
                 },
             },
         ];
@@ -87,8 +88,8 @@ export default defineComponent({
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (tax: any) => {
-            throw new Error('Function not implemented.');
+        const handleView = (sales: any) => {
+            router.push(`/Activity/Sales/Details/${sales.id}`);
         };
         const handleCancel = async (sales: any) => {
             try {

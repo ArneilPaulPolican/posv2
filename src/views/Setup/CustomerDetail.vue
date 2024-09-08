@@ -12,21 +12,21 @@
                         <ion-label >Back</ion-label>
                     </div>
                 </ion-button>
-                <ion-button size="small" expand="block" style="height: 100%"
+                <ion-button v-if="!is_locked" size="small" expand="block" style="height: 100%"
                     @click="handleSave()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.saveSharp"></ion-icon>
                         <ion-label >Save</ion-label>
                     </div>
                 </ion-button>
-                <ion-button size="small" expand="block" style="height: 100%"
+                <ion-button v-if="!is_locked" size="small" expand="block" style="height: 100%"
                     @click="handleLock()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
                         <ion-label >Lock</ion-label>
                     </div>
                 </ion-button>
-                <ion-button size="small" expand="block" style="height: 100%"
+                <ion-button v-if="is_locked" size="small" expand="block" style="height: 100%"
                     @click="handleUnlock()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
@@ -50,32 +50,32 @@
                 <div style="padding: 5px;">
                     <ion-item>
                         <ion-label position="stacked">Fullname :</ion-label>
-                        <ion-textarea v-model="customer.customer" placeholder="Customer Fullname"></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="customer.customer" placeholder="Customer Fullname"></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Category :</ion-label>
-                        <ion-textarea v-model="customer.category" placeholder="Enter Category"></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="customer.category" placeholder="Enter Category"></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Email :</ion-label>
-                        <ion-input v-model="customer.email" placeholder="Enter Email"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="customer.email" placeholder="Enter Email"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">TIN :</ion-label>
-                        <ion-input v-model="customer.tin" placeholder="Enter Tax Identification No."></ion-input>
+                        <ion-input :disabled="is_locked" v-model="customer.tin" placeholder="Enter Tax Identification No."></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Address :</ion-label>
-                        <ion-textarea v-model="customer.address" placeholder="Enter Full Address"></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="customer.address" placeholder="Enter Full Address"></ion-textarea>
                         <br>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Contact Number :</ion-label>
-                        <ion-textarea v-model="customer.contact_number" placeholder="Enter Contact Number" ></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="customer.contact_number" placeholder="Enter Contact Number" ></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Reward No. :</ion-label>
-                        <ion-input v-model="customer.reward_number" placeholder="Enter Reward No."></ion-input>
+                        <ion-input :disabled="is_locked" v-model="customer.reward_number" placeholder="Enter Reward No."></ion-input>
                     </ion-item>
                     <br>
                     
@@ -139,7 +139,7 @@ export default defineComponent({
         const alertMessage = ref('');
         const not_found = ref(false);
         const imagePath = ref('');
-
+        const is_locked = ref(false);
 
         
         // BACK
@@ -168,6 +168,7 @@ export default defineComponent({
                     const response = await lockCustomers(customer.value)
                     if(response){
                         await presentToast('Customer successfully lock')
+                        is_locked.value = true;
                     }else{
                         await presentToast('Failed to lock Customer')
                     }
@@ -182,7 +183,8 @@ export default defineComponent({
                 try {
                     const response = await unlockCustomers(customer.value)
                     if(response){
-                        await presentToast('Customer successfully unlock')
+                        await presentToast('Customer successfully unlock');
+                        is_locked.value = false;
                     }else{
                         await presentToast('Failed to unlock Customer')
                     }
@@ -198,6 +200,7 @@ export default defineComponent({
             try {
                 const result = await getCustomerById(routeParams)
                 if(result.success && result.data){
+                    is_locked.value = result.data.is_locked;
                     customer.value = {
                         id: result.data.id,
                         customer_code: result.data.customer_code,
@@ -236,6 +239,7 @@ export default defineComponent({
             icons,
             router,
             customer,
+            is_locked,
 
             open_alert,
             alertMessage,

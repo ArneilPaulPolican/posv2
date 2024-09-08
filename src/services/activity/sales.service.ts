@@ -6,7 +6,7 @@ import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { addBulkSalesItem } from './sales-item.service';
-import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../module/inventory.service';
+import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../../composables/inventory';
 
 // const db_connection = new DBConnectionService()
 const data = ref<SALES[]>([])
@@ -168,6 +168,7 @@ export const getBilledSales = async () => {
           ${TABLES_TABLE}.table_code,
           -- ${TABLES_TABLE}.image_path AS table_image_path,
           ${SALES_TABLE}.total_amount,
+          ${SALES_TABLE}.net_amount,
           ${SALES_TABLE}.balance_amount,
           ${SALES_TABLE}.paid_amount,
           ${SALES_TABLE}.discount_amount,
@@ -258,7 +259,7 @@ export const getCollectedSales = async () => {
       ON ${SALES_ITEMS_TABLE}.item_id=${ITEMS_TABLE}.id
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
-      WHERE ${SALES_TABLE}.is_locked = 1 AND ${SALES_TABLE}.paid_amount = ${SALES_TABLE}.net_amount
+      WHERE ${SALES_TABLE}.is_locked = 1 AND ${SALES_TABLE}.balance_amount = 0
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
       `;
@@ -373,6 +374,7 @@ try {
         ${SALES_TABLE}.is_billed_out,
         ${SALES_TABLE}.is_cancelled,
         ${SALES_TABLE}.is_printed,
+        ${SALES_TABLE}.discounted_pax,
         ${COLLECTIONS_TABLE}.id as collection_id
     FROM ${SALES_TABLE}
     LEFT JOIN ${USERS_TABLE}
@@ -429,11 +431,11 @@ try {
     discount_rate: sales.discount_rate,
     senior_pwd_name: sales.senior_pwd_name,
     senior_pwd_age_disability: sales.senior_pwd_age_disability,
-    senior_pwd_id: sales.senior_pwd_id
+    senior_pwd_id: sales.senior_pwd_id,
+    discounted_pax: sales.discounted_pax,
   }))[0];
   
-    // return { success: true, data: sales };
-    return sales
+    return { success: true, data: sales };
 } catch (error) {
     throw error;
 }
@@ -593,7 +595,7 @@ export const addSales = async (data: SALES_DTO, data_line: SALES_ITEM_DTO[]) => 
   }
 };
 
-export const updateSales = async (data: SALES_DTO) => {
+export const updateSales = async (data: SALES) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -653,6 +655,10 @@ export const lockSales = async (data: SALES_DTO) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
+
+    if(data.net_amount == 0){
+      throw new Error(`Amount is zero ( ${data.net_amount.toFixed(2) } )`);
+    }
   
     const transactionStatements = [
       {
@@ -816,7 +822,7 @@ export const deleteSales = async (id: number) => {
 
     const transactionStatements = [
       {
-        statement: `DELETE ${SALES_TABLE}
+        statement: `DELETE FROM ${SALES_TABLE}
         WHERE id=?`,
         values: [ 
           id

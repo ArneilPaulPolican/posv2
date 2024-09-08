@@ -1,5 +1,5 @@
 export interface PAYTYPE {
-  id?: number;
+  id: number;
   paytype: string;
   is_default_value?: boolean;
 }

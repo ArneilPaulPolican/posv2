@@ -34,12 +34,12 @@
                     <ion-item>
                         <ion-row>
                             <ion-col>
-                                <ion-label position="stacked">Rate :</ion-label>
-                                <ion-input v-model="tax.rate" type="number" placeholder="Rate"></ion-input>
+                                <ion-label position="stacked">Rate Percentage (%):</ion-label>
+                                <ion-input v-model="tax.rate" type="number" placeholder="12"></ion-input>
                             </ion-col>
-                            <ion-col >
+                            <!-- <ion-col >
                                 <ion-checkbox v-model="tax.is_inclusive" label-placement="start">Is Inclusive</ion-checkbox>
-                            </ion-col>
+                            </ion-col> -->
                         </ion-row>
                     </ion-item>
                 </div>

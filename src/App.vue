@@ -1,5 +1,6 @@
 <template>
-  <HeaderComponent :title="header"/>
+  <HeaderComponent v-if="showHeader" :title="header"/>
+
   <ion-app>
     <ion-split-pane content-id="main-content" style="margin-top: 65px;">
       <ion-router-outlet id="main-content" >
@@ -12,25 +13,29 @@
 <script lang="ts">
 import { IonApp, IonRouterOutlet, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
-import { defineComponent, getCurrentInstance, onMounted } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onMounted } from 'vue';
 import { getSystemSettings } from './services/settings/system-settings.service';
 import { Storage } from '@capacitor/storage';
+import { useRoute } from 'vue-router';
+import LoginView from './views/LoginView.vue';
 
 export default defineComponent({
   components:{
-    HeaderComponent
+    HeaderComponent,
+    LoginView
   },
   setup(){// Create a storage instance
-
+    const route = useRoute();
+    const showHeader = computed(() => route.name !== 'LoginView');
     // Store a value
 
     async function fetchSettings() {
+      console.log(showHeader.value);
       const result = await getSystemSettings()
       await Storage.set({
         key: 'sysSettings',
         value: JSON.stringify(result) as string
-      });
-    }
+      });    }
     onIonViewDidEnter(async () => {
         await fetchSettings()
     });
@@ -38,7 +43,8 @@ export default defineComponent({
         await fetchSettings()
     });
     return{
-      header: ''
+      header: '',
+      showHeader
     }
   }
 })

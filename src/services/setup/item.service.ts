@@ -43,6 +43,7 @@ export const getItems = async () => {
                ${ITEMS_TABLE}.quantity,
                ${ITEMS_TABLE}.unit_id,
                ${ITEMS_TABLE}.is_inventory,
+               ${ITEMS_TABLE}.is_vat_inclusive,
                ${ITEMS_TABLE}.generic_name,
                ${ITEMS_TABLE}.tax_id,
                ${ITEMS_TABLE}.remarks,
@@ -52,6 +53,7 @@ export const getItems = async () => {
                ${ITEMS_TABLE}.expiry_date,
                ${ITEMS_TABLE}.lot_number,
                ${TAXES_TABLE}.tax,
+               ${TAXES_TABLE}.tax_code,
                ${TAXES_TABLE}.rate as tax_rate,
                ${TAXES_TABLE}.is_inclusive as is_tax_rate_inclusive,
                ${TAXES_TABLE}.rate,
@@ -100,6 +102,7 @@ export const getItemById = async (id: number) => {
         ${ITEMS_TABLE}.quantity,
         ${ITEMS_TABLE}.unit_id,
         ${ITEMS_TABLE}.is_inventory,
+        ${ITEMS_TABLE}.is_vat_inclusive,
         ${ITEMS_TABLE}.generic_name,
         ${ITEMS_TABLE}.tax_id,
         ${ITEMS_TABLE}.remarks,
@@ -120,12 +123,12 @@ export const getItemById = async (id: number) => {
     const params = [id];
 
     // Execute the transaction
-    await db.executeTransaction([
-      {
-        statement: query,
-        values: params,
-      },
-    ]);
+    // await db.executeTransaction([
+    //   {
+    //     statement: query,
+    //     values: params,
+    //   },
+    // ]);
 
     // Retrieve the results after the transaction
     const result = await db.query(query, params);
@@ -150,6 +153,7 @@ export const getItemById = async (id: number) => {
       image_path: item.image_path,
       is_package: item.is_package,
       is_locked: Boolean(item.is_locked),
+      is_vat_inclusive: Boolean(item.is_vat_inclusive),
       expiry_date:  item.expiry_date,
       lot_number:  item.expiry_date,
     }))[0];
@@ -185,6 +189,7 @@ export const addItem = async (data: ITEM, processedImageSavePath: string) => {
     const nextItemCode = currentItemCode + 1;
     const formattedNextSalesNumber = nextItemCode.toString().padStart(10, '0');
     item_code = formattedNextSalesNumber;
+
     const transaction: any = [
       {
         statement: `
@@ -194,14 +199,16 @@ export const addItem = async (data: ITEM, processedImageSavePath: string) => {
             cost, quantity, unit_id, 
             is_inventory, is_package, is_locked, 
             generic_name, tax_id, remarks, 
-            image_path, expiry_date, lot_number
+            image_path, expiry_date, lot_number,
+            is_vat_inclusive
           ) VALUES (
            ?, ?, ?,
            ?, ?, ?, 
            ?, ?, ?, 
            ?, ?, ?, 
            ?, ?, ?, 
-           ?, ?, ?
+           ?, ?, ?,
+           ?
           )
         `,
         values: [
@@ -211,6 +218,7 @@ export const addItem = async (data: ITEM, processedImageSavePath: string) => {
           data.is_inventory, data.is_package,data.is_locked,
           data.generic_name, data.tax_id, data.remarks, 
           processedImageSavePath, data.expiry_date, data.lot_number,
+          data.is_vat_inclusive
         ],
       },
     ];
@@ -255,6 +263,7 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
             image_path = ?,
             is_package = ?,
             is_locked = ?,
+            is_vat_inclusive = ?,
             expiry_date = ?,
             lot_number = ?
           WHERE id = ?
@@ -274,6 +283,7 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
           processedImageSavePath,
           data.is_package,
           data.is_locked,
+          data.is_vat_inclusive,
           data.expiry_date,
           data.lot_number,
           data.id,
@@ -313,6 +323,7 @@ export const lockItem = async (data: ITEM, processedImageSavePath: string) => {
             image_path = ?,
             is_package = ?,
             is_locked = ?,
+            is_vat_inclusive =?,
             expiry_date = ?,
             lot_number = ?
           WHERE id = ?
@@ -332,6 +343,7 @@ export const lockItem = async (data: ITEM, processedImageSavePath: string) => {
           processedImageSavePath,
           data.is_package,
           true,
+          data.is_vat_inclusive,
           data.expiry_date,
           data.lot_number,
           data.id,

@@ -18,14 +18,14 @@
             
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="unit in tax" :key="unit.id">
-                    <ion-button size="medium" @click="handleTaxPicked(unit)">
+                <ion-item v-for="tax in taxes" :key="tax.id">
+                    <ion-button size="medium" @click="handleTaxPicked(tax)">
                         <ion-label>Pick</ion-label>
                     </ion-button>
                     &nbsp;
                     <ion-label>
-                        <h2>{{ unit.tax_code }}</h2>
-                        <p>{{ unit.tax }}</p>
+                        <h2>{{ tax.tax_code }}</h2>
+                        <p>{{ tax.tax }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -43,20 +43,21 @@ import { defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({
     setup(_, {emit}){
-        const tax = ref<TAX[]>([])
+        const taxes = ref<TAX[]>([])
 
         const handleTaxPicked = async (tax:TAX) =>{
-            // return to the ItemDetail.vue the unit.id, unit.unit_code and unit.unit_description
             emit('tax-picked', tax);
-            // emit('close'); 
+            emit('close'); 
         }
 
 
         onMounted(async () => {
             setTimeout(async () => {
                 try {
-                    const taxData = await getTaxes();
-                    tax.value = taxData;
+                    const result = await getTaxes();
+                    if(result.success){
+                        taxes.value = result.data;
+                    }
                 } catch (error) {
                     await presentToast('Failed retreiving Tax list')
                 }
@@ -64,7 +65,7 @@ export default defineComponent({
         });
         return{
             icons,
-            tax,
+            taxes,
 
             handleTaxPicked
         }

@@ -24,7 +24,6 @@ export const getUsers = async () => {
   }
 };
 
-
 export const getUserById = async () => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
@@ -49,9 +48,50 @@ export const getUserById = async () => {
     } catch (error) {
       throw error;
     }
-  };
+};
+
+export const authenticateUser = async (username:string, password:string) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    if (!db) {
+      throw new Error('Database connection not open');
+    }
+    if(username == '' || username == undefined){
+      throw new Error('Username is null');
+    }
+    if(password == '' || password == undefined){
+      throw new Error('Password is null');
+    }
+
+    const query = `SELECT * FROM ${USERS_TABLE} 
+                  WHERE username = ? AND password = ?`;
+      
+    const params = [username, password];
+    
+    const result = await db.query(query,params);
+    const user = result.values?.map(user => ({
+      id: user.id,
+      username: user.username,
+      fullname: user.first_name + ' ' +user.last_name,
+      last_name: user.last_name,
+      first_name: user.first_name,
+      email: user.email,
+      user_type: user.user_type,
+    }))[0];
+
+    if(!user){
+      throw new Error('User does not exist');
+    }
+
+    return { success: true, data: user};
+  } catch (error) {
+    console.log(error)
+    throw error;
+  }
+}
   
-  export const updateUser = async (data: USER) => {
+export const updateUser = async (data: USER) => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
@@ -77,7 +117,7 @@ export const getUserById = async () => {
     } catch (error) {
       throw error;
     } 
-  };
+};
   
 export const deleteUser = async (id: number) => {
   const dbConnectionService = await DBConnectionService.getInstance();

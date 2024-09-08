@@ -16,6 +16,7 @@
                     <ion-label>
                         <h2>{{ tax.tax_code }}</h2>
                         <p>{{ tax.tax }}</p>
+                        <p>Rate: {{ tax.rate }}</p>
                     </ion-label>
                 </ion-item>
             </ion-list>

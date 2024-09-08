@@ -4,7 +4,7 @@ export interface SALES {
   sales_number: string;
   sales_date: string;
   sales_time: string ;
-  terminal_number: number;
+  terminal_number: string;
   customer_id: number;
   table_id: number;
   total_amount: number;
@@ -29,23 +29,23 @@ export interface SALES {
 export class SALES_DTO {
   id?: number = 0;
   user_id: number = 0;
-  user: string = '';
+  user?: string = '';
   sales_number: string = '';
   sales_date: string = '';
   sales_time: string = '';
   terminal_number: string = '';
   customer_id: number =0;
-  customer_code: string = '';
-  customer: string = '';
-  customer_address:string = '';
-  customer_tin:string = '';
+  customer_code?: string = '';
+  customer?: string = '';
+  customer_address?:string = '';
+  customer_tin?:string = '';
   table_id: number =0;
-  table: string = '';
-  total_amount?: number = 0;
-  net_amount?: number = 0;
-  balance_amount?: number =0;
-  paid_amount?:number =0;
-  discount_amount?: number =0;
+  table?: string = '';
+  total_amount: number = 0;
+  net_amount: number = 0;
+  balance_amount: number =0;
+  paid_amount:number =0;
+  discount_amount: number =0;
   no_of_pax: number = 0;
   remarks?: string = '';
   status: string = '';
@@ -53,9 +53,10 @@ export class SALES_DTO {
   is_billed_out?: boolean = false;
   is_cancelled?: boolean = false;
   is_printed?: boolean = false;
-  discount_id?: number = 0;
-  discount: string = '';
-  discount_rate?: number = 0;
+  discount_id: number = 0;
+  discount?: string = '';
+  discount_rate: number = 0;
   senior_pwd_name?: string = '';
   senior_pwd_id?: string = '';
+  discounted_pax: number = 0;
 }

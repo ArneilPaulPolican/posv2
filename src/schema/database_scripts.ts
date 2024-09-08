@@ -29,7 +29,6 @@ import {
 } from './tables';
 import { Capacitor } from "@capacitor/core";
 import MIGRATION from "@/models/migration.model";
-import { presentToast } from "@/plugins/toast.service";
 
 export const createTables = async (db: SQLiteDBConnection) => {
 
@@ -82,6 +81,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         image_path TEXT,
         is_package BOOLEAN DEFAULT false,
         is_locked BOOLEAN DEFAULT false,
+        is_vat_inclusive BOOLEAN DEFAULT false,
         expiry_date TEXT,
         lot_number TEXT,
         FOREIGN KEY (unit_id)
@@ -640,7 +640,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
             INSERT OR IGNORE INTO ${TAXES_TABLE} (tax_code, tax, rate, is_inclusive)
             VALUES 
             ('NON VAT', 'None VAT', 0, false),
-            ('VAT', 'Value Added Tax', 0.12, false)
+            ('VAT', 'Value Added Tax', 12, false)
           `;
           const resTAXES_TABLE = await db.execute(insertDefaultTaxQuery);
 
@@ -649,13 +649,13 @@ export const createTables = async (db: SQLiteDBConnection) => {
             (item_code, bar_code, item_description,
             alias, category, price, 
             cost, quantity, unit_id, 
-            generic_name, tax_id )
+            generic_name, tax_id, is_locked )
             VALUES 
             ('0000000001', '0000000001', 'Service Charge',
             'Service Charge', '', 0.0,
             0.0,  0.0, (SELECT id FROM ${UNITS_TABLE} ORDER BY id ASC LIMIT 1),
             'Service Charge', (SELECT id FROM ${TAXES_TABLE} ORDER BY id ASC LIMIT 1)
-            )
+            , true )
           `;
           const resITEMS_TABLE = await db.execute(insertDefaultItemQuery);
 
@@ -695,8 +695,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
           `;
           const resTABLES_TABLE = await db.execute(insertTablespesQuery);
         }
-        await presentToast('Add defaults ended')
     } catch (error) {
-        await presentToast('create tables error')
+      throw error;
     }
 };

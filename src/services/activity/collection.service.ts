@@ -1,13 +1,13 @@
 import { DBConnectionService } from '../database.connection';
-import { COLLECTIONS_TABLE, CUSTOMERS_TABLE, DISCOUNTS_TABLE, ITEMS_TABLE, SALES_ITEMS_TABLE, TABLE_GROUP_LINES_TABLE, TABLES_TABLE, UNITS_TABLE, USERS_TABLE } from '@/schema/tables';
+import { COLLECTIONS_LINES_TABLE, COLLECTIONS_TABLE, CUSTOMERS_TABLE, DISCOUNTS_TABLE, ITEMS_TABLE, SALES_ITEMS_TABLE, TABLE_GROUP_LINES_TABLE, TABLES_TABLE, UNITS_TABLE, USERS_TABLE } from '@/schema/tables';
 import { ref, toRaw } from 'vue';
 import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { addBulkSalesItem } from './sales-item.service';
-import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../module/inventory.service';
-import { COLLECTIONS_DTO } from '@/models/collections.model';
-import { COLLECTIONS_LINES_DTO } from '@/models/collection-lines.model';
+import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../../composables/inventory';
+import { COLLECTIONS, COLLECTIONS_DTO } from '@/models/collections.model';
+import { COLLECTIONS_LINES, COLLECTIONS_LINES_DTO } from '@/models/collection-lines.model';
 
 // const db_connection = new DBConnectionService()
 const data = ref<COLLECTIONS_DTO[]>([])
@@ -124,16 +124,103 @@ export const getLastCollectionNumber = async (): Promise<string> => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
+      let ci_number = '';
       const query = `SELECT ci_number FROM ${COLLECTIONS_TABLE} ORDER BY id DESC LIMIT 1`;
       const result = await db?.query(query);
       const lastCINumber =result?.values?.[0].ci_number;
-      return lastCINumber || '0000000000';
+
+      const currentCINumber = parseInt(lastCINumber, 10);
+      const nextCINumber = currentCINumber + 1;
+      const formattedNextCINumber = nextCINumber.toString().padStart(10, '0');
+      
+      ci_number = formattedNextCINumber;
+
+      return ci_number;
     } catch (error) {
       return '0000000000';
     }
 }
 
-export const addCollection = async (data: COLLECTIONS_DTO, data_line: COLLECTIONS_LINES_DTO[]) => {
+
+export const addPayment = async (data: COLLECTIONS, data_line: COLLECTIONS_LINES[]) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const query = `INSERT INTO ${COLLECTIONS_TABLE} (
+      user_id,          ci_date,          ci_number,
+      customer_id,       sales_id,        total_amount,
+      is_locked
+    ) VALUES (
+      ?, ?, ?,
+      ?, ?, ?,
+      ?
+    )`;
+  
+    const transactionStatements = [
+      {
+        statement: query,
+        values: [
+          1 , data.ci_date, data.ci_number, 
+          data.customer_id, data.sales_id, data.total_amount,
+          true
+        ],
+      },
+    ];
+  
+    const res = await db.query(query,transactionStatements[0].values );
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+    // const insertedId = lastIdRes.values?[0].values['lastId'];
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId
+
+      for (const line of data_line) {
+        const query =
+        `INSERT INTO ${COLLECTIONS_LINES_TABLE} (
+            collection_id,
+            paytype_id,
+            particulars,
+            amount,
+            change
+        ) VALUES (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+        )`
+        const transactionStatements = [
+            {
+              statement: query,
+              values: [
+                Id,
+                line.paytype_id,
+                line.particulars,
+                line.amount,
+                line.particulars
+              ],
+            },
+        ];
+        try {
+          const res = await db.executeTransaction(transactionStatements );
+        } catch (error) {
+          throw error;
+        }
+          
+      }
+      
+    } else {
+      Id = 0;
+    }
+    // return true,Id;
+    return { success: true };
+  } catch (error) {
+      throw error;
+  }
+};
+
+export const addCollection = async (data: COLLECTIONS_DTO) => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
@@ -175,7 +262,6 @@ export const addCollection = async (data: COLLECTIONS_DTO, data_line: COLLECTION
         throw error;
     }
 };
-
 
 export const updateCollection = async (data: COLLECTIONS_DTO, data_line: COLLECTIONS_LINES_DTO[]) => {
     const dbConnectionService = await DBConnectionService.getInstance();

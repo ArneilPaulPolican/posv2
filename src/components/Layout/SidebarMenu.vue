@@ -8,10 +8,10 @@
                 </div>
             </ion-item>
             <ion-item>
-                <h1>Company</h1>
+                <h1>{{ sysSettings?.customer }}</h1>
             </ion-item>
             <ion-item>
-                <ion-note>test@example.user.com</ion-note>
+                <ion-note>{{ current_user?.first_name }} {{ current_user?.fullname }} </ion-note>
             </ion-item>
 
             <ion-item slot="header" router-direction="root" :router-link="'/Dashboard'" lines="none" :detail="false" class="hydrated" >
@@ -52,8 +52,13 @@
 
 
 <script lang="ts">
+import { presentToast } from '@/composables/toast.service';
+import { SYS_SETTINGS } from '@/models/system-settings.model';
 import { icons } from '@/plugins/icons';
 import { defineComponent, onBeforeMount, onMounted, ref } from 'vue';
+import { Storage } from '@capacitor/storage';
+import { onIonViewDidEnter } from '@ionic/vue';
+import USER from '@/models/user.model';
 
 export default defineComponent({
     setup(){
@@ -191,19 +196,46 @@ export default defineComponent({
                     },
                     ]
                 },
-        ]
+        ];
+        const sysSettings = ref<SYS_SETTINGS>();
+        const current_user = ref<USER>();
             
         const selectedIndex = ref(0);
         function accordionToggle(i: number) {
             accordionStates.value[i] = !accordionStates.value[i];
         }
-        onMounted(() =>{
-            // TODO here
-        })
+        async function fetchCurrentSettings() {
+            try {
+                try {
+                    const { value } = await Storage.get({ key: 'sysSettings' });
+                    sysSettings.value = JSON.parse(value as string);
+                } catch (error) {
+                    await presentToast(`Retreiving current settings failed: ${error}`);
+                }
+                try {
+                    const { value } = await Storage.get({ key: 'current_user' });
+                    current_user.value = JSON.parse(value as string);
+                } catch (error) {
+                    await presentToast(`Retreiving current user failed: ${error}`);
+                }
+                console.log(sysSettings)
+                console.log(current_user)
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`);
+            }
+        }
+        onMounted(async () =>{
+            await fetchCurrentSettings();
+        });
+        onIonViewDidEnter(async () => {
+            await fetchCurrentSettings()
+        });
         return{
             icons,
             appPages,
             labels: ['Sales', 'Item', 'Customer'],
+            sysSettings,
+            current_user,
             selectedIndex,
             accordionToggle
         }

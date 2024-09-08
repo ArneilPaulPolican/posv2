@@ -12,22 +12,22 @@
                         <ion-label>Back</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!item.is_locked" size="medium" expand="block" style="height: 90%"
-                    @click="handleSave()" :disabled="buttonDisabled">
+                <ion-button v-if="!is_locked" size="medium" expand="block" style="height: 90%"
+                    @click="handleSave()" >
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.saveSharp"></ion-icon>
                         <ion-label>Save</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!item.is_locked" size="medium" expand="block" style="height: 90%"
+                <ion-button v-if="!is_locked" size="medium" expand="block" style="height: 90%"
                     @click="handleLock()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
                         <ion-label>Lock</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="item.is_locked" size="medium" expand="block" style="height: 90%"
-                    @click="handleUnlock()" :disabled="!buttonDisabled">
+                <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%"
+                    @click="handleUnlock()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.lockOpenSharp"></ion-icon>
                         <ion-label>Unlock</ion-label>
@@ -46,21 +46,21 @@
                 <div style="padding: 10px;">
                     <ion-item >
                         <ion-label position="stacked">Barcode :</ion-label>
-                        <ion-input v-model="item.bar_code" placeholder="012345678912"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="item.bar_code" placeholder="012345678912"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Description :</ion-label>
-                        <ion-textarea v-model="item.item_description" placeholder="Item Description"></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="item.item_description" placeholder="Item Description"></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Unit :</ion-label>
-                                <ion-input :readonly="true" v-model="item.unit" placeholder="Pc(s)" @click="openUnitModal(true)"></ion-input>
+                                <ion-input :disabled="is_locked" :readonly="true" v-model="item.unit" placeholder="Pc(s)" @click="openUnitModal(true)"></ion-input>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Price : </ion-label>
-                                <ion-input  v-model="item.price" type="number" placeholder="Enter Price" ></ion-input>
+                                <ion-input :disabled="is_locked" v-model="item.price" type="number" placeholder="Enter Price" ></ion-input>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -68,7 +68,7 @@
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Cost :</ion-label>
-                                <ion-input v-model="item.cost" type="number" placeholder="Enter Cost" ></ion-input>
+                                <ion-input :disabled="is_locked" v-model="item.cost" type="number" placeholder="Enter Cost" ></ion-input>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Onhand Quantity :</ion-label>
@@ -80,27 +80,31 @@
                     <ion-item>
                         <ion-row>
                             <ion-col>
-                                <ion-checkbox v-model="item.is_inventory" label-placement="start">Is Inventory</ion-checkbox>
+                                <ion-checkbox :disabled="is_locked" v-model="item.is_inventory" label-placement="start">Is Inventory</ion-checkbox>
                             </ion-col>
-                            <ion-col  size="8">
+                            <ion-col >
+                                <ion-checkbox :disabled="is_locked" v-model="item.is_vat_inclusive" label-placement="start">VAT Inclusive</ion-checkbox>
                             </ion-col>
                         </ion-row>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Tax :</ion-label>
-                        <ion-input :readonly="true" v-model="item.tax" placeholder="VAT" @click="openTaxModal"></ion-input>
+                        <ion-input :disabled="is_locked" :readonly="true" v-model="item.tax" placeholder="VAT"></ion-input>
+                        <ion-button :disabled="is_locked" slot="end" fill="outline" size="medium" style="align-self: center;" @click="openTaxModal(true)">
+                            <ion-icon :icon="icons.ellipsisHorizontalOutline"></ion-icon>
+                        </ion-button>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Alias :</ion-label>
-                        <ion-textarea v-model="item.alias" placeholder="Alias" ></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="item.alias" placeholder="Alias" ></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Generic Name :</ion-label>
-                        <ion-textarea v-model="item.generic_name" placeholder="Generic Name" ></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="item.generic_name" placeholder="Generic Name" ></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Remarks :</ion-label>
-                        <ion-textarea v-model="item.remarks" placeholder="Remarks" ></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="item.remarks" placeholder="Remarks" ></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <img v-if="item.image_path" :src="item.image_path" >
@@ -168,6 +172,7 @@ export default defineComponent({
             image_path: '',
             is_package: false,
             is_locked: false,
+            is_vat_inclusive: false,
             expiry_date:'',
             lot_number:''
         });
@@ -180,7 +185,7 @@ export default defineComponent({
         const alertMessage = ref('');
         const not_found = ref(false);
 
-        const buttonDisabled = ref(false);
+        const is_locked = ref(false);
         //#endregion
 
         //#region FUNCTIONS
@@ -190,13 +195,16 @@ export default defineComponent({
         }
         
         function openUnitModal(isOpen: boolean) {
-            open_unit_modal.value = isOpen
+            if(!is_locked){
+                open_unit_modal.value = isOpen
+            }
         }
 
         const handleUnitPicked = (unit: any) => {
             // Handle the picked unit data here
             open_unit_modal.value = false;
             item.value.unit_id = unit.id;
+            item.value.unit = unit.unit_code;
             // Process the unit data as needed
         };
 
@@ -204,12 +212,11 @@ export default defineComponent({
             open_alert.value = false;
         }
         
-        
-        function openTaxModal() {
-            open_tax_modal.value = !open_tax_modal.value
+        function openTaxModal(isOpen: boolean) {
+            open_tax_modal.value = isOpen;
         }
         const handleTaxPicked = (tax: any) => {
-            open_tax_modal.value = !open_tax_modal.value
+            open_tax_modal.value = false;
             item.value.tax_id = tax.id;
             item.value.tax = tax.tax;
         };
@@ -219,13 +226,11 @@ export default defineComponent({
                 const response = await updateItem(item.value, imagePath.value);
                 if(response){
                     await presentToast('Item successfully updated');
-                    router.push(`/Setup/Items`);
                 }else{
                     await presentToast('Failed to update item')
                 }
             } catch (err) {
-                dbLock.release(); // Release the lock after the operation
-                await presentToast('Error adding data:')
+                await presentToast(`Operation failed: ${err}`)
             }
         }
 
@@ -234,6 +239,7 @@ export default defineComponent({
                 const response = await lockItem(item.value, imagePath.value);
                 if(response.success){
                     await presentToast('Item successfully locked');
+                    is_locked.value = true;
                 }else{
                     await presentToast('Failed to lock item')
                 }
@@ -247,11 +253,12 @@ export default defineComponent({
                 const response = await unlockItem(item.value);
                 if(response.success){
                     await presentToast('Item successfully unlock');
+                    is_locked.value = false;
                 }else{
                     await presentToast('Failed to unlock item')
                 }
             } catch (err) {
-                await presentToast(`Unlock operation unsuccesful: ${err}`)
+                await presentToast(`Operation failed: ${err}`)
             }
         }
 
@@ -263,7 +270,7 @@ export default defineComponent({
                 const itemRes = await getItemById(routeParams)
                 if(itemRes.success){
                     if(itemRes.data){
-                        console.log(itemRes.data)
+                        is_locked.value = itemRes.data.is_locked;
                         item.value = {
                             id: itemRes.data.id,
                             item_code: itemRes.data.item_code,
@@ -284,6 +291,7 @@ export default defineComponent({
                             image_path: itemRes.data.image_path,
                             is_package: itemRes.data.is_package,
                             is_locked: itemRes.data.is_locked ,
+                            is_vat_inclusive: itemRes.data.is_vat_inclusive,
                             expiry_date: itemRes.data.expiry_date,
                             lot_number: itemRes.data.lot_number,
                         };
@@ -296,9 +304,6 @@ export default defineComponent({
                 
             }, 300);
         }
-        watch(() => item.value.is_locked, (newValue) => {
-            buttonDisabled.value = newValue;
-        });
         //#endregion
         onMounted(async () => {
             await fetchDetails();
@@ -316,13 +321,13 @@ export default defineComponent({
             handleUnitPicked,
             handleBackButton,
 
+            is_locked,
+
             open_alert,
             alertMessage,
             alertTitle,
             alertSubTitle,
             not_found,
-
-            buttonDisabled,
 
             handleSave,
             openUnitModal,
@@ -331,7 +336,7 @@ export default defineComponent({
             confirmReturn,
 
             handleLock,
-            handleUnlock
+            handleUnlock,
         }
     }
 });

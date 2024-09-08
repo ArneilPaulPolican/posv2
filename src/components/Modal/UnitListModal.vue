@@ -46,7 +46,6 @@ export default defineComponent({
         const units = ref<UNIT[]>([])
 
         const handlePickedUnit = async (unit:UNIT) =>{
-            // return to the ItemDetail.vue the unit.id, unit.unit_code and unit.unit_description
             emit('unit-picked', unit);
             emit('close'); 
         }
@@ -55,8 +54,10 @@ export default defineComponent({
         onMounted(async () => {
             setTimeout(async () => {
                 try {
-                    const unitsData = await getUnits();
-                    units.value = unitsData;
+                    const result = await getUnits();
+                    if(result.success){
+                        units.value = result.data;
+                    }
                 } catch (error) {
                     await presentToast('Failed retreiving Unit list')
                 }
