@@ -113,6 +113,7 @@ export const getItemById = async (id: number) => {
         ${ITEMS_TABLE}.lot_number,
         ${TAXES_TABLE}.id as tax_id,
         ${TAXES_TABLE}.tax_code,
+        ${TAXES_TABLE}.rate as tax_rate,
         ${UNITS_TABLE}.id as unit_id,
         ${UNITS_TABLE}.unit_code
       FROM ${ITEMS_TABLE}
@@ -147,8 +148,9 @@ export const getItemById = async (id: number) => {
       tax_code: item.tax_code,
       is_inventory: item.is_inventory,
       generic_name: item.generic_name,
-      tax: item.tax_code,
       taxId: item.tax_id,
+      tax: item.tax_code,
+      tax_rate: item.tax_rate,
       remarks: item.remarks,
       image_path: item.image_path,
       is_package: item.is_package,
@@ -329,8 +331,8 @@ export const lockItem = async (data: ITEM, processedImageSavePath: string) => {
           WHERE id = ?
         `,
         values: [
-          data.item_description,
           data.bar_code,
+          data.item_description,
           data.alias,
           data.category,
           data.price,

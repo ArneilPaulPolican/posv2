@@ -24,15 +24,23 @@
                   <ion-icon slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
                   <ion-label>{{ p.title }}</ion-label>
                 </ion-item>
-                <ion-list slot="content" v-if="p.subitems">
-                  <ion-item v-for="(subitem, j) in p.subitems" :key="j" @click="selectedIndex = j" router-direction="root" 
-                    :router-link="subitem.url" lines="none" :detail="false" class="hydrated" :class="{ selected: selectedIndex === j }">
-                    <ion-icon aria-hidden="true" slot="start" :ios="subitem.iosIcon" :md="subitem.mdIcon"></ion-icon>
-                    <ion-label>{{ subitem.title }}</ion-label>
-                  </ion-item>
-                </ion-list>
+                    <ion-list slot="content" v-if="p.subitems">
+                        <div style="margin-left: 15px;">
+                            <ion-item v-for="(subitem, j) in p.subitems" :key="j" @click="selectedIndex = j" router-direction="root" 
+                                :router-link="subitem.url" lines="none" :detail="false" class="hydrated" :class="{ selected: selectedIndex === j }">
+                                <ion-icon aria-hidden="true" slot="start" :ios="subitem.iosIcon" :md="subitem.mdIcon"></ion-icon>
+                                <ion-label>{{ subitem.title }}</ion-label>
+                            </ion-item>
+                        </div>
+                    </ion-list>
+                
               </ion-accordion>
             </ion-accordion-group>
+            <ion-item slot="header" router-direction="root" lines="none" :detail="false" class="hydrated" >
+                <ion-button @click="InventoryReport">
+                <ion-label>Inventory</ion-label>
+                </ion-button>
+            </ion-item>
             <ion-item slot="header" router-direction="root" :router-link="'/tabs/tab1'" lines="none" :detail="false" class="hydrated" >
                   <ion-label>Test</ion-label>
             </ion-item>
@@ -59,6 +67,7 @@ import { defineComponent, onBeforeMount, onMounted, ref } from 'vue';
 import { Storage } from '@capacitor/storage';
 import { onIonViewDidEnter } from '@ionic/vue';
 import USER from '@/models/user.model';
+import { generateInventoryReport } from '@/services/report/sys-inventory-report.service';
 
 export default defineComponent({
     setup(){
@@ -224,6 +233,13 @@ export default defineComponent({
                 await presentToast(`Operation failed: ${error}`);
             }
         }
+        async function InventoryReport() {
+            try {
+                await generateInventoryReport();
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
+        }
         onMounted(async () =>{
             await fetchCurrentSettings();
         });
@@ -237,7 +253,8 @@ export default defineComponent({
             sysSettings,
             current_user,
             selectedIndex,
-            accordionToggle
+            accordionToggle,
+            InventoryReport
         }
     }
 });

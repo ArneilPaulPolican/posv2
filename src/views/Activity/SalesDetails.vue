@@ -2,7 +2,7 @@
     <ion-page>
         <!-- <HeaderComponent :title="header"/> -->
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button size="small" position="stacked"  @click="openItemModal(true)">
+            <ion-fab-button :disabled="is_locked" size="small" position="stacked"  @click="openItemModal">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -18,7 +18,7 @@
                 </ion-button>
                 <ion-button v-if="!is_locked" :disbaled="is_locked" size="medium" expand="block" style="height: 90%" @click="handleSave()">
                     <div class="icon-label-wrapper">
-                        <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
+                        <ion-icon :icon="icons.saveSharp"></ion-icon>
                         <ion-label>Save</ion-label>
                     </div>
                 </ion-button>
@@ -93,11 +93,13 @@
                 <div style="padding: 5px;">
                     <ion-item>
                         <ion-label position="stacked">Customer</ion-label>
-                        <ion-input v-model="sales.customer" :readonly="true" placeholder="Walk-in" @click="openCustomerModal(true)"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="sales.customer" :readonly="true" placeholder="Walk-in" 
+                        @click="openCustomerModal"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Discount</ion-label>
-                        <ion-input v-model="sales.discount" placeholder="No Discount" @click="openDiscountModal(true)"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="sales.discount" placeholder="No Discount" 
+                        @click="openDiscountModal"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-chip>
@@ -115,13 +117,13 @@
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Status</ion-label>
-                                <ion-input v-model="sales.status" placeholder="NEW"></ion-input>
+                                <ion-input :disabled="is_locked" v-model="sales.status" placeholder="NEW"></ion-input>
                             </ion-col>
                         </ion-row>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Remarks</ion-label>
-                        <ion-textarea v-model="sales.remarks" placeholder="Remarks"></ion-textarea>
+                        <ion-textarea :disabled="is_locked" v-model="sales.remarks" placeholder="Remarks"></ion-textarea>
                     </ion-item>
                 </div>
             </ion-list>
@@ -131,54 +133,37 @@
                 <ion-input  placeholder="00000000001"></ion-input>
             </ion-item>
 
-            <ion-list :inset="true" style="margin: 10px">
-                <div style="padding: 10px;">
-
-                    
+            <ion-list :inset="true" style="margin: 5px">
+                <div style="padding: 5px;">
                     <!-- List -->
-                    <ion-item v-for="item in sales_item_list" :key="item.id" @click="openActionSheet(item)">
-                        <!-- <img alt="" :src="item.item_image" style="width: 100px;height: 100px; position: con;"/> -->
-                        <div style="width: 50px; height: 50px; overflow: hidden;">
-                            <img alt="" :src="item.item_image" style="width: 100%; height: 100%; object-fit: cover;"/>
-                        </div>
-                        &nbsp;
-                        <ion-label>
-                            <h1>{{ item.item_barcode }}</h1>
-                            <p>{{ item.item_description }}</p>
-                            <p>Tax:&nbsp;{{ item.tax_code }}</p>
-                            <p>Rate:&nbsp;{{ item.tax_rate.toFixed(2) }}</p>
-                            <p>Amount:&nbsp;{{ item.tax_amount?.toFixed(2) }}</p>
-                        </ion-label>
-                        <ion-label slot="end">
-                            <p>Price:&nbsp;{{ item.price?.toFixed(2) }}</p>
-                            <p>Qty:&nbsp;{{ item.quantity }}</p>
-                            <p>Amount:&nbsp;{{ item.amount?.toFixed(2) }}</p>
-                        </ion-label>
-                    </ion-item>
+                     <div v-for="item in sales_item_list" :key="item.id"  @click="!is_locked && openActionSheet(item)">
+                        <ion-item >
+                            <ion-label>
+                                <p>{{ item.item_barcode }}</p>
+                                <h1>{{ item.item_description }}</h1>
+                            </ion-label>
+                        </ion-item>
+                        <ion-item >
+                            <!-- <img alt="" :src="item.item_image" style="width: 100px;height: 100px; position: con;"/> -->
+                            <div style="width: 50px; height: 50px; overflow: hidden;">
+                                <img alt="" :src="item.item_image" style="width: 100%; height: 100%; object-fit: cover;"/>
+                            </div>
+                            &nbsp;
+                            <ion-label>
+                                <p>Tax:&nbsp;{{ item.tax_code }}</p>
+                                <p>Rate:&nbsp;{{ item.tax_rate.toFixed(2) }}</p>
+                                <p>Amount:&nbsp;{{ item.tax_amount?.toFixed(2) }}</p>
+                            </ion-label>
+                            <ion-label slot="end">
+                                <p>Price:&nbsp;{{ item.price?.toFixed(2) }}</p>
+                                <p>Qty:&nbsp;{{ item.quantity }}</p>
+                                <p>Amount:&nbsp;{{ item.amount?.toFixed(2) }}</p>
+                            </ion-label>
+                        </ion-item>
+                     </div>
                 </div>
             </ion-list>
 
-            <ion-modal :is-open="open_customer_modal" @close="open_customer_modal = false">
-                <CustomerListModal @customer-picked="handleCustomerPicked"  @close="open_customer_modal = false"/>
-            </ion-modal>
-
-            <ion-modal :is-open="open_discount_modal" >
-                <DiscountListModal @discount-picked="handleDiscountPicked" @close="open_discount_modal = false"/>
-            </ion-modal>
-
-            <ion-modal :is-open="open_item_modal" @close="open_item_modal = false">
-                <ItemListModal :sales="sales" @item-picked="handleSubmitItems"  @close="open_item_modal = false"/>
-            </ion-modal>
-
-            <ion-modal :is-open="open_sales_item_modal" @close="open_sales_item_modal = false">
-                <SalesItemDetailsModal :sales_item="sales_item" 
-                @close="open_sales_item_modal = false"
-                @submit="() => { handleUpdateSalesItem(); open_sales_item_modal = false; }"/>
-            </ion-modal>
-            
-            <ion-modal :is-open="open_checkout_modal" @close="open_checkout_modal = false">
-                <CheckOutModal :sales="sales" @submit="submitCheckOut()"  @close="open_checkout_modal = false"/>
-            </ion-modal>
 
         </ion-content>
         <AlertComponent
@@ -200,21 +185,20 @@ import { defineComponent, onActivated, onMounted, Ref, ref, toRaw } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { SALES, SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM, SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
+import { actionSheetController, modalController, onIonViewDidEnter } from '@ionic/vue';
 import ItemListModal from '@/components/Modal/ItemListModal.vue';
 import SalesItemDetailsModal from '@/components/Modal/SalesItemDetailsModal.vue';
 import CustomerListModal from '@/components/Modal/CustomerListModal.vue';
 import DiscountListModal from '@/components/Modal/DiscountListModal.vue';
+import CheckOutModal from '@/components/Modal/CheckOutModal.vue';
 import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, lockSales, unlockSales, updateSales } from '@/services/activity/sales.service';
 import { Lock } from '@/services/lock';
-import { addBulkSalesItem, getSalesItemBySalesId, updatebULKSalesItem } from '@/services/activity/sales-item.service';
+import { addBulkSalesItem, deleteSalesItem, getSalesItemBySalesId, updatebULKSalesItem } from '@/services/activity/sales-item.service';
 import { generateSales } from '@/composables/pdf-generator';
 import { disc } from 'ionicons/icons';
 import { DISCOUNT_DTO } from '@/models/discount.model';
 import { presentToast } from '@/composables/toast.service';
-import { unlockCustomers } from '@/services/setup/customer.service';
-import CheckOutModal from '@/components/Modal/CheckOutModal.vue';
-// import { generatePDF } from '@/composables/pdf-generator';
+
 
 export default defineComponent({
     components:{
@@ -280,6 +264,7 @@ export default defineComponent({
         const is_locked = ref(false);
         const is_billed_out = ref(false);
 
+
         //#region   Actionsheet
         const actionSheetButtons = (item:any) => [
             {
@@ -314,8 +299,19 @@ export default defineComponent({
 
         //#region  EVENTS
         
-        const handleDelete = (item: any) => {
+        const handleDelete = async (item: any) => {
             // throw new Error('Function not implemented.');
+            try {
+                const result = await deleteSalesItem(item.id);
+                if(result.success){
+                    await presentToast('Item deleted successfully')
+                    await calculateAmount(); // recalculate total_amount
+                    await handleSave(); // Save with updated total_amount
+                    await fetchDetails()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         };
         
         // BACK
@@ -324,58 +320,72 @@ export default defineComponent({
         }
         
         // Pick Customer
-        function openCustomerModal(isOpen: boolean) {
-            open_customer_modal.value = isOpen
-        }
-        // Trigger when customer list is submitted
-        async function handleCustomerPicked (customer: any)  {
-            sales.value.customer_id = customer.id;
-            sales.value.customer = customer.customer;
-            open_customer_modal.value = false;
+        const openCustomerModal = async () => {
+            const modal = await modalController.create({
+            component: CustomerListModal,
+            // componentProps: { data: sales } 
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                sales.value.customer_id = data.id;
+                sales.value.customer = data.customer;
+            }
         };
 
         // Select Discount
-        function openDiscountModal(isOpen: boolean) {
-            open_discount_modal.value = isOpen
-        }
-        // Trigger when discount dialog is submitted
-        async function handleDiscountPicked (discount: DISCOUNT_DTO) {
-            sales.value.discount_id = discount.id;
-            sales.value.discount = discount.discount;
-            sales.value.discount_rate = discount.discount_rate;
-            sales.value.discount_amount = discount.discount_amount ?? 0;
-            sales.value.senior_pwd_id= discount.senior_pwd_id;
-            sales.value.senior_pwd_name= discount.senior_pwd_name;
-            open_discount_modal.value = false;
-            await updateSalesItemDiscount(); // update the discount in the selected items
+        const openDiscountModal = async () => {
+            const modal = await modalController.create({
+            component: DiscountListModal,
+            // componentProps: { data: sales } 
+            });
 
-            await handleSave();
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                sales.value.discount_id = data.id;
+                sales.value.discount = data.discount;
+                sales.value.discount_rate = data.discount_rate;
+            }
         };
 
-        const openItemModal = (isOpen: boolean) => {
-            open_item_modal.value = isOpen
-        }
-        // Trigger when item list modal is submitted
-        async function handleSubmitItems (sales_items: Ref<SALES_ITEM_DTO[]>)  {
-            const routeParams = +route.params.id;
-            sales_id = routeParams ; 
+        // Open Item Modal
+        const openItemModal = async () => {
+            const modal = await modalController.create({
+            component: ItemListModal,
+            componentProps: { data: sales, trx: 'SI' } 
+            });
 
-            await addBulkSalesItem(sales_id, sales_items.value); // add new selected items
-            await calculateAmount(); // recalculate total_amount
-            await handleSave(); // Save with updated total_amount
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                if (data && data._rawValue) { // Check if data is a ref object with _rawValue property
+                    const salesItems = data._rawValue; // Get the array of SALES_ITEM_DTO objects
+                    console.log(`Received data: ${JSON.stringify(salesItems)}`);
+                    await addBulkSalesItem(sales_id, salesItems); // add new selected items
+                    await calculateAmount(); // recalculate total_amount
+                    await handleSave(); // Save with updated total_amount
+                } else {
+                    console.error('Error: data is not a ref object with _rawValue property');
+                }
+            }
         };
 
         // edit sales item
         const handleEdit = async (item: any) => {
-            sales_item.value = item;
-            await presentToast("SelectedItem ", item)
-            open_sales_item_modal.value = true;
-        }
-        //
-        async function handleUpdateSalesItem() {
-            await calculateAmount();
-            await handleSave();
-        }
+            const modal = await modalController.create({
+            component: SalesItemDetailsModal,
+            componentProps: { sales: sales, sales_item: item } 
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                await calculateAmount();
+                await handleSave();
+            }
+        };
         
         async function calculateAmount() {
             sales_item_list.value = await getSalesItemBySalesId(sales_id)
@@ -443,6 +453,7 @@ export default defineComponent({
                     const response = await lockSales(sales.value)
                     if(response.success){
                         await presentToast('Sales successfully locked')
+                        await fetchDetails()
                         is_locked.value = true;
                     }else{
                         await presentToast('Failed to lock sales')
@@ -457,7 +468,8 @@ export default defineComponent({
             try {
                 const response = await unlockSales(sales.value)
                 if(response.success){
-                    await presentToast('Sales successfully unlocked')
+                    await presentToast('Sales successfully unlocked');
+                    await fetchDetails()
                     is_locked.value = false;
                 }else{
                     await presentToast('Failed to unlocked sales')
@@ -488,12 +500,19 @@ export default defineComponent({
             await generateSales(sales.value, sales_item_list.value)
         }
 
-        async function handleCheckOut() {
-            open_checkout_modal.value = true;
-        }
-        async function submitCheckOut() {
-            open_checkout_modal.value = false;
-        }
+        // Checkout
+        const handleCheckOut = async () => {
+            const modal = await modalController.create({
+            component: CheckOutModal,
+            componentProps: { sales: sales } 
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                await fetchDetails();
+            }
+        };
 
         async function fetchDetails(){
             open_alert.value = false;
@@ -514,7 +533,7 @@ export default defineComponent({
                         is_billed_out.value = result.data.is_billed_out;
                         sales_item_list.value = await getSalesItemBySalesId(routeParams);
                     }else{
-                        await presentToast('No Sales exist');
+                        await presentToast('Sales found');
                         confirmReturn();
                     }
                 } catch (error) {
@@ -549,13 +568,9 @@ export default defineComponent({
             not_found,
 
             openCustomerModal,
-            handleCustomerPicked,
-
+            openDiscountModal,
             openItemModal,
-            handleSubmitItems,
-
             openActionSheet,
-            handleUpdateSalesItem,
 
             confirmReturn,
 
@@ -564,10 +579,6 @@ export default defineComponent({
             handleBillOut,
             handleUnlock,
             handleCheckOut,
-            submitCheckOut,
-
-            openDiscountModal,
-            handleDiscountPicked,
             handlePrint,
             calculateAmount,
         }

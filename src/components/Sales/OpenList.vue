@@ -24,6 +24,7 @@
                         <h2>{{ sales.sales_number }}</h2>
                         <p>{{ sales.sales_date }}</p>
                         {{ sales.customer }}
+                        <p v-if="sales.is_locked">Locked</p><p v-else>Unlocked</p>
                     </ion-label>
                     <ion-label slot="end" >
                         <h2>{{ sales.net_amount?.toFixed(2) }}<ion-note> / Net</ion-note> </h2>
@@ -90,14 +91,18 @@ export default defineComponent({
         };
         //#endregion
         const handleDelete = async (sales: SALES_DTO) => {
-            if(sales.is_locked == false){
-                if(sales.balance_amount == sales.net_amount){
-                    const _deleteSales = await deleteSales(sales.id??0) 
-                    await presentToast('Deelte successful!');
-                    await fetchData()
+            try {
+                if(sales.is_locked == false){
+                    if(sales.balance_amount == sales.net_amount){
+                        const _deleteSales = await deleteSales(sales.id??0) 
+                        await presentToast('Deelte successful!');
+                        await fetchData()
+                    }
+                }else{
+                    await presentToast('Unable to delete Sales that is locked!');
                 }
-            }else{
-                await presentToast('Delete failed!');
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`);
             }
         }
         

@@ -32,6 +32,7 @@
 </template>
 
 <script lang="ts">
+import { presentToast } from '@/composables/toast.service';
 import { CASH_IN_OUTS } from '@/models/cashin-cashout.model';
 import { icons } from '@/plugins/icons';
 import { getCashInCashOut } from '@/services/activity/cash-in-cash-out.service';
@@ -47,8 +48,14 @@ export default defineComponent({
 
 
         async function fetchList() {
-            const response = await getCashInCashOut() 
-            cash_in_cash_outs.value = response           
+            try {
+                const result = await getCashInCashOut() 
+                if(result.success){
+                    cash_in_cash_outs.value = result.data 
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
         onMounted(async()=>{
             await fetchList()

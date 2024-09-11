@@ -1,7 +1,7 @@
 <template>
     <ion-page>
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button size="small" position="stacked"  @click="">
+            <ion-fab-button size="small" position="stacked"  @click="openItemModal">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -70,9 +70,11 @@ import { STOCK_IN, STOCK_IN_DTO } from '@/models/stock-in.model';
 import { icons } from '@/plugins/icons';
 import { presentToast } from '@/composables/toast.service';
 import { getStockInById, getStockIn, getLastINNumber, addStockIn, updateStockIn } from '@/services/activity/stock-in.service';
-import { onIonViewDidEnter } from '@ionic/vue';
+import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import ItemListModal from '@/components/Modal/ItemListModal.vue';
+import { addBulkStockInItem } from '@/services/activity/stock-in-items.service';
 
 
 export default defineComponent({
@@ -90,6 +92,28 @@ export default defineComponent({
         const stocki_in_id = ref(0);
         const in_number = ref('');
 
+        
+        // Open Item Modal
+        const openItemModal = async () => {
+            const modal = await modalController.create({
+            component: ItemListModal,
+            componentProps: { data: stock_in, trx: 'IN' } 
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                if (data && data._rawValue) { // Check if data is a ref object with _rawValue property
+                    const stock_in_items = data._rawValue; // Get the array of SALES_ITEM_DTO objects
+                    console.log(`Received data: ${JSON.stringify(stock_in_items)}`);
+                    await addBulkStockInItem(stock_in.value.id, stock_in_items); // add new selected items
+                    await handleSave(); // Save with updated total_amount
+                } else {
+                    console.error('Error: data is not a ref object with _rawValue property');
+                }
+            }
+        };
+
         async function handleReturn() {
             router.push(`/activity/stock-in`);
         }
@@ -99,51 +123,37 @@ export default defineComponent({
         }
 
         async function handleSave() {
-            if(stocki_in_id.value == 0){
-                const response = await addStockIn(stock_in.value)
-                if(response.success){
-                    await presentToast('Stock In successfully created',);
-                }else{
-                    await presentToast('Add stock in failed')
-                    // await presentToast('Failed to create sales')
-                    // alertTitle.value = 'Failed';
-                    // alertMessage.value = 'Failed to create sales';
-                }
-            }else{
+            try {
                 const response = await updateStockIn(stock_in.value)
                 if(response.success){
                     await presentToast('Update Stock In successful');
                 }else{
                     await presentToast('Update Stock In failed')
                 }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
             }
         }
         async function fetchDetails() {
             const routeParams = +route.params.id;
             stocki_in_id.value = routeParams ; 
-
-            
-            if(routeParams == 0){
-                in_number.value = await getLastINNumber();
-                const currentNumber = parseInt(in_number.value, 10);
-                const nextNumber = currentNumber + 1;
-                const formattedNextNumber = nextNumber.toString().padStart(10, '0');
-                in_number.value = formattedNextNumber;
-                stock_in.value.in_number = in_number.value;
-                stock_in.value.in_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
-            }else{
-                const response = await getStockInById(routeParams) 
-                if(response){
+            try {
+                const response = await getStockInById(stocki_in_id.value)
+                if(response.success){
                     stock_in.value ={
-                        id: response.id,
-                        user_id: response.user_id,
-                        in_number: response.in_number,
-                        in_date: response.in_date,
-                        remarks: response.remarks,
-                        status: response.status
+                        id: response.data?.id,
+                        user_id: response.data?.user_id,
+                        in_number: response.data?.in_number,
+                        in_date: response.data?.in_date,
+                        remarks: response.data?.remarks,
+                        status: response.data?.status
                     }
-                }    
-            }     
+                }else{
+                    await presentToast(`No Stock In found`)
+                } 
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
         onMounted(async()=>{
             await fetchDetails()
@@ -159,7 +169,8 @@ export default defineComponent({
 
             handleReturn,
             handleSave,
-            handleLock
+            handleLock,
+            openItemModal
         }
     }
 })

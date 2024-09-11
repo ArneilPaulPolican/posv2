@@ -18,21 +18,25 @@
             
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="item in items" :key="item.item_code" @click="openActionSheet(item)">
-                    <ion-avatar aria-hidden="true" slot="start">
-                        <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
-                    </ion-avatar>
-                    <ion-label>
-                        <h2>{{ item.item_code }}</h2>
-                        <p>{{ item.bar_code }}</p>
-                        <p>{{ item.item_description }}</p>
-                    </ion-label>
-                    <ion-label slot="end">
-                        <p v-if="item.is_locked">Locked</p><p v-else>Unlocked</p>
-                        <p v-if="item.is_inventory">Inv.</p> <p v-else>Non-Inv.</p>
-                        <p>Qty: {{ item.quantity }}</p>
-                    </ion-label>
-                </ion-item>
+                 <div v-for="item in items" :key="item.item_code" @click="openActionSheet(item)">
+                    <ion-item>
+                        <h3>{{ item.item_description }}</h3>
+                    </ion-item>
+                    <ion-item>
+                        <ion-avatar aria-hidden="true" slot="start">
+                            <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
+                        </ion-avatar>
+                        <ion-label>
+                            <p>{{ item.item_code }}</p>
+                            <p>{{ item.bar_code }}</p>
+                        </ion-label>
+                        <ion-label slot="end">
+                            <p v-if="item.is_locked">Locked</p><p v-else>Unlocked</p>
+                            <p v-if="item.is_inventory">Inv.</p> <p v-else>Non-Inv.</p>
+                            <p>Qty: {{ item.quantity }}</p>
+                        </ion-label>
+                    </ion-item>
+                 </div>
             </ion-list>
         </ion-content>
     </ion-page>
@@ -49,7 +53,7 @@ import { useRouter } from 'vue-router';
 import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Lock } from '@/services/lock';
 import { DBConnectionService } from '@/services/database.connection';
-import { addItem, getItems } from '@/services/setup/item.service';
+import { addItem, deleteItem, getItems } from '@/services/setup/item.service';
 
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import { addUnit } from '@/services/system/unit.service';
@@ -86,6 +90,7 @@ name: 'DashboardView', // Update the component name here
             quantity: 0,
             unit_id: 1,
             is_inventory: false,
+            is_vat_inclusive: false,
             generic_name: 'NA',
             tax_id: 1,
             remarks: 'NA',
@@ -149,8 +154,17 @@ name: 'DashboardView', // Update the component name here
         //#endregion
 
         //#region  EVENTS
-        const handleDelete = (item: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (item: any) => {
+            // throw new Error('Function not implemented.');
+            try {
+                const result = await deleteItem(item.id)
+                if(result.success){
+                    await presentToast(`Item deleted successfully`);
+                    await fetchList();
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         };
         const handleEdit = (item: any) => {
             router.push(`/Setup/Item/Details/${item.id}`);

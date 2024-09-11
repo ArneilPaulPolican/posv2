@@ -1,24 +1,16 @@
 <template>
     <ion-page style="margin-top: 65px;">
-        <ion-header :translucent="true">
+        <ion-header>
             <ion-toolbar>
-            <ion-title>Sales Details</ion-title>
+                <ion-buttons slot="start">
+                <ion-button color="medium" @click="cancel">Cancel</ion-button>
+                </ion-buttons>
+                <ion-title>Payment</ion-title>
+                <ion-buttons slot="end">
+                <ion-button @click="onCollectSubmit()" :strong="true">Confirm</ion-button>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
-        <ion-item>
-            <ion-button slot="end" @click="onCollectSubmit()" size="medium" expand="block" style="height: 90%">
-                <div class="icon-label-wrapper">
-                    <ion-icon :icon="icons.cashSharp"></ion-icon>
-                    <ion-label>Collect</ion-label>
-                </div>
-            </ion-button>
-            <ion-button slot="end" @click="$emit('close')" size="medium" expand="block" fill="outline">
-                <div class="icon-label-wrapper">
-                    <ion-icon :icon="icons.closeCircleSharp"></ion-icon>
-                    <ion-label>Close</ion-label>
-                </div>
-            </ion-button>
-        </ion-item>
 
         <ion-content :fullscreen="true">
             <ion-item>
@@ -55,10 +47,10 @@ import { PAYTYPE } from '@/models/paytype.model';
 import { icons } from '@/plugins/icons';
 import { presentToast } from '@/composables/toast.service';
 import { getPaytypes } from '@/services/system/paytype.service';
-import { onIonViewDidEnter } from '@ionic/vue';
+import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref, toRefs } from 'vue';
 import { getLastCollectionNumber } from '@/services/activity/collection.service';
-import { onPaymentSubmitUpdateSalesBalance } from '@/composables/payment';
+import { onPaymentSubmitUpdateSalesBalance } from '@/composables/payment-composable';
 import { SALES_DTO } from '@/models/sales.model';
 
 
@@ -69,7 +61,7 @@ export default defineComponent({
             default: () => ({})
         }
     },
-    setup(props, {emit}){
+    setup(props){
         const { sales } = toRefs(props);
         const selected_paytype = ref<PAYTYPE>({
             id: 0,
@@ -127,12 +119,15 @@ export default defineComponent({
                 const result = await onPaymentSubmitUpdateSalesBalance(sales.value as SALES_DTO, collection.value as COLLECTIONS_DTO, collection_line.value)
                 if (result.success){
                     await presentToast('Collection Successful');
-                    emit('close');
+                    await confirm();
                 }
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`)
             }
         }
+        
+        const cancel = () => modalController.dismiss('', 'cancel');
+        const confirm = () => modalController.dismiss('', 'confirm');
         
         const fetchList = async () =>{
             try {
@@ -164,7 +159,8 @@ export default defineComponent({
 
             onPaytypeSelect,
             computeChange,
-            onCollectSubmit
+            onCollectSubmit,
+            cancel
         }
     }
 });

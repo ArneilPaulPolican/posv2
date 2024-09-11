@@ -26,6 +26,7 @@ import {
   Z_READINGS_TABLE,
   SYS_SETTINGS_TABLE,
   MIGRATIONS_TABLE,
+  SYS_INVENTORY_TABLE,
 } from './tables';
 import { Capacitor } from "@capacitor/core";
 import MIGRATION from "@/models/migration.model";
@@ -525,7 +526,31 @@ export const createTables = async (db: SQLiteDBConnection) => {
         ans_accumulated_net_sales REAL NOT NULL
       )
     `;
-    
+
+    const createSysInventoryTableQuery = `
+      CREATE TABLE IF NOT EXISTS ${SYS_INVENTORY_TABLE} (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        trx_id INTEGER NOT NULL DEFAULT 0,
+        trx_date TEXT NOT NULL DEFAULT current_timestamp,
+        trx_type TEXT NOT NULL,
+        reference TEXT,
+        item_id INTEGER NOT NULL,
+        unit_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL,
+        end_quantity INTEGER NOT NULL,
+        cost REAL NOT NULL,
+        price REAL NOT NULL,
+        FOREIGN KEY (item_id)
+          REFERENCES ${ITEMS_TABLE} (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+        FOREIGN KEY (unit_id)
+          REFERENCES ${UNITS_TABLE} (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE
+      )
+    `;
+
     const createPrinterConfigurationTableQuery = `
       CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -580,6 +605,8 @@ export const createTables = async (db: SQLiteDBConnection) => {
         await db.execute(createZReadingsTableQuery);
   
         // Migrations
+        
+        await db.execute(createSysInventoryTableQuery);
         await db.execute(createMigrationsTableQuery);
   
         let deviceId = Capacitor.getPlatform();
@@ -649,13 +676,13 @@ export const createTables = async (db: SQLiteDBConnection) => {
             (item_code, bar_code, item_description,
             alias, category, price, 
             cost, quantity, unit_id, 
-            generic_name, tax_id, is_locked )
+            generic_name, tax_id, is_locked, is_inventory )
             VALUES 
             ('0000000001', '0000000001', 'Service Charge',
             'Service Charge', '', 0.0,
             0.0,  0.0, (SELECT id FROM ${UNITS_TABLE} ORDER BY id ASC LIMIT 1),
             'Service Charge', (SELECT id FROM ${TAXES_TABLE} ORDER BY id ASC LIMIT 1)
-            , true )
+            , true, true )
           `;
           const resITEMS_TABLE = await db.execute(insertDefaultItemQuery);
 

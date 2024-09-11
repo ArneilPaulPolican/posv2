@@ -33,6 +33,7 @@ export const COLLECTIONS_LINES_TABLE = 'trn_collections_lines';
 // Reports module
 export const Z_READINGS_TABLE = 'z_readings';
 export const SYS_SETTINGS_TABLE = 'sys_settings';
+export const SYS_INVENTORY_TABLE = 'sys_inventory';
 
 // Migrations
 export const MIGRATIONS_TABLE = 'migrations';

@@ -27,6 +27,7 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
                 ${SALES_ITEMS_TABLE}.sales_id,
                 ${SALES_ITEMS_TABLE}.date_time,
                 ${SALES_ITEMS_TABLE}.item_id,
+                ${ITEMS_TABLE}.quantity as onhand,
                 ${ITEMS_TABLE}.item_code,
                 ${ITEMS_TABLE}.bar_code as item_barcode,
                 ${ITEMS_TABLE}.item_description,
@@ -107,6 +108,7 @@ export const getSalesItemById = async (id:number) => {
         ${SALES_ITEMS_TABLE}.tax_id,
         ${SALES_ITEMS_TABLE}.tax_rate,
         ${SALES_ITEMS_TABLE}.tax_amount,
+        ${TAXES_TABLE}.tax,
         ${TAXES_TABLE}.tax_code,
         ${TAXES_TABLE}.is_inclusive,
         ${SALES_ITEMS_TABLE}.particulars,
@@ -145,6 +147,7 @@ export const getSalesItemById = async (id:number) => {
         amount: sales_item.amount,
         tax_id: sales_item.tax_id,
         tax: sales_item.tax,
+        tax_code: sales_item.tax_code,
         tax_rate: sales_item.tax_rate,
         tax_amount: sales_item.tax_amount,
         particulars: sales_item.particulars,
@@ -301,7 +304,7 @@ export const deleteSalesItem = async (id: number) => {
   
     const transactionStatements = [
       {
-        statement: `DELETE ${SALES_ITEMS_TABLE}
+        statement: `DELETE FROM ${SALES_ITEMS_TABLE}
         WHERE id=?`,
         values: [ 
           id

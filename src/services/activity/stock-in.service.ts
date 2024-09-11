@@ -50,7 +50,7 @@ export const getStockInById = async (id:number) => {
         status: stock_in.status
       }))[0];
   
-      return stock_in;
+      return { success: true, data: stock_in };
     } catch (error) {
       throw error;
     } 
@@ -76,6 +76,14 @@ export const addStockIn = async (data: STOCK_IN) => {
   let transaction;
   try {
     
+    let in_number = await getLastINNumber();
+    const currentNumber = parseInt(in_number, 10);
+    const nextNumber = currentNumber + 1;
+    const formattedNextNumber = nextNumber.toString().padStart(10, '0');
+    in_number = formattedNextNumber;
+    const in_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
+
+
     const taxServiceQuery = 
     `
     INSERT INTO ${STOCK_INS_TABLE} (
@@ -92,7 +100,7 @@ export const addStockIn = async (data: STOCK_IN) => {
     const transactionStatements = [
       {
         statement: taxServiceQuery,
-        values: [1, data.in_number, data.in_date, data.remarks, data.status],
+        values: [1, in_number, in_date, 'NA', 'NEW'],
       },
     ];
     const res = await db.executeTransaction(transactionStatements);

@@ -1,19 +1,20 @@
 <template>
-    <ion-page>
-        <ion-header :translucent="true">
+    <ion-page style="margin-top: 65px;">
+        <ion-header>
             <ion-toolbar>
+                <ion-buttons slot="start">
+                <ion-button color="medium" @click="cancel">Cancel</ion-button>
+                </ion-buttons>
+                <ion-title>Select Item</ion-title>
+                <ion-buttons slot="end">
+                <ion-button @click="confirm" :strong="true">Confirm</ion-button>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
         <ion-item>
             <!-- Search Input -->
             <ion-searchbar placeholder="Enter keyword"></ion-searchbar>
 
-            <ion-button @click="handlePickedItem" size="medium" expand="block" >
-                <ion-label>Submit</ion-label>
-            </ion-button>
-            <ion-button @click="$emit('close')" size="medium" expand="block" fill="outline">
-                <ion-label>Close</ion-label>
-            </ion-button>
         </ion-item>
 
         <ion-content :fullscreen="true">
@@ -67,10 +68,13 @@ import { getUnits } from '@/services/system/unit.service';
 import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue';
 // import { Storage } from '@ionic/storage';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { onIonViewDidEnter } from '@ionic/vue';
+import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { getItems } from '@/services/setup/item.service';
 import NumberInput from '../NumberInput.vue';
 import { presentToast } from '@/composables/toast.service';
+import { computeVAT, discountPerQuantity, netPrice } from '@/composables/sales-composable';
+import { SALES_DTO } from '@/models/sales.model';
+import { STOCK_IN_ITEMS_DTO } from '@/models/stock-in-item.model';
 
 export default defineComponent({
     components:{
@@ -80,113 +84,144 @@ export default defineComponent({
         sales: {
             type: Object,
             default: () => ({})
+        },
+        trx:{
+            type: String
         }
     },
-    setup(props, {emit}){
+    setup(props){
+        const trx = props.trx;
         const { sales } = toRefs(props);
         const items = ref<ITEM_DTO[]>([]);
         const sales_items = ref<SALES_ITEM_DTO[]>([]);
+        const stock_in_items = ref<STOCK_IN_ITEMS_DTO[]>([]);
         const quantity = 0;
         const total_amount = ref(0);
-
-        const handlePickedItem = async () =>{
-            emit('item-picked', sales_items);
-            emit('close');
+        
+        const cancel = () => modalController.dismiss('', 'cancel');
+        const confirm = () => {
+            console.log(`${trx}`)
+            modalController.dismiss(sales_items , 'confirm');
         }
+        
 
         const updateQuantity = async (qty : number, item: ITEM_DTO) =>{
-            total_amount.value = await netPrice(item) * qty;
-            sales_items.value.push({
-                id:0,
-                sales_id:0,
+            total_amount.value = await netPrice(item, sales.value as SALES_DTO) * qty;
+            if(trx == 'SI'){
+                sales_items.value.push({
+                    id:0,
+                    sales_id:0,
+                    item_id: item.id ?? 0,
+                    item_code: item.item_code,
+                    item_barcode: item.bar_code,
+                    item_description: item.item_description,
+                    item_alias: item.alias,
+                    item_category: item.category,
+                    item_cost: item.cost,
+                    unit_id: item.unit_id,
+                    item_image: item.image_path,
+                    unit: item.unit ?? '',
+                    unit_code: item.unit_code ?? '',
+                    quantity: qty,
+                    price: item.price,
+                    net_price: await netPrice(item, sales.value as SALES_DTO),
+                    amount: parseFloat((await netPrice(item, sales.value as SALES_DTO) * qty).toFixed(2)),
+                    discount_id: sales.value.discount_id ?? 1,
+                    discount: sales.value.discount ?? '',
+                    discount_rate: sales.value.discount_rate ?? 0,
+                    discount_amount: await discountPerQuantity(qty, item, sales.value as SALES_DTO ) * qty,
+                    tax_id: item.tax_id,
+                    tax: item.tax ?? '',
+                    tax_code: item.tax_code ?? '',
+                    tax_rate: item.tax_rate ?? 0,
+                    tax_amount: await computeVAT(qty, item) * qty,
+                    particulars:'',
+                    user_id:1,
+                    user:''
+                })
+            }
+            if(trx=='IN'){
+                stock_in_items.value.push({
+                id: 0,
+                in_id: 0,
+                in_date: '',
+                in_number:'',
+                date_time: '',
+                
                 item_id: item.id ?? 0,
                 item_code: item.item_code,
                 item_barcode: item.bar_code,
                 item_description: item.item_description,
-                item_alias: item.alias,
-                item_category: item.category,
-                item_cost: item.cost,
+                item_image_path: item.image_path,
                 unit_id: item.unit_id,
-                item_image: item.image_path,
-                unit: item.unit ?? '',
                 unit_code: item.unit_code ?? '',
+                unit: item.unit ?? '',
                 quantity: qty,
-                price: item.price,
-                net_price: await netPrice(item),
-                amount: parseFloat((item.price * qty).toFixed(2)),
-                discount_id: sales.value.discount_id ?? 1,
-                discount: sales.value.discount ?? '',
-                discount_rate: sales.value.discount_rate ?? 0,
-                discount_amount: await discountPerQuantity(qty, item) * qty,
-                tax_id: item.tax_id,
-                tax: item.tax ?? '',
-                tax_code: item.tax_code ?? '',
-                tax_rate: item.tax_rate ?? 0,
-                tax_amount: await computeVAT(qty, item) * qty,
-                particulars:'',
-                user_id:1,
-                user:''
-            })
+                cost: item.cost,
+                amount: item.cost * qty,
+                particulars: ''
+                })
+            }
         }
 
-        const netPrice = async (item: ITEM_DTO) => {
-            const _vat_rate = (item.tax_rate ?? 0) / 100 ;
+        // const netPrice = async (item: ITEM_DTO) => {
+        //     const _vat_rate = (item.tax_rate ?? 0) / 100 ;
 
-            const _vat_in_net_price = item.price / (1 + _vat_rate); // if vat inclusive
+        //     const _vat_in_net_price = item.price / (1 + _vat_rate); // if vat inclusive
 
-            const _vat_ex_net_price = item.price * (1 + _vat_rate); // if vat exclusive
+        //     const _vat_ex_net_price = item.price * (1 + _vat_rate); // if vat exclusive
             
-            let _net_price = 0;
-            if(item.is_vat_inclusive){
-                _net_price = item.price;
-            }else{
-                _net_price = _vat_ex_net_price;
-            }
+        //     let _net_price = 0;
+        //     if(item.is_vat_inclusive){
+        //         _net_price = item.price;
+        //     }else{
+        //         _net_price = _vat_ex_net_price;
+        //     }
 
-            return _net_price;
-        }
+        //     return _net_price;
+        // }
 
-        const computeVAT = async (quantity:number, item: ITEM_DTO) => {
-            const _vat_rate = (item.tax_rate ?? 0) / 100 ;
+        // const computeVAT = async (quantity:number, item: ITEM_DTO) => {
+        //     const _vat_rate = (item.tax_rate ?? 0) / 100 ;
 
-            const _vat_in_net_price = item.price / (1 + _vat_rate); // if vat inclusive
+        //     const _vat_in_net_price = item.price / (1 + _vat_rate); // if vat inclusive
 
-            const _vat_ex_net_price = item.price * (1 + _vat_rate); // if vat exclusive
+        //     const _vat_ex_net_price = item.price * (1 + _vat_rate); // if vat exclusive
 
-            let _vat_amount = 0
+        //     let _vat_amount = 0
 
-            if(item.is_vat_inclusive){
-                _vat_amount = parseFloat((item.price - _vat_in_net_price).toFixed(2));
-            }else{
-                _vat_amount = parseFloat((item.price -_vat_ex_net_price).toFixed(2));
-            }
-            console.log(`vat is ${_vat_amount}`)
+        //     if(item.is_vat_inclusive){
+        //         _vat_amount = parseFloat((item.price - _vat_in_net_price).toFixed(2));
+        //     }else{
+        //         _vat_amount = parseFloat((item.price -_vat_ex_net_price).toFixed(2));
+        //     }
+        //     console.log(`vat is ${_vat_amount}`)
 
-            return _vat_amount
-        }
+        //     return _vat_amount
+        // }
 
-        const discountPerQuantity = async (quantity:number, item: ITEM_DTO) => {
-            let _discount = 0 ;
-            let _price = item.price;
-            const _discount_rate = (sales.value.discount_rate / 100);
-            if(sales.value.discount.toLowerCase().includes('pwd') ||
-            sales.value.discount.toLowerCase().includes('senior') )
-            {
-                // For senior and pwd only
-                // If item is vat inclusive
-                if(item.is_vat_inclusive){
-                    const _vat_amount = await computeVAT(quantity, item);
-                    _price = parseFloat((_price - _vat_amount).toFixed(2)); // take out vat first
-                    _discount = parseFloat((_price * _discount_rate).toFixed(2)); // discount per / qty
-                }else{
-                    _discount = _price * _discount_rate; // discount per / qty
-                }
-            }else{
-                _discount = _price * _discount_rate; // discount per / qty
-            }
-            console.log(`price ${_price} by rate ${_discount_rate} is ${_discount} `)
-            return _discount
-        }
+        // const discountPerQuantity = async (quantity:number, item: ITEM_DTO) => {
+        //     let _discount = 0 ;
+        //     let _price = item.price;
+        //     const _discount_rate = (sales.value.discount_rate / 100);
+        //     if(sales.value.discount.toLowerCase().includes('pwd') ||
+        //     sales.value.discount.toLowerCase().includes('senior') )
+        //     {
+        //         // For senior and pwd only
+        //         // If item is vat inclusive
+        //         if(item.is_vat_inclusive){
+        //             const _vat_amount = await computeVAT(quantity, item);
+        //             _price = parseFloat((_price - _vat_amount).toFixed(2)); // take out vat first
+        //             _discount = parseFloat((_price * _discount_rate).toFixed(2)); // discount per / qty
+        //         }else{
+        //             _discount = _price * _discount_rate; // discount per / qty
+        //         }
+        //     }else{
+        //         _discount = _price * _discount_rate; // discount per / qty
+        //     }
+        //     console.log(`price ${_price} by rate ${_discount_rate} is ${_discount} `)
+        //     return _discount
+        // }
 
         async function fetchList() {
             try {
@@ -210,8 +245,10 @@ export default defineComponent({
             quantity,
             total_amount,
 
-            handlePickedItem,
+            // handlePickedItem,
             updateQuantity,
+            cancel,
+            confirm,
         }
     }
 });

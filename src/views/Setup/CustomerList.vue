@@ -22,8 +22,8 @@
                         <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
                     </ion-avatar>
                     <ion-label>
-                        <h2>{{ customer.customer_code }}</h2>
-                        <p>{{ customer.customer }}</p>
+                        <p>{{ customer.customer_code }}</p>
+                        <h2>{{ customer.customer }}</h2>
                         <p v-if="customer.is_locked">Locked</p><p v-else>Unlocked</p>
                     </ion-label>
                 </ion-item>
@@ -39,7 +39,7 @@ import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { CUSTOMER } from '@/models/customer.model';
-import { addCustomers, getCustomers } from '@/services/setup/customer.service';
+import { addCustomers, deleteCustomer, getCustomers } from '@/services/setup/customer.service';
 import { presentToast } from '@/composables/toast.service';
 
 export default defineComponent({
@@ -101,16 +101,21 @@ export default defineComponent({
         };
         //#endregion
         
-        const handleDelete = (customer: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (customer: any) => {
+            // throw new Error('Function not implemented.');
+            try {
+                const result = await deleteCustomer(customer);
+                if(result.success){
+                    await presentToast('Customer deleted successfully');
+                    await fetchList();
+                }
+            } catch (error) {
+                await presentToast(`Error adding new customer ${error}`)
+            }
         };
         const handleEdit = (customer: any) => {
             router.push(`/Setup/Customer/Details/${customer.id}`);
         };
-        
-        // const openDetailForm = async() => {
-        //     router.push(`/Setup/Customer/Details/0`);
-        // }
 
         const addNewCustomer = async() => {
             try {
@@ -124,10 +129,13 @@ export default defineComponent({
         }
         
         async function fetchList() {
-            const response = await getCustomers();
-            if(response.success && response.data){
-                console.log(response.data)
-                customers.value = response.data
+            try {
+                const response = await getCustomers();
+                if(response.success && response.data){
+                    customers.value = response.data
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
             }
         }
         onIonViewDidEnter(async () => {

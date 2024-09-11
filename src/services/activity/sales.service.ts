@@ -5,7 +5,7 @@ import { SALES, SALES_DTO } from '@/models/sales.model';
 import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { addBulkSalesItem } from './sales-item.service';
+import { addBulkSalesItem, getSalesItemBySalesId } from './sales-item.service';
 import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../../composables/inventory';
 
 // const db_connection = new DBConnectionService()
@@ -196,7 +196,8 @@ export const getBilledSales = async () => {
       ON ${SALES_ITEMS_TABLE}.item_id=${ITEMS_TABLE}.id
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
-      WHERE ${SALES_TABLE}.is_billed_out = 1
+      WHERE ${SALES_TABLE}.is_billed_out = 1 AND ${SALES_TABLE}.is_cancelled = 0
+      AND ${SALES_TABLE}.status <> 'paid'
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
       `;
@@ -205,6 +206,7 @@ export const getBilledSales = async () => {
     
     return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };
@@ -656,9 +658,9 @@ export const lockSales = async (data: SALES_DTO) => {
   const db = await dbConnectionService.getDatabaseConnection();
   try {
 
-    if(data.net_amount == 0){
-      throw new Error(`Amount is zero ( ${data.net_amount.toFixed(2) } )`);
-    }
+    // if(data.net_amount == 0){
+    //   throw new Error(`Amount is zero ( ${data.net_amount.toFixed(2) } )`);
+    // }
   
     const transactionStatements = [
       {
@@ -701,10 +703,15 @@ export const lockSales = async (data: SALES_DTO) => {
         ]
       }
     ]
+    try {
+      const sales_items_list = await getSalesItemBySalesId(data.id??0)
+      await onLockUpdateItemInventory('SI', data.id??0, data.sales_date, data.sales_number)
+    } catch (error) {
+      throw error;
+    }
   
     const res = await db.executeTransaction(transactionStatements);
     
-    await onLockUpdateItemInventory('SI', data.id??0)
 
     return { success: true, data: data.id };
   } catch (error) {
@@ -729,10 +736,16 @@ export const unlockSales = async (data: SALES_DTO) => {
         ]
       }
     ]
+
+    
+    try {
+      await onUnlockUpdateItemInventory('SI', data.id??0, data.sales_date, data.sales_number)
+    } catch (error) {
+      throw error;
+    }
   
     const res = await db.executeTransaction(transactionStatements);
     
-    await onUnlockUpdateItemInventory('SI', data.id??0)
 
     return { success: true, data: data.id };
   } catch (error) {

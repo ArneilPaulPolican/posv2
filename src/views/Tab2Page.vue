@@ -12,6 +12,7 @@
         </ion-toolbar>
       </ion-header>
       <ion-button @click="printSales">Sales</ion-button>
+      <ion-button @click="InventoryReport">Inventory</ion-button>
       <ion-button @click="printZReading">Z-Reading</ion-button>
       <ion-fab vertical="bottom" horizontal="center" slot="fixed">
         <ion-fab-button @click="takePhoto()">
@@ -41,6 +42,8 @@ import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 import { SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { presentToast } from '@/composables/toast.service';
+import { getInventoryReport } from '@/services/sys-inventory.service';
+import { generateInventoryReport } from '@/services/report/sys-inventory-report.service';
 
 const options: DocumentViewerOptions = {
   title: 'My PDF'
@@ -85,7 +88,8 @@ export default defineComponent({
             discount: '',
             discount_rate: 0,
             senior_pwd_name:'NA',
-            senior_pwd_id: 'NA'
+            senior_pwd_id: 'NA',
+            discounted_pax: 0
         });
         const sales_item_list = ref<SALES_ITEM_DTO[]>([]);
 
@@ -143,6 +147,13 @@ export default defineComponent({
     async function printSales() {
       await generateSales(sales.value,sales_item_list.value)
     }
+    async function InventoryReport() {
+      try {
+        await generateInventoryReport();
+      } catch (error) {
+        await presentToast(`Operation failed ${error}`)
+      }
+    }
 
     onMounted(() => {
       // Create a simple HTML blob
@@ -154,7 +165,8 @@ export default defineComponent({
       photo,
       printSales,
       printZReading,
-      imageUri
+      imageUri,
+      InventoryReport
     }
   }
 })

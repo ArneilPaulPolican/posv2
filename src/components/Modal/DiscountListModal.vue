@@ -1,22 +1,20 @@
 <template>
-    <ion-page>
-        <ion-header :translucent="true">
+    <ion-page style="margin-top: 65px;">
+        
+        <ion-header>
             <ion-toolbar>
-            <ion-title>Select Discount</ion-title>
+                <ion-buttons slot="start">
+                <ion-button color="medium" @click="cancel">Cancel</ion-button>
+                </ion-buttons>
+                <ion-title>Select Discount</ion-title>
+                <ion-buttons slot="end">
+                <ion-button @click="confirm" :strong="true">Confirm</ion-button>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
         <ion-item>
-            <ion-button @click="handleSubmitSelectedDiscount" size="medium" expand="block">
-                <ion-label>Submit</ion-label>
-            </ion-button>
-            <ion-button @click="$emit('close')" size="medium" expand="block" fill="outline">
-                <ion-label>Close</ion-label>
-            </ion-button>
-        </ion-item>
-        <ion-item>
             <!-- Search Input -->
             <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
-           
         </ion-item>
 
         
@@ -31,9 +29,6 @@
                         <ion-fab-button size="small" @click="handleSelectDiscount(discount)">
                             <ion-icon :icon="icons.addSharp"></ion-icon>
                         </ion-fab-button>
-                        <!-- <ion-button size="small" shape="round" @click="hadnleSelectDiscount(discount)">
-                            <ion-icon :icon="icons.addSharp"></ion-icon>
-                        </ion-button> -->
                         &nbsp;
                         <ion-label>
                             <h2>{{ discount.discount }}</h2>
@@ -78,7 +73,7 @@ import { TAX } from '@/models/tax.model';
 import { icons } from '@/plugins/icons';
 import { getDiscounts } from '@/services/system/discount.service';
 import { getTaxes } from '@/services/system/tax.service';
-import { onIonViewDidEnter } from '@ionic/vue';
+import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { book, disc } from 'ionicons/icons';
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 
@@ -112,16 +107,16 @@ export default defineComponent({
                 show_disc_info.value = false;
             }
         }
-
-        const handleSubmitSelectedDiscount = async () =>{
+        
+        const cancel = () => modalController.dismiss('', 'cancel');
+        const confirm = () => {
             if(selected_discount.value){
                 selected_discount.value.discount_rate = disc_rate.value;
                 selected_discount.value.discount_amount = disc_amount.value;
                 selected_discount.value.senior_pwd_id = senior_pwd_id.value;
                 selected_discount.value.senior_pwd_name = senior_pwd_name.value;
             }
-            emit('discount-picked', selected_discount.value);
-            emit('close'); 
+            modalController.dismiss(selected_discount.value , 'confirm');
         }
 
 
@@ -158,7 +153,8 @@ export default defineComponent({
             selected_discount,
 
             handleSelectDiscount,
-            handleSubmitSelectedDiscount
+            cancel,
+            confirm,
         }
     }
 });
