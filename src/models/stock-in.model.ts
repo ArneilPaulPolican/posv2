@@ -5,6 +5,7 @@ export interface STOCK_IN {
     in_date: string;
     remarks?: string;
     status: string;
+    is_locked: boolean;
 }
 
 export class STOCK_IN_DTO {
@@ -15,4 +16,5 @@ export class STOCK_IN_DTO {
     in_date: string ='';
     remarks?: string ='';
     status: string ='';
+    is_locked: boolean =false;
 }

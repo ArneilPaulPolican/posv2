@@ -29,11 +29,12 @@
 </template>
 
 <script lang="ts">
+import { presentToast } from '@/composables/toast.service';
 import { STOCK_IN } from '@/models/stock-in.model';
 import { STOCK_OUT } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
 import { getStockInById, getStockIn } from '@/services/activity/stock-in.service';
-import { getStockOut } from '@/services/activity/stock-out.service';
+import { addStockOut, getStockOut } from '@/services/activity/stock-out.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -83,13 +84,26 @@ export default defineComponent({
             router.push(`/activity/stock-out/details/${stock_out.id}`);
         }
         const openDetailForm = async() => {     
-            router.push(`/activity/stock-out/details/0`);
+            try {
+                const result = await addStockOut()
+                if(result.success){
+                    router.push(`/activity/stock-out/details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
 
 
-        async function fetchList() {
-            const response = await getStockOut() 
-            stock_outs.value = response           
+        async function fetchList() {    
+            try {
+                const result = await getStockOut()
+                if(result.success){
+                    stock_outs.value = result.data;
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }    
         }
         onMounted(async()=>{
             await fetchList()

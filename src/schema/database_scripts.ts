@@ -172,6 +172,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         in_date TEXT NOT NULL DEFAULT current_timestamp,
         remarks TEXT,
         status TEXT NOT NULL,
+        is_locked BOOLEAN DEFAULT FALSE,
         FOREIGN KEY (user_id)
           REFERENCES ${USERS_TABLE} (id)
             ON UPDATE CASCADE
@@ -209,6 +210,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         out_date TEXT NOT NULL DEFAULT current_timestamp,
         remarks TEXT,
         status TEXT NOT NULL,
+        is_locked BOOLEAN DEFAULT FALSE,
         FOREIGN KEY (user_id)
           REFERENCES ${USERS_TABLE} (id)
             ON UPDATE CASCADE

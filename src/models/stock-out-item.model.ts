@@ -13,13 +13,13 @@ export interface STOCK_OUT_ITEMS {
 export class STOCK_OUT_ITEMS_DTO {
     id: number =0;
     out_id: number =0;
-    out_number: string = '';
-    out_date: string = '';
     date_time: string ='';
     item_id: number =0;
     item_barcode: string = '';
     item_description:string = '';
+    item_image_path: string ='';
     unit_id: number =0;
+    unit_code: string = '';
     unit: string = '';
     quantity: number =0;
     cost: number =0;

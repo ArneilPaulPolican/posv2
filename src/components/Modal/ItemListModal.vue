@@ -75,6 +75,7 @@ import { presentToast } from '@/composables/toast.service';
 import { computeVAT, discountPerQuantity, netPrice } from '@/composables/sales-composable';
 import { SALES_DTO } from '@/models/sales.model';
 import { STOCK_IN_ITEMS_DTO } from '@/models/stock-in-item.model';
+import { STOCK_OUT_ITEMS_DTO } from '@/models/stock-out-item.model';
 
 export default defineComponent({
     components:{
@@ -95,18 +96,28 @@ export default defineComponent({
         const items = ref<ITEM_DTO[]>([]);
         const sales_items = ref<SALES_ITEM_DTO[]>([]);
         const stock_in_items = ref<STOCK_IN_ITEMS_DTO[]>([]);
+        const stock_out_items = ref<STOCK_OUT_ITEMS_DTO[]>([]);
         const quantity = 0;
         const total_amount = ref(0);
         
         const cancel = () => modalController.dismiss('', 'cancel');
         const confirm = () => {
-            console.log(`${trx}`)
-            modalController.dismiss(sales_items , 'confirm');
+            console.log(`${trx}`);
+            if(trx == 'SI'){
+                modalController.dismiss(sales_items , 'confirm');
+            }
+            if(trx == 'IN'){
+                modalController.dismiss(stock_in_items , 'confirm');
+            }
+            if(trx == 'OUT'){
+                modalController.dismiss(stock_out_items , 'confirm');
+            }
         }
         
 
         const updateQuantity = async (qty : number, item: ITEM_DTO) =>{
             total_amount.value = await netPrice(item, sales.value as SALES_DTO) * qty;
+            console.log(trx);
             if(trx == 'SI'){
                 sales_items.value.push({
                     id:0,
@@ -141,15 +152,32 @@ export default defineComponent({
                 })
             }
             if(trx=='IN'){
+                console.log('within IN condition');
                 stock_in_items.value.push({
                 id: 0,
                 in_id: 0,
-                in_date: '',
-                in_number:'',
                 date_time: '',
-                
                 item_id: item.id ?? 0,
                 item_code: item.item_code,
+                item_barcode: item.bar_code,
+                item_description: item.item_description,
+                item_image_path: item.image_path,
+                unit_id: item.unit_id,
+                unit_code: item.unit_code ?? '',
+                unit: item.unit ?? '',
+                quantity: qty,
+                cost: item.cost,
+                amount: item.cost * qty,
+                particulars: ''
+                })
+            }
+            if(trx=='OUT'){
+                console.log('within OUT condition');
+                stock_out_items.value.push({
+                id: 0,
+                out_id: 0,
+                date_time: '',
+                item_id: item.id ?? 0,
                 item_barcode: item.bar_code,
                 item_description: item.item_description,
                 item_image_path: item.image_path,

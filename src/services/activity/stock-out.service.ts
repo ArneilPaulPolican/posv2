@@ -11,7 +11,7 @@ interface ResultSet {
   };
 }
 
-export const getStockOut = async (): Promise<STOCK_OUT[]> => {
+export const getStockOut = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -22,7 +22,7 @@ export const getStockOut = async (): Promise<STOCK_OUT[]> => {
     const unitServiceQuery = `SELECT * FROM ${STOCK_OUTS_TABLE}`;
     const res = await db.query(unitServiceQuery);
 
-    return res.values as STOCK_OUT[];
+    return { success: true, data: res.values as STOCK_OUT[] };
   } catch (error) {
     throw error;
   } 
@@ -41,41 +41,54 @@ export const getStockOutById = async (id:number) => {
       const params = [id];
   
       const result = await db.query(query, params);
-      const stock_in = result.values?.map(stock_in => ({
-        id: stock_in.id,
-        user_id: stock_in.user_id,
-        out_number: stock_in.in_number,
-        out_date: stock_in.in_date,
-        remarks: stock_in.remarks,
-        status: stock_in.status
+      const stock_out = result.values?.map(stock_out => ({
+        id: stock_out.id,
+        user_id: stock_out.user_id,
+        out_number: stock_out.out_number,
+        out_date: stock_out.out_date,
+        remarks: stock_out.remarks,
+        status: stock_out.status
       }))[0];
   
-      return stock_in;
+      return { success: true, data: stock_out };
     } catch (error) {
       throw error;
     } 
 };
 
 
-export const getLastOTNumber = async (): Promise<string> => {
+export const getOUTNumber = async (): Promise<string> => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
     const query = `SELECT out_number FROM ${STOCK_OUTS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
-    const lastOutNumber =result?.values?.[0].out_number;
-    return lastOutNumber || '0000000000';
+    console.log(result)
+
+    let out_number = await result?.values?.[0].out_number;
+    console.log(out_number)
+
+    const currentNumber = parseInt(out_number, 10);
+    const nextNumber = currentNumber + 1;
+    const formattedNextNumber = nextNumber.toString().padStart(10, '0');
+    out_number = formattedNextNumber;
+
+    return out_number || '0000000001';
   } catch (error) {
-    return '0000000000';
+    console.log(error)
+    return '0000000001';
   }
 }
   
 
-export const addStockOut = async (data: STOCK_OUT) => {
+export const addStockOut = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
+    const out_number = await getOUTNumber();
+    console.log(out_number)
+    const out_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
     
     const taxServiceQuery = 
     `
@@ -93,23 +106,22 @@ export const addStockOut = async (data: STOCK_OUT) => {
     const transactionStatements = [
       {
         statement: taxServiceQuery,
-        values: [1, data.out_number, data.out_date, data.remarks, data.status],
+        values: [1, out_number, out_date, 'NA', 'NEW'],
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
     const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
     const lastIdRes = await db.query(getLastIdQuery);
     let Id =  0;
-    // const insertedId = lastIdRes.values?[0].values['lastId'];
     if (lastIdRes.values && lastIdRes.values.length > 0) {
       Id =  lastIdRes.values[0].lastId      
     } else {
       Id = 0;
     }
 
-    return { success: true, insertedId: Id };
+    return { success: true, data: Id };
   } catch (error) {
-    return { success: false, insertedId: 0 };
+    throw error;
   }
 };
 
@@ -133,12 +145,64 @@ export const updateStockOut = async (data: STOCK_OUT) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return { success: true, insertedId: data.id };
+    return { success: true };
   } catch (error) {
-    return { success: false, insertedId: 0 };
+    throw error;
   } 
 };
 
+export const lockStockOut = async (data: STOCK_OUT) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const transactionStatements = [
+      {
+        statement: `
+        UPDATE ${STOCK_OUTS_TABLE}
+          SET remarks=?,
+          is_locked =?,
+          status=?
+        WHERE id=?
+        `,
+        values: [
+          data.remarks,
+          true,
+          data.status,
+          data.id,
+        ],
+      },
+    ];
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true };
+  } catch (error) {
+    throw error;
+  } 
+};
+
+
+export const unlockStockOut = async (data: STOCK_OUT) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const transactionStatements = [
+      {
+        statement: `
+        UPDATE ${STOCK_OUTS_TABLE}
+        SET is_locked =?
+        WHERE id=?
+        `,
+        values: [
+          false,
+          data.id,
+        ],
+      },
+    ];
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true };
+  } catch (error) {
+    throw error;
+  } 
+};
   
 export const deleteStockOut = async (id: number) => {
   const dbConnectionService = await DBConnectionService.getInstance();
@@ -158,6 +222,6 @@ export const deleteStockOut = async (id: number) => {
     const res = await db.executeTransaction(transactionStatements);
     return { success: true};
   } catch (error) {
-    return { success: false};
+    throw error;
   }
 };

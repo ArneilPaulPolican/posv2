@@ -13,8 +13,6 @@ export interface STOCK_IN_ITEMS {
 export class STOCK_IN_ITEMS_DTO {
     id: number =0;
     in_id: number =0;
-    in_date: string ='';
-    in_number:string ='';
     date_time: string ='';
     item_id: number =0;
     item_code: string = '';
@@ -24,8 +22,8 @@ export class STOCK_IN_ITEMS_DTO {
     unit_id: number =0;
     unit_code:string ='';
     unit:string ='';
-    quantity: number=0;
-    cost: number =0;
+    quantity: number = 0;
+    cost: number = 0;
     amount: number =0;
     particulars?: string ='';
 }

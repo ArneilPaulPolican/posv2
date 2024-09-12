@@ -20,6 +20,7 @@
                     <ion-label>
                         <h2>{{ stock_in.in_number }}</h2>
                         <p>{{ stock_in.in_date }}</p>
+                        <p v-if="stock_in.is_locked">Locked</p><p v-else>Unlocked</p>
                         <p>{{ stock_in.remarks }}</p>
                     </ion-label>
                 </ion-item>
@@ -29,9 +30,10 @@
 </template>
 
 <script lang="ts">
+import { presentToast } from '@/composables/toast.service';
 import { STOCK_IN } from '@/models/stock-in.model';
 import { icons } from '@/plugins/icons';
-import { getStockInById, getStockIn } from '@/services/activity/stock-in.service';
+import { getStockInById, getStockIn, addStockIn } from '@/services/activity/stock-in.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -81,13 +83,27 @@ export default defineComponent({
             router.push(`/activity/stock-in/details/${tax.id}`);
         }
         const openDetailForm = async() => {
-            router.push(`/activity/stock-in/details/0`);
+            // router.push(`/activity/stock-in/details/0`);
+            try {
+                const result = await addStockIn()
+                if(result.success){
+                    router.push(`/activity/stock-in/details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
 
 
         async function fetchList() {
-            const response = await getStockIn() 
-            stock_ins.value = response           
+            try {
+                const response = await getStockIn() 
+                if(response.success){
+                    stock_ins.value = response.data
+                }
+        } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }           
         }
         onMounted(async()=>{
             await fetchList()

@@ -11,7 +11,7 @@ interface ResultSet {
   };
 }
 
-export const getStockIn = async (): Promise<STOCK_IN[]> => {
+export const getStockIn = async ()  => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -22,7 +22,7 @@ export const getStockIn = async (): Promise<STOCK_IN[]> => {
     const unitServiceQuery = `SELECT * FROM ${STOCK_INS_TABLE}`;
     const res = await db.query(unitServiceQuery);
 
-    return res.values as STOCK_IN[];
+    return { success: true, data: res.values as STOCK_IN[] };
   } catch (error) {
     throw error;
   } 
@@ -47,7 +47,8 @@ export const getStockInById = async (id:number) => {
         in_number: stock_in.in_number,
         in_date: stock_in.in_date,
         remarks: stock_in.remarks ?? '',
-        status: stock_in.status
+        status: stock_in.status,
+        is_locked: stock_in.is_locked
       }))[0];
   
       return { success: true, data: stock_in };
@@ -70,7 +71,7 @@ export const getLastINNumber = async (): Promise<string> => {
   }
 }
 
-export const addStockIn = async (data: STOCK_IN) => {
+export const addStockIn = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
@@ -114,11 +115,12 @@ export const addStockIn = async (data: STOCK_IN) => {
     } else {
       Id = 0;
     }
-    return { success: true, insertedId: Id };
+    return { success: true, data: Id };
   } catch (error) {
     return { success: false, insertedId: 0 };
   }
 };
+
 
 export const updateStockIn = async (data: STOCK_IN) => {
   const dbConnectionService = await DBConnectionService.getInstance();
@@ -135,6 +137,59 @@ export const updateStockIn = async (data: STOCK_IN) => {
         values: [
           data.remarks,
           data.status,
+          data.id,
+        ],
+      },
+    ];
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true, insertedId: data.id };
+  } catch (error) {
+    return { success: false, insertedId: 0 };
+  } 
+};
+
+
+export const lockStockIn = async (data: STOCK_IN) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const transactionStatements = [
+      {
+        statement: `
+        UPDATE ${STOCK_INS_TABLE}
+          SET remarks=?,
+          is_locked=?,
+          status=?
+        WHERE id=?
+        `,
+        values: [
+          data.remarks,
+          true,
+          data.status,
+          data.id,
+        ],
+      },
+    ];
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true, insertedId: data.id };
+  } catch (error) {
+    return { success: false, insertedId: 0 };
+  } 
+};
+export const unlockStockIn = async (data: STOCK_IN) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const transactionStatements = [
+      {
+        statement: `
+        UPDATE ${STOCK_INS_TABLE}
+          SET 
+          is_locked=?
+        WHERE id=?
+        `,
+        values: [
+          false,
           data.id,
         ],
       },

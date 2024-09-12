@@ -100,6 +100,7 @@ export default defineComponent({
     },
     setup(props) {
         const { sales } = toRefs(props);
+        const sales_item = props.sales_item;
         const alertButtons = ['Confirm'];
         const sales_item_local = ref<SALES_ITEM_DTO>({
             id:  0,
@@ -197,39 +198,39 @@ export default defineComponent({
         async function fetchDetails(){
             setTimeout(async () => {
                 try {
-                    const result = await getSalesItemById(props.sales_item?.id || 0);
-                    if(result){
+                    // const result = await getSalesItemById(props.sales_item?.id || 0);
+                    if(sales_item){
                         sales_item_local.value = {
-                            id: result.id | 0,
-                            sales_id: result.sales_id,
-                            date_time: result.date_time,
-                            item_id: result.item_id,
-                            item_code: result.item_code,
-                            item_barcode: result.item_barcode,
-                            item_description: result.item_description,
-                            item_alias: result.item_alias,
-                            item_category: result.item_category,
-                            item_cost: result.item_cost,
+                            id: sales_item.id ?? 0,
+                            sales_id: sales_item.sales_id,
+                            date_time: sales_item.date_time,
+                            item_id: sales_item.item_id,
+                            item_code: sales_item.item_code,
+                            item_barcode: sales_item.item_barcode,
+                            item_description: sales_item.item_description,
+                            item_alias: sales_item.item_alias,
+                            item_category: sales_item.item_category,
+                            item_cost: sales_item.item_cost,
                             item_image: '',
-                            unit_id: result.unit_id,
-                            unit: result.unit,
-                            unit_code: result.unit_code,
-                            quantity: result.quantity,
-                            price: result.price,
-                            discount_id: result.discount_id,
-                            discount: result.discount,
-                            discount_rate: result.discount_rate,
-                            discount_amount: result.discount_amount,
-                            net_price: result.net_price,
-                            amount: result.amount,
-                            tax_id: result.tax_id,
-                            tax: result.tax,
-                            tax_code: result.tax_code,
-                            tax_rate: result.tax_rate,
-                            tax_amount: result.tax_amount,
-                            particulars: result.particulars,
-                            user_id: result.user_id,
-                            user:  result.user,
+                            unit_id: sales_item.unit_id,
+                            unit: sales_item.unit,
+                            unit_code: sales_item.unit_code,
+                            quantity: sales_item.quantity,
+                            price: sales_item.price,
+                            discount_id: sales_item.discount_id,
+                            discount: sales_item.discount,
+                            discount_rate: sales_item.discount_rate,
+                            discount_amount: sales_item.discount_amount,
+                            net_price: sales_item.net_price,
+                            amount: sales_item.amount,
+                            tax_id: sales_item.tax_id,
+                            tax: sales_item.tax,
+                            tax_code: sales_item.tax_code,
+                            tax_rate: sales_item.tax_rate,
+                            tax_amount: sales_item.tax_amount,
+                            particulars: sales_item.particulars,
+                            user_id: sales_item.user_id,
+                            user:  sales_item.user,
                         }
                     }
 
