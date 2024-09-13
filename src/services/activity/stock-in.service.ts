@@ -2,6 +2,7 @@ import { STOCK_IN } from '@/models/stock-in.model';
 import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { STOCK_INS_TABLE } from '@/schema/tables';
+import { onUnlockUpdateItemInventory } from '@/composables/inventory';
 
 // const db_connection = new DBConnectionService()
 const data = ref<STOCK_IN[]>([])
@@ -171,7 +172,7 @@ export const lockStockIn = async (data: STOCK_IN) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return { success: true, insertedId: data.id };
+    return { success: true };
   } catch (error) {
     return { success: false, insertedId: 0 };
   } 
@@ -195,9 +196,9 @@ export const unlockStockIn = async (data: STOCK_IN) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return { success: true, insertedId: data.id };
+    return { success: true };
   } catch (error) {
-    return { success: false, insertedId: 0 };
+    throw error;
   } 
 };
 

@@ -21,6 +21,7 @@ export const getStockInItemsByINId = async (id: number) => {
                 ${ITEMS_TABLE}.item_code,
                 ${ITEMS_TABLE}.bar_code as item_barcode,
                 ${ITEMS_TABLE}.item_description,
+                ${ITEMS_TABLE}.is_inventory,
                 ${STOCK_IN_ITEMS_TABLE}.unit_id,
                 ${UNITS_TABLE}.unit_code,
                 ${UNITS_TABLE}.unit,

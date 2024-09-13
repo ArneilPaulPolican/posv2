@@ -6,7 +6,6 @@ import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { addBulkSalesItem, getSalesItemBySalesId } from './sales-item.service';
-import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../../composables/inventory';
 
 // const db_connection = new DBConnectionService()
 const data = ref<SALES[]>([])
@@ -703,12 +702,6 @@ export const lockSales = async (data: SALES_DTO) => {
         ]
       }
     ]
-    try {
-      const sales_items_list = await getSalesItemBySalesId(data.id??0)
-      await onLockUpdateItemInventory('SI', data.id??0, data.sales_date, data.sales_number)
-    } catch (error) {
-      throw error;
-    }
   
     const res = await db.executeTransaction(transactionStatements);
     
@@ -737,13 +730,6 @@ export const unlockSales = async (data: SALES_DTO) => {
       }
     ]
 
-    
-    try {
-      await onUnlockUpdateItemInventory('SI', data.id??0, data.sales_date, data.sales_number)
-    } catch (error) {
-      throw error;
-    }
-  
     const res = await db.executeTransaction(transactionStatements);
     
 

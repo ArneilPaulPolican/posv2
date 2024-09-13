@@ -198,6 +198,7 @@ import { generateSales } from '@/composables/pdf-generator';
 import { disc } from 'ionicons/icons';
 import { DISCOUNT_DTO } from '@/models/discount.model';
 import { presentToast } from '@/composables/toast.service';
+import { onLockRecordInventory, onUnlockUpdateItemInventory } from '@/composables/inventory';
 
 
 export default defineComponent({
@@ -449,30 +450,35 @@ export default defineComponent({
         async function handleLock() {
             try {
                 if(!sales.value.is_locked){
-                    sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
-                    const response = await lockSales(sales.value)
-                    if(response.success){
-                        await presentToast('Sales successfully locked')
-                        await fetchDetails()
-                        is_locked.value = true;
-                    }else{
-                        await presentToast('Failed to lock sales')
+                    const inventory_result = await onLockRecordInventory(sales_item_list.value, sales.value.id ?? 0, 'SI', sales.value.sales_date, sales.value.sales_number)
+                    if(inventory_result.success){
+                        sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
+                        const response = await lockSales(sales.value)
+                        if(response.success){
+                            await presentToast('Sales successfully locked')
+                            await fetchDetails()
+                            is_locked.value = true;
+                        }
                     }
                 }
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`)
+                await handleUnlock()
             }
         }
         
         async function handleUnlock() {
             try {
-                const response = await unlockSales(sales.value)
-                if(response.success){
-                    await presentToast('Sales successfully unlocked');
-                    await fetchDetails()
-                    is_locked.value = false;
-                }else{
-                    await presentToast('Failed to unlocked sales')
+                const inventory_result = await onUnlockUpdateItemInventory('SI', sales.value.id ?? 0, sales.value.sales_date, sales.value.sales_number)
+                if(inventory_result.success){
+                    const response = await unlockSales(sales.value)
+                    if(response.success){
+                        await presentToast('Sales successfully unlocked');
+                        await fetchDetails()
+                        is_locked.value = false;
+                    }else{
+                        await presentToast('Failed to unlocked sales')
+                    }
                 }
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`)

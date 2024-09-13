@@ -9,25 +9,25 @@
             <div style="display: flex; overflow-x: auto; white-space: nowrap; width: 100%; padding-right: 10px;height: 100%">
                 <ion-button size="medium" expand="block" style="height: 90%" @click="handleReturn">
                     <div class="icon-label-wrapper">
-                        <ion-icon :icon="icons.arrowBackSharp"></ion-icon>&nbsp;
+                        <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
                         <ion-label>Back</ion-label>
                     </div>
                 </ion-button>
                 <ion-button v-if="!is_locked" size="medium" expand="block" style="height: 90%" @click="handleSave">
                     <div class="icon-label-wrapper">
-                        <ion-icon :icon="icons.saveSharp"></ion-icon>&nbsp;
+                        <ion-icon :icon="icons.saveSharp"></ion-icon>
                         <ion-label>Save</ion-label>
                     </div>
                 </ion-button>
                 <ion-button v-if="!is_locked" size="medium" expand="block" style="height: 90%" @click="handleLock">
                     <div class="icon-label-wrapper">
-                        <ion-icon :icon="icons.lockClosedSharp"></ion-icon>&nbsp;
+                        <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
                         <ion-label>Lock</ion-label>
                     </div>
                 </ion-button>
                 <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%" @click="handleUnlock">
                     <div class="icon-label-wrapper">
-                        <ion-icon :icon="icons.lockClosedSharp"></ion-icon>&nbsp;
+                        <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
                         <ion-label>Unlock</ion-label>
                     </div>
                 </ion-button>
@@ -104,6 +104,7 @@ import ItemListModal from '@/components/Modal/ItemListModal.vue';
 import { addBulkStockInItem, deleteStockInItem, getStockInItemsByINId } from '@/services/activity/stock-in-items.service';
 import { STOCK_IN_ITEMS_DTO } from '@/models/stock-in-item.model';
 import StockInItemDetailsModal from '@/components/Modal/StockInItemDetailsModal.vue';
+import { onLockRecordInventory, onUnlockUpdateItemInventory } from '@/composables/inventory';
 
 
 export default defineComponent({
@@ -218,24 +219,31 @@ export default defineComponent({
 
         async function handleLock() {
             try {
-                const result = await lockStockIn(stock_in.value)
-                if(result.success){
-                    is_locked.value = true;
-                    await presentToast('Stock In lock succesfully')
-                    await fetchDetails()
+                const inventory_result = await onLockRecordInventory(stock_in_items.value, stock_in.value.id , 'IN', stock_in.value.in_date, stock_in.value.in_number)
+                if(inventory_result.success){
+                    const result = await lockStockIn(stock_in.value)
+                    if(result.success){
+                        is_locked.value = true;
+                        await presentToast('Stock In lock succesfully')
+                        await fetchDetails()
+                    }
                 }
             } catch (error) {
                 await presentToast(`Operation failed ${error}`)
+                await handleUnlock();
             }
         }
         
         async function handleUnlock() {
             try {
-                const result = await unlockStockIn(stock_in.value)
-                if(result.success){
-                    is_locked.value = false;
-                    await presentToast('Stock In unlock succesfully')
-                    await fetchDetails()
+                const inventory_result =  await onUnlockUpdateItemInventory('IN', stock_in.value.id, stock_in.value.in_date, stock_in.value.in_number)
+                if(inventory_result.success){
+                    const result = await unlockStockIn(stock_in.value)
+                    if(result.success){
+                        is_locked.value = false;
+                        await presentToast('Stock In unlock succesfully')
+                        await fetchDetails()
+                    }
                 }
             } catch (error) {
                 await presentToast(`Operation failed ${error}`)

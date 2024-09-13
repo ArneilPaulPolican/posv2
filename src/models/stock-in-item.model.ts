@@ -19,6 +19,7 @@ export class STOCK_IN_ITEMS_DTO {
     item_barcode: string = '';
     item_description:string = '';
     item_image_path: string = '';
+    is_inventory: boolean = false;
     unit_id: number =0;
     unit_code:string ='';
     unit:string ='';
