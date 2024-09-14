@@ -263,6 +263,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         type TEXT NOT NULL,
         refund_reference_number TEXT,
         remarks TEXT,
+        is_locked BOOLEAN DEFAULT FALSE,
         status TEXT NOT NULL,
         FOREIGN KEY (user_id)
           REFERENCES ${USERS_TABLE} (id)

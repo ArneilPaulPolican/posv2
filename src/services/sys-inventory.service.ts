@@ -61,7 +61,7 @@ export const getInventoryReport = async () => {
       
       const result = await db.query(saleServiceQuery);
    
-    return result.values as SYS_INVENTORY_DTO[];
+    return { success: true, data: result.values as SYS_INVENTORY_DTO[] }
   } catch (error) {
     throw error;
   }

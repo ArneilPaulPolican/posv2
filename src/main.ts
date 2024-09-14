@@ -46,6 +46,9 @@ import { runAllMigrations } from './services/migration.service';
 import GlobalComponents from './plugins/global-components';
 import { provideAlert } from './services/alert.service';
 
+import HeaderComponent from './components/Layout/HeaderComponent.vue'
+import SidebarComponent from './components/Layout/SidebarMenu.vue'
+
 // const app = createApp(App)
 //   .use(IonicVue)
 //   .use(router);
@@ -69,7 +72,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     .use(IonicVue)
     .use(router)
     .use(GlobalComponents);
-    
+  
+  app.component('Header', HeaderComponent)
+  app.component('Sidebar', SidebarComponent)
   provideAlert();
   /* SQLite Global Variables*/
 

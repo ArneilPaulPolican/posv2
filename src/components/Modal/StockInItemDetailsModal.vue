@@ -99,6 +99,7 @@ export default defineComponent({
             cost: 0,
             amount: 0,
             particulars: '',
+            is_inventory: false,
         })
         const item = ref<ITEM_DTO>({
             id:0,
@@ -167,6 +168,7 @@ export default defineComponent({
                         cost: stock_in_item?.cost ?? 0,
                         amount: stock_in_item?.amount ?? 0,
                         particulars: stock_in_item?.particulars,
+                        is_inventory: stock_in_item?.is_inventory,
                     }
                 }
             } catch (error) {

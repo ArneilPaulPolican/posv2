@@ -20,6 +20,7 @@ export interface CASH_IN_OUTS {
     type: string;
     refund_reference_number?: string;
     remarks?: string;
+    is_locked: boolean;
     status: string;
 }
 
@@ -46,5 +47,6 @@ export class CASH_IN_OUTS_DTO {
     type:  string ='';
     refund_reference_number?:  string ='';
     remarks?: string ='';
+    is_locked: boolean= false;
     status:  string ='';
 }

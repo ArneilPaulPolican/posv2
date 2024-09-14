@@ -8,7 +8,7 @@
         <ion-buttons slot="start">
           <ion-menu-button @click="handleMenuClick" color="primary"></ion-menu-button>
         </ion-buttons>
-        <ion-title>{{ title }}</ion-title>
+        <ion-title>{{ $route.meta.title }}</ion-title>
         <router-link v-if="$route.path.toLowerCase() !== '/dashboard' " to="/"  slot="end" style="margin-right: 10px;">
             <!-- <ion-icon :icon="icons.homeSharp"></ion-icon> -->
             <ion-avatar style="align-content: center;">
@@ -37,140 +37,6 @@ export default defineComponent({
   setup() {
     const isMenuOpen = ref(false);
     const sidebarMenu = ref(null);
-    const appPages = [
-                {
-                    title: 'Setup',
-                    url: '',
-                    iosIcon: icons.folderOpenOutline,
-                    mdIcon: icons.folderOpenSharp,
-                    subitems: [
-                    {
-                        title: 'Item',
-                        url: '/Setup/Items',
-                        iosIcon: icons.fileTrayStackedOutline,
-                        mdIcon: icons.fileTrayStackedSharp,
-                    },
-                    {
-                        title: 'Customers',
-                        url: '/Setup/Customers',
-                        iosIcon: icons.peopleCircleOutline,
-                        mdIcon: icons.peopleSharp,
-                    },
-                    {
-                        title: 'Category',
-                        url: '/Setup/Category',
-                        iosIcon: icons.documentOutline,
-                        mdIcon: icons.documentSharp,
-                    },
-                    {
-                        title: 'Table',
-                        url: '/Setup/Table',
-                        iosIcon: icons.restaurantOutline,
-                        mdIcon: icons.restaurantSharp,
-                    },
-                    ],
-                },
-                {
-                    title: 'Activity',
-                    iosIcon: icons.businessOutline,
-                    mdIcon: icons.businessSharp,
-                    subitems: [
-                    {
-                        title: 'Sales',
-                        url: '/Activity/Sales',
-                        iosIcon: icons.basketOutline,
-                        mdIcon: icons.basketSharp,
-                    },
-                    {
-                        title: 'Cash-in / Cash-out',
-                        url: '/Activity/CashInCashOut',
-                        iosIcon: icons.bookOutline,
-                        mdIcon: icons.bookSharp,
-                    },
-                    {
-                        title: 'Stock In',
-                        url: '/Activity/StockIn',
-                        iosIcon: icons.logInOutline,
-                        mdIcon: icons.logInSharp,
-                    },
-                    {
-                        title: 'Stock Out',
-                        url: '/Activity/StockOut',
-                        iosIcon: icons.logOutOutline,
-                        mdIcon: icons.logOutSharp,
-                    },
-                    ],
-                },
-                {
-                    title: 'Report',
-                    iosIcon: icons.readerOutline,
-                    mdIcon: icons.readerSharp,
-                    subitems: [
-                    {
-                        title: 'Z-Reading',
-                        url: '/Report/ZReading',
-                        iosIcon: icons.readerOutline,
-                        mdIcon: icons.readerSharp,
-                    },
-                    {
-                        title: 'X-Reading',
-                        url: '/Report/XReading',
-                        iosIcon: icons.readerOutline,
-                        mdIcon: icons.readerSharp,
-                    },
-                    ]
-                },
-                {
-                    title: 'System',
-                    iosIcon: icons.appsOutline,
-                    mdIcon: icons.appsSharp,
-                    subitems: [
-                        {
-                            title: 'Unit',
-                            url: '/System/Units',
-                            iosIcon: icons.scaleOutline,
-                            mdIcon: icons.scaleSharp,
-                        },
-                        {
-                            title: 'Tax',
-                            url: '/System/Taxes',
-                            iosIcon: icons.pieChartOutline,
-                            mdIcon: icons.pieChartSharp,
-                        },
-                        {
-                            title: 'Discount',
-                            url: '/System/Discounts',
-                            iosIcon: icons.discOutline,
-                            mdIcon: icons.discSharp,
-                        },
-                        {
-                            title: 'Paytype',
-                            url: '/System/Paytypes',
-                            iosIcon: icons.walletOutline,
-                            mdIcon: icons.walletSharp,
-                        },
-                    ],
-                },
-                {
-                    title: 'Settings',
-                    iosIcon: icons.settingsOutline,
-                    mdIcon: icons.settingsSharp,
-                    subitems: [
-                    {
-                        title: 'Company',
-                        url: '/Settings/Company',
-                        iosIcon: icons.storefrontOutline,
-                        mdIcon: icons.storefrontSharp,
-                    },
-                    {
-                        title: 'System',
-                        url: '/Settings/System',
-                        iosIcon: icons.cogOutline,
-                        mdIcon: icons.cogSharp,
-                    },
-                    ]
-                },
-        ]
     const accordionStates= ref<{ [key: string]: boolean }>({})
 
     const handleMenuClick = async () => {
@@ -188,7 +54,6 @@ export default defineComponent({
     
     return {
       icons,
-      appPages,
       labels: ['Sales', 'Item', 'Customer'],
       selectedIndex,
       accordionToggle,

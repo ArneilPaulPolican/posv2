@@ -67,7 +67,7 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
         
         const result = await db.query(saleServiceQuery,params);
      
-      return result.values as SALES_ITEM_DTO[];
+      return {success: true, data: result.values as SALES_ITEM_DTO[]}
     } catch (error) {
       throw error;
     }

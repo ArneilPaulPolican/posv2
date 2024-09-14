@@ -30,7 +30,7 @@ export const getCollectionLineByCollectionId = async (id:number) => {
             ${PAYTYPES_TABLE}.is_default_value
         FROM ${COLLECTIONS_LINES_TABLE}
         LEFT JOIN ${PAYTYPES_TABLE}
-        ON ${COLLECTIONS_LINES_TABLE}.user_id=${PAYTYPES_TABLE}.id
+        ON ${COLLECTIONS_LINES_TABLE}.paytype_id=${PAYTYPES_TABLE}.id
         WHERE ${COLLECTIONS_LINES_TABLE}.collection_id=?`;
         const params = [id];
 

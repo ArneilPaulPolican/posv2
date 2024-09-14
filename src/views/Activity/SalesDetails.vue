@@ -75,15 +75,14 @@
                 </h1>
             </ion-item>
         </div>
-
         <ion-item>
             <ion-row>
                 <ion-col size="6">
-                    <ion-label position="stacked">Date:</ion-label>
+                    <ion-label position="stacked">Date</ion-label>
                     <ion-input :readonly="true" v-model="sales.sales_date" placeholder="MM/dd/yyyy"></ion-input>
                 </ion-col>
                 <ion-col size="6">
-                    <ion-label position="stacked">Sales Number:</ion-label>
+                    <ion-label position="stacked">Sales Number</ion-label>
                     <ion-input :readonly="true" v-model="sales.sales_number" placeholder="0000000001"></ion-input>
                 </ion-col>
             </ion-row>
@@ -163,8 +162,6 @@
                      </div>
                 </div>
             </ion-list>
-
-
         </ion-content>
         <AlertComponent
         :title="alertTitle"
@@ -348,14 +345,16 @@ export default defineComponent({
                 sales.value.discount_id = data.id;
                 sales.value.discount = data.discount;
                 sales.value.discount_rate = data.discount_rate;
+
+                await updateSalesItemDiscount()
             }
         };
 
         // Open Item Modal
         const openItemModal = async () => {
             const modal = await modalController.create({
-            component: ItemListModal,
-            componentProps: { data: sales, trx: 'SI' } 
+                component: ItemListModal,
+                componentProps: { data: sales, trx: 'SI' } 
             });
 
             modal.present();
@@ -376,8 +375,8 @@ export default defineComponent({
         // edit sales item
         const handleEdit = async (item: any) => {
             const modal = await modalController.create({
-            component: SalesItemDetailsModal,
-            componentProps: { sales: sales, sales_item: item } 
+                component: SalesItemDetailsModal,
+                componentProps: { sales: sales, sales_item: item } 
             });
 
             modal.present();
@@ -389,19 +388,22 @@ export default defineComponent({
         };
         
         async function calculateAmount() {
-            sales_item_list.value = await getSalesItemBySalesId(sales_id)
-            let _amount = 0;
-            let _disc_amount = 0;
-            let _net_amount = 0;
-            sales_item_list.value.forEach((item) => {
-                _amount += parseFloat((item.amount ?? 0).toFixed(2))
-                _disc_amount += parseFloat((item.discount_amount ?? 0).toFixed(2))
-                _net_amount += (item.quantity * (item.net_price ?? 0));
-            });
-            sales.value.total_amount = _amount;
-            sales.value.balance_amount = _amount;
-            sales.value.discount_amount = _disc_amount;
-            sales.value.net_amount = parseFloat(_net_amount.toFixed(2));
+            const result = await getSalesItemBySalesId(sales_id)
+            if(result.success && result.data){
+                sales_item_list.value = result.data;
+                let _amount = 0;
+                let _disc_amount = 0;
+                let _net_amount = 0;
+                sales_item_list.value.forEach((item) => {
+                    _amount += parseFloat((item.amount ?? 0).toFixed(2))
+                    _disc_amount += parseFloat((item.discount_amount ?? 0).toFixed(2))
+                    _net_amount += (item.quantity * (item.net_price ?? 0));
+                });
+                sales.value.total_amount = _amount;
+                sales.value.balance_amount = _amount;
+                sales.value.discount_amount = _disc_amount;
+                sales.value.net_amount = parseFloat(_net_amount.toFixed(2));
+            }
         }
 
         // Trigger only if Discount has changed
@@ -489,15 +491,16 @@ export default defineComponent({
 
         async function handleBillOut() {
             try {
-                const response = await billOutSales(sales.value);
-                if(response.success){
-                    await presentToast('Sales successfully billed out!');
-                    is_billed_out.value = true;
-                }else{
-                    await presentToast('Failed to bill out sales')
+                if(sales.value.net_amount > 0){
+                    const response = await billOutSales(sales.value);
+                    if(response.success){
+                        await presentToast('Sales successfully billed out!');
+                        is_billed_out.value = true;
+                    }else{
+                        await presentToast('Failed to bill out sales')
+                    }
+                    open_alert.value = true
                 }
-                open_alert.value = true
-                
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`)
             }
@@ -510,15 +513,17 @@ export default defineComponent({
 
         // Checkout
         const handleCheckOut = async () => {
-            const modal = await modalController.create({
-            component: CheckOutModal,
-            componentProps: { sales: sales } 
-            });
+            if(sales.value.net_amount > 0){
+                const modal = await modalController.create({
+                component: CheckOutModal,
+                componentProps: { sales: sales } 
+                });
 
-            modal.present();
-            const { data, role } = await modal.onWillDismiss();
-            if (role === 'confirm') {
-                await fetchDetails();
+                modal.present();
+                const { data, role } = await modal.onWillDismiss();
+                if (role === 'confirm') {
+                    await fetchDetails();
+                }
             }
         };
 
@@ -539,7 +544,10 @@ export default defineComponent({
                         sales.value = result.data;
                         is_locked.value = result.data.is_locked;
                         is_billed_out.value = result.data.is_billed_out;
-                        sales_item_list.value = await getSalesItemBySalesId(routeParams);
+                        const sales_item_result = await getSalesItemBySalesId(routeParams);
+                        if(sales_item_result.success && sales_item_result.data){
+                            sales_item_list.value = sales_item_result.data;
+                        }
                     }else{
                         await presentToast('Sales found');
                         confirmReturn();
@@ -593,3 +601,24 @@ export default defineComponent({
     }
 })
 </script>
+
+<style>
+  /* hide landscape layout by default */
+  .landscape-layout {
+    display: none;
+  }
+
+  /* show landscape layout on landscape mode and desktop view */
+  @media (orientation: landscape) and (min-width: 768px) {
+    .landscape-layout {
+      display: block;
+    }
+  }
+
+  /* show landscape layout on desktop view */
+  @media (min-width: 1024px) {
+    .landscape-layout {
+      display: block;
+    }
+  }
+</style>

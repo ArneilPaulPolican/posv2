@@ -1,7 +1,7 @@
 <template>
 <ion-page>
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button  >
+            <ion-fab-button  @click="handleNew">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -16,10 +16,11 @@
             
             <ion-list :inset="true">
                 <!-- List -->
-                <ion-item v-for="cash_in_cash_out in cash_in_cash_outs" :key="cash_in_cash_out.id" @click="">
+                <ion-item v-for="cash_in_cash_out in cash_in_cash_outs" :key="cash_in_cash_out.id" @click="openActionSheet(cash_in_cash_out)">
                     <ion-label>
                         <h2>{{ cash_in_cash_out.cash_in_out_number }}</h2>
                         <p>{{ cash_in_cash_out.cash_in_out_date }}</p>
+                        <p v-if="cash_in_cash_out.is_locked">Locked</p><p v-else>Unlocked</p>
                         <p>{{ cash_in_cash_out.remarks }}</p>
                     </ion-label>
                     <ion-label slot=end>
@@ -35,8 +36,8 @@
 import { presentToast } from '@/composables/toast.service';
 import { CASH_IN_OUTS } from '@/models/cashin-cashout.model';
 import { icons } from '@/plugins/icons';
-import { getCashInCashOut } from '@/services/activity/cash-in-cash-out.service';
-import { onIonViewDidEnter } from '@ionic/vue';
+import { addNewCashInCashOut, getCashInCashOut } from '@/services/activity/cash-in-cash-out.service';
+import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -46,7 +47,56 @@ export default defineComponent({
         const router = useRouter();
         const cash_in_cash_outs = ref<CASH_IN_OUTS[]>([]);
 
+        //#region   Actionsheet
+        const actionSheetButtons = (cash_in_cash_out:any) => [
+            {
+                text: 'Delete',
+                role: 'destructive',
+                handler: () => {
+                    handleDelete(cash_in_cash_out);
+                },
+                data: {
+                    action: 'delete',
+                },
+            },
+            {
+                text: 'Edit',
+                handler: () => {
+                    handleEdit(cash_in_cash_out.id);
+                },
+                data: {
+                    action: 'Edit',
+                },
+            },
+        ];
+        const actionSheet = ref(null);
+        const _actionSheetController = actionSheetController;// Action Sheet Controller
+        // Open Action Sheet Function
+        const openActionSheet = async (stock_in:any) => {
+            const actionSheet = await _actionSheetController.create({
+                header: `Options for Tax ${stock_in.in_number}  ${stock_in.in_date}`,
+                buttons: actionSheetButtons(stock_in)
+            });
+            await actionSheet.present();
+        };
+        //#endregion
+        const handleDelete = (trx: any) => {
+            throw new Error('Function not implemented.');
+        };
+        const handleEdit = (id: number) => {
+            router.push(`/activity/cash-in-cash-out/details/${id}`);
+        }
 
+        async function handleNew() {
+            try {
+                const result = await addNewCashInCashOut()
+                if(result.success){
+                    router.push(`/activity/cash-in-cash-out/details/${result.data}`)
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
+        }
         async function fetchList() {
             try {
                 const result = await getCashInCashOut() 
@@ -65,7 +115,10 @@ export default defineComponent({
         })
         return{
             icons,
-            cash_in_cash_outs
+            cash_in_cash_outs,
+
+            openActionSheet,
+            handleNew
         }
     }
 })

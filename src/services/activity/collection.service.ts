@@ -5,7 +5,6 @@ import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { addBulkSalesItem } from './sales-item.service';
-import { onLockUpdateItemInventory, onUnlockUpdateItemInventory } from '../../composables/inventory';
 import { COLLECTIONS, COLLECTIONS_DTO } from '@/models/collections.model';
 import { COLLECTIONS_LINES, COLLECTIONS_LINES_DTO } from '@/models/collection-lines.model';
 
@@ -44,7 +43,7 @@ export const getCollection = async () => {
         LEFT JOIN ${CUSTOMERS_TABLE}
         ON ${COLLECTIONS_TABLE}.customer_id=${CUSTOMERS_TABLE}.id
         GROUP BY ${COLLECTIONS_TABLE}.id
-        ORDER BY ${COLLECTIONS_TABLE}.sales_number DESC
+        ORDER BY ${COLLECTIONS_TABLE}.ci_number DESC
         `;
       
       const result = await db.query(selectQuery);
@@ -94,7 +93,7 @@ export const getCollectionbyId = async (id:number) => {
         ON ${COLLECTIONS_TABLE}.sales_id=${COLLECTIONS_TABLE}.id
         GROUP BY ${COLLECTIONS_TABLE}.id
         WHERE ${COLLECTIONS_TABLE}.id=?
-        ORDER BY ${COLLECTIONS_TABLE}.sales_number DESC
+        ORDER BY ${COLLECTIONS_TABLE}.ci_number DESC
         `;
         const params = [id];
       
@@ -137,7 +136,7 @@ export const getLastCollectionNumber = async (): Promise<string> => {
 
       return ci_number;
     } catch (error) {
-      return '0000000000';
+      return '0000000001';
     }
 }
 
@@ -216,6 +215,7 @@ export const addPayment = async (data: COLLECTIONS, data_line: COLLECTIONS_LINES
     // return true,Id;
     return { success: true };
   } catch (error) {
+    console.log(error)
       throw error;
   }
 };

@@ -6,6 +6,12 @@ import LoginView from '@/views/LoginView.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: { hideHeaderAndSidebar: true } // Add this meta property
+  },
+  {
     path: '/',
     redirect: '/dashboard'
   },
@@ -33,18 +39,9 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: '/login',
-    component: LoginView,
-    meta: { title: 'Login',
-      breadcrumb: 'Login',
-     }
-  },
-  {
     path: '/dashboard',
     component: DashboardView,
-    meta: { title: 'Folder',
-      breadcrumb: 'Dashboard',
-     }
+    meta: { title: 'Dashboard', breadcrumb: 'Dashboard' }
   },
   
   // SETUP
@@ -52,16 +49,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/setup/customers',
     name: 'customer_lists',
     component: () => import ('../views/Setup/CustomerList.vue'),
-    meta: { 
-      title: 'Folder' ,
-      breadcrumb: 'Customer',
-    }
+    meta: {  title: 'Customer List' , breadcrumb: 'Customer' }
   },
   {
     path: '/setup/customer/details/:id',
     component: () => import ('../views/Setup/CustomerDetail.vue'),
     meta: { 
-      title: 'Folder' ,
+      title: 'Customer Details' ,
       breadcrumb: 'Customer',
     }
   },
@@ -70,7 +64,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'item_lists',
     component: () => import ('../views/Setup/ItemList.vue'),
     meta: { 
-      title: 'Folder' ,
+      title: 'Item List' ,
       breadcrumb: 'Items',
     }
   },
@@ -78,17 +72,29 @@ const routes: Array<RouteRecordRaw> = [
     path: '/setup/item/details/:id',
     name: 'ItemDetails',
     component: () => import ('../views/Setup/ItemDetail.vue'),
+    meta: { 
+      title: 'Item Details' ,
+      breadcrumb: 'Items',
+    },
     props: true
   },
   {
     path: '/setup/tables',
     name: 'table_lists',
     component: () => import ('../views/Setup/TableList.vue'),
+    meta: { 
+      title: 'Table List' ,
+      breadcrumb: 'Table',
+    }
   },
   {
     path: '/setup/table/details/:id',
     name: 'table_details',
     component: () => import ('../views/Setup/TableDetail.vue'),
+    meta: { 
+      title: 'Table Details' ,
+      breadcrumb: 'Table',
+    },
     props: true
   },
 
@@ -125,14 +131,22 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/activity/sales/details/:id',
     component: () => import ('../views/Activity/SalesDetails.vue'),
-    meta: { title: 'Sales Detail' },
+    meta: { title: 'Sales Details' },
   },
   {
     path: '/activity/cash-in-cash-outs',
     name: 'cashin_cashout',
     component: () => import ('../views/Activity/CashInCashOutlist.vue'),
     meta: { 
-      title: 'Folder' ,
+      title: 'Cash In/Out List' ,
+    }
+  },
+  {
+    path: '/activity/cash-in-cash-out/details/:id',
+    name: 'cashin_cashout_details',
+    component: () => import ('../views/Activity/CashInCashOutDetails.vue'),
+    meta: { 
+      title: 'Cash In/Out Details' ,
     }
   },
   {
@@ -140,7 +154,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'stockin_lists',
     component: () => import ('../views/Activity/StockInList.vue'),
     meta: { 
-      title: 'Folder' ,
+      title: 'Stock In List' ,
     }
   },
   {
@@ -148,7 +162,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'stockin_details',
     component: () => import ('../views/Activity/StockInDetails.vue'),
     meta: { 
-      title: 'Folder' ,
+      title: 'Stock In Details' ,
     }
   },
   {
@@ -156,7 +170,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'stockout_lists',
     component: () => import ('../views/Activity/StockOutList.vue'),
     meta: { 
-      title: 'Folder' ,
+      title: 'Stock Out List' ,
     }
   },
   {
@@ -164,7 +178,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'stockout_details',
     component: () => import ('../views/Activity/StockOutDetails.vue'),
     meta: { 
-      title: 'Folder' ,
+      title: 'Stock Out Details' ,
     }
   },
   
@@ -179,7 +193,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/system/unit/details/:id',
     name: 'unit_details',
     component: () => import ('../views/System/UnitDetail.vue'),
-    meta: { title: 'Unit Detail' }
+    meta: { title: 'Unit Details' }
   },
   {
     path: '/system/discounts',
@@ -191,7 +205,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/system/discount/details/:id',
     name: 'discount_details',
     component: () => import ('../views/System/DiscountDetail.vue'),
-    meta: { title: 'Discount Detail' }
+    meta: { title: 'Discount Details' }
   },
   {
     path: '/system/paytypes',
@@ -203,13 +217,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/system/paytype/details/:id',
     name: 'paytype_details',
     component: () => import ('../views/System/PaytypeDetail.vue'),
-    meta: { title: 'Paytype List' }
+    meta: { title: 'Paytype Details' }
   },
   {
     path: '/system/taxes',
     name: 'tax_lists',
     component: () => import ('../views/System/TaxList.vue'),
-    meta: { title: 'Tax' }
+    meta: { title: 'Tax List' }
   },
   {
     path: '/system/tax/details/:id',
@@ -234,7 +248,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/settings/user/details/:id',
     name: 'user_details',
     component: () => import ('../views/Settings/UserDetails.vue'),
-    meta: { title: 'User Detail' }
+    meta: { title: 'User Details' }
   },
 
   // REPORT
@@ -242,7 +256,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/report/sales-detail-report',
     name: 'sales_detail_report',
     component: () => import ('../views/Report/SalesDetailReport.vue'),
-    meta: { title: 'Sales Detail' }
+    meta: { title: 'Sales Details Report' }
+  },
+  {
+    path: '/report/z-reading-report',
+    name: 'z_reading',
+    component: () => import ('../views/Report/ZReadingReport.vue'),
+    meta: { title: 'Z Reading Report' }
+  },
+  {
+    path: '/report/inventory',
+    name: 'inventory',
+    component: () => import ('../views/Report/InventoryReport.vue'),
+    meta: { title: 'Inventory Report' }
   },
 ]
 

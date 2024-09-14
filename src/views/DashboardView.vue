@@ -5,7 +5,7 @@
         <ion-content >
             <ion-grid style="width: 100%;">
                 <ion-row>
-                    <ion-col size-md="12" size-lg="12">
+                    <ion-col size="8" size-md="8" size-lg="8">
                         <ion-button size="medium" expand="block" style="height: 100%" :router-link="'/Activity/Sales'">
                             <div class="icon-label-wrapper">
                             <ion-icon slot="start" :ios="icons.basketOutline" :md="icons.basketSharp"></ion-icon>
@@ -13,17 +13,17 @@
                             </div>
                         </ion-button>
                     </ion-col>
-                </ion-row>
-                <ion-row>
                     <ion-col size="4" size-md="4" size-lg="4">
                         <ion-button size="medium" expand="block" style="height: 100%"  :router-link="'/Activity/Cash-In-Cash-outs'">
                             <div class="icon-label-wrapper">
-                            <ion-icon slot="start" :ios="icons.cashOutline" :md="icons.cashSharp"></ion-icon>
-                            <span style="text-wrap:wrap;">Cash-in / Cash-Out</span>
+                            <ion-icon  :ios="icons.cashOutline" :md="icons.cashSharp"></ion-icon>
+                            <span style="text-wrap:wrap;">In/Out</span>
                             </div>
                         </ion-button>
                     </ion-col>
-                    <ion-col size="4" size-md="4" size-lg="4">
+                </ion-row>
+                <ion-row>
+                    <ion-col size="6" size-md="6" size-lg="6">
                         <ion-button size="medium" expand="block" style="height: 100%" :router-link="'/Activity/Stock-In'">
                             <div class="icon-label-wrapper">
                             <ion-icon slot="start" :ios="icons.logInOutline" :md="icons.logInSharp"></ion-icon>
@@ -31,7 +31,7 @@
                             </div>
                         </ion-button>
                     </ion-col>
-                    <ion-col size="4" size-md="4" size-lg="4">
+                    <ion-col size="6" size-md="6" size-lg="6">
                         <ion-button size="medium" expand="block" style="height: 100%" :router-link="'/Activity/Stock-Out'">
                             <div class="icon-label-wrapper">
                             <ion-icon slot="start" :ios="icons.logOutOutline" :md="icons.logOutSharp"></ion-icon>
@@ -41,7 +41,7 @@
                     </ion-col>
                 </ion-row>
             </ion-grid>
-            <br>            
+            <br>           
             <ion-grid style="width: 100%">
                 <ion-row>
                     <ion-col size="4" size-md="4" size-lg="4">
@@ -75,6 +75,7 @@
                         </router-link>
                     </ion-col>
                 </ion-row>
+                <br>
                 <ion-row>
                     <ion-col size="3" size-md="3" size-lg="3">
                         <router-link :to="{ name: 'unit_lists' }">

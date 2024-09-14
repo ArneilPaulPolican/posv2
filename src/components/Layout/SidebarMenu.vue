@@ -33,27 +33,18 @@
                             </ion-item>
                         </div>
                     </ion-list>
-                
               </ion-accordion>
             </ion-accordion-group>
-            <ion-item slot="header" router-direction="root" lines="none" :detail="false" class="hydrated" >
-                <ion-button @click="InventoryReport">
-                <ion-label>Inventory</ion-label>
-                </ion-button>
-            </ion-item>
-            <ion-item slot="header" router-direction="root" :router-link="'/tabs/tab1'" lines="none" :detail="false" class="hydrated" >
-                  <ion-label>Test</ion-label>
-            </ion-item>
           </ion-list>
 
-          <ion-list id="labels-list">
+          <!-- <ion-list id="labels-list">
             <ion-list-header>Widget</ion-list-header>
 
             <ion-item v-for="(label, index) in labels" lines="none" :key="index">
               <ion-icon aria-hidden="true" slot="start" :ios="icons.bookmarkOutline" :md="icons.bookmarkSharp"></ion-icon>
               <ion-label>{{ label }}</ion-label>
             </ion-item>
-          </ion-list>
+          </ion-list> -->
         </ion-content>
     </ion-page>
 </template>
@@ -143,24 +134,30 @@ export default defineComponent({
                     iosIcon: icons.readerOutline,
                     mdIcon: icons.readerSharp,
                     subitems: [
-                    {
-                        title: 'Z-Reading',
-                        url: '/Report/ZReading',
-                        iosIcon: icons.readerOutline,
-                        mdIcon: icons.readerSharp,
-                    },
-                    {
-                        title: 'X-Reading',
-                        url: '/Report/XReading',
-                        iosIcon: icons.readerOutline,
-                        mdIcon: icons.readerSharp,
-                    },
-                    {
-                        title: 'Sales Details Report',
-                        url: '/report/sales-detail-report',
-                        iosIcon: icons.readerOutline,
-                        mdIcon: icons.readerSharp,
-                    },
+                        {
+                            title: 'Z-Reading',
+                            url: '/report/z-reading-report',
+                            iosIcon: icons.readerOutline,
+                            mdIcon: icons.readerSharp,
+                        },
+                        {
+                            title: 'X-Reading',
+                            url: '/Report/XReading',
+                            iosIcon: icons.readerOutline,
+                            mdIcon: icons.readerSharp,
+                        },
+                        {
+                            title: 'Sales Details Report',
+                            url: '/report/sales-detail-report',
+                            iosIcon: icons.readerOutline,
+                            mdIcon: icons.readerSharp,
+                        },
+                        {
+                            title: 'Inventory',
+                            url: '/report/inventory',
+                            iosIcon: icons.readerOutline,
+                            mdIcon: icons.readerSharp,
+                        },
                     ]
                 },
                 {
