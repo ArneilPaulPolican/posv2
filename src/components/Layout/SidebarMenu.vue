@@ -3,15 +3,15 @@
         <ion-content>
           <ion-list id="inbox-list">
             <ion-item>
-                <div style="display: flex; justify-content: center; align-items: center;">
-                    <img :src="company_image" style="justify-self: center;">
+                <div style="height: 50px;width: auto; display: flex;flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center;">
+                    <img v-if="company_image" :src="company_image" alt="Image" />
                 </div>
             </ion-item>
             <ion-item>
                 <h1>{{ sysSettings?.customer }}</h1>
             </ion-item>
             <ion-item>
-                <ion-note>{{ current_user?.first_name }} {{ current_user?.fullname }} </ion-note>
+                {{ current_user?.fullname }} 
             </ion-item>
 
             <ion-item slot="header" router-direction="root" :router-link="'/Dashboard'" lines="none" :detail="false" class="hydrated" >
@@ -63,11 +63,13 @@
 import { presentToast } from '@/composables/toast.service';
 import { SYS_SETTINGS } from '@/models/system-settings.model';
 import { icons } from '@/plugins/icons';
-import { defineComponent, onBeforeMount, onMounted, ref } from 'vue';
+import { defineComponent, onBeforeMount, onMounted, ref, toRaw } from 'vue';
 import { Storage } from '@capacitor/storage';
 import { onIonViewDidEnter } from '@ionic/vue';
 import USER from '@/models/user.model';
 import { generateInventoryReport } from '@/services/report/sys-inventory-report.service';
+import { getSystemSettings } from '@/services/settings/system-settings.service';
+import { getUserById } from '@/services/settings/user.service';
 
 export default defineComponent({
     setup(){
@@ -153,6 +155,12 @@ export default defineComponent({
                         iosIcon: icons.readerOutline,
                         mdIcon: icons.readerSharp,
                     },
+                    {
+                        title: 'Sales Details Report',
+                        url: '/report/sales-detail-report',
+                        iosIcon: icons.readerOutline,
+                        mdIcon: icons.readerSharp,
+                    },
                     ]
                 },
                 {
@@ -217,20 +225,21 @@ export default defineComponent({
         async function fetchCurrentSettings() {
             try {
                 try {
-                    const { value } = await Storage.get({ key: 'sysSettings' });
-                    sysSettings.value = JSON.parse(value as string);
+                    const result = await getSystemSettings()
+                    if(result.success && result.data){
+                        sysSettings.value = { ... result.data};
+                    }
                     company_image.value = sysSettings.value?.image;
+                   
                 } catch (error) {
                     await presentToast(`Retreiving current settings failed: ${error}`);
                 }
                 try {
-                    const { value } = await Storage.get({ key: 'current_user' });
-                    current_user.value = JSON.parse(value as string);
+                    const result_user = await getUserById()
+                    current_user.value = {... result_user.data}
                 } catch (error) {
                     await presentToast(`Retreiving current user failed: ${error}`);
                 }
-                console.log(sysSettings)
-                console.log(current_user)
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`);
             }

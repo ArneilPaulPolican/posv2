@@ -11,11 +11,9 @@
 </template>
 
 <script lang="ts">
-import { IonApp, IonRouterOutlet, onIonViewDidEnter } from '@ionic/vue';
+import { onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
-import { computed, defineComponent, getCurrentInstance, onMounted } from 'vue';
-import { getSystemSettings } from './services/settings/system-settings.service';
-import { Storage } from '@capacitor/storage';
+import { computed, defineComponent, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import LoginView from './views/LoginView.vue';
 
@@ -27,21 +25,10 @@ export default defineComponent({
   setup(){// Create a storage instance
     const route = useRoute();
     const showHeader = computed(() => route.name !== 'LoginView');
-    // Store a value
 
-    async function fetchSettings() {
-      console.log(showHeader.value);
-      const result = await getSystemSettings()
-      await Storage.set({
-        key: 'sysSettings',
-        value: JSON.stringify(result) as string
-      });    
-    }
     onIonViewDidEnter(async () => {
-        await fetchSettings()
     });
     onMounted(async () => {
-        await fetchSettings()
     });
     return{
       header: '',

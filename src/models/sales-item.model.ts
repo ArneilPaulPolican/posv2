@@ -1,5 +1,3 @@
-
-
 export interface SALES_ITEM {
     id?: number;
     sales_id: number;

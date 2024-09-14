@@ -1,5 +1,5 @@
 <template>
-<ion-page>
+    <ion-page>
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
             <ion-fab-button @click="openDetailForm">
                 <ion-icon :icon="icons.addSharp"></ion-icon>

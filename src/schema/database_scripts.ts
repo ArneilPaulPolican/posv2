@@ -642,7 +642,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
             INSERT OR IGNORE INTO ${USERS_TABLE} 
             (username, email, first_name, last_name, user_type, password)
             VALUES 
-            ('user', 'user@default.com', 'User', 'Default', 'Admin', 'password')
+            ('Admin', 'user@default.com', 'Admin', 'User', 'Admin', 'password')
           `;
 
           const resUSERS_TABLE = await db.execute(insertDefaultUserQuery);

@@ -236,6 +236,14 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import ('../views/Settings/UserDetails.vue'),
     meta: { title: 'User Detail' }
   },
+
+  // REPORT
+  {
+    path: '/report/sales-detail-report',
+    name: 'sales_detail_report',
+    component: () => import ('../views/Report/SalesDetailReport.vue'),
+    meta: { title: 'Sales Detail' }
+  },
 ]
 
 const router = createRouter({

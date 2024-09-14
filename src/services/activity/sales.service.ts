@@ -15,7 +15,7 @@ interface ResultSet {
   };
 }
 
-export const getSales = async (): Promise<SALES_DTO[]> => {
+export const getSales = async (start_date:string, end_date:string) => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
@@ -66,13 +66,15 @@ export const getSales = async (): Promise<SALES_DTO[]> => {
         ON ${SALES_ITEMS_TABLE}.item_id=${ITEMS_TABLE}.id
         LEFT JOIN ${COLLECTIONS_TABLE}
         ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
+        WHERE ${SALES_TABLE}.sales_date >= ? AND ${SALES_TABLE}.sales_date <= ?
         GROUP BY ${SALES_TABLE}.id
         ORDER BY ${SALES_TABLE}.sales_number DESC
         `;
+        const params = [start_date, end_date];
       
-      const result = await db.query(saleServiceQuery);
+      const result = await db.query(saleServiceQuery,params);
      
-      return result.values as SALES_DTO[];
+      return { success: true, data: result.values as SALES_DTO[] };
     } catch (error) {
       throw error;
     }
