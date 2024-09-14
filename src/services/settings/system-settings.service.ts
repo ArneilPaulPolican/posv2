@@ -50,16 +50,17 @@ export const getSystemSettings = async () => {
             backoffice_domain: sys_settings.backoffice_domain ?? '',
             backoffice_access_token: sys_settings.backoffice_access_token ?? '',
             is_backoffice_enabled: sys_settings.is_backoffice_enabled,
-            license_key: sys_settings.license_key ?? ''
+            license_key: sys_settings.license_key ?? '',
+            serial_number: sys_settings.serial_number ?? '',
+            image: sys_settings.image ?? '',
         }))[0];
 
         
-        return sys_settings;
+      return { success: true, data: sys_settings};
     } catch (error) {
       throw error;
     }
 };
-  
 
 export const updateSystemSettings = async (data: SYS_SETTINGS) => {
   const dbConnectionService = await DBConnectionService.getInstance();
@@ -112,8 +113,32 @@ export const updateSystemSettings = async (data: SYS_SETTINGS) => {
     ]
 
     const res = await db.executeTransaction(transactionStatements);
-    return { success: true, insertedId: data.id };
+    return { success: true };
   } catch (error) {
-    return { success: false, insertedId: 0 };
+    throw error;
+  }
+};
+
+export const updateCompanyLogo = async (data: string) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+
+    const transactionStatements = [
+      {
+        statement:`UPDATE ${SYS_SETTINGS_TABLE}
+          SET image = ?
+          WHERE id = (SELECT id FROM ${SYS_SETTINGS_TABLE} ORDER BY id LIMIT 1)`,
+        values: [
+          data
+        ]
+      }
+    ]
+
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true };
+  } catch (error) {
+    console.log(error)
+    throw error;
   }
 };

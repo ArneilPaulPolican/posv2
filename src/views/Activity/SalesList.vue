@@ -2,7 +2,7 @@
     <ion-page>
         <!-- <HeaderComponent :title="header"/> -->
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button size="small" @click="openDetailForm">
+            <ion-fab-button size="medium" @click="openDetailForm">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>

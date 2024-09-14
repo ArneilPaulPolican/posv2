@@ -24,7 +24,8 @@
                     </ion-item>
                     <ion-item>
                         <ion-avatar aria-hidden="true" slot="start">
-                            <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
+                            <!-- <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon> -->
+                            <img :src="item.image_path" />
                         </ion-avatar>
                         <ion-label>
                             <p>{{ item.item_code }}</p>
@@ -174,9 +175,9 @@ name: 'DashboardView', // Update the component name here
 
         const addNewItem = async() => {
             try {
-                const result = await addItem(item.value, '')
+                const result = await addItem(item.value)
                 if(result.success){
-                    router.push(`/Setup/Item/Details/${result.insertedId}`);
+                    router.push(`/Setup/Item/Details/${result.data}`);
                 }
             } catch (error) {
                 await presentToast(`Erroe adding new item ${error}`)

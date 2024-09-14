@@ -5,28 +5,28 @@
         <ion-item>
             <div style="display: flex; overflow-x: auto; white-space: nowrap; width: 100%; padding-right: 10px;height: 100%; align-items: center;">
                 <!-- <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon> -->
-                <ion-button size="small" expand="block" style="height: 100%"
+                <ion-button size="small" expand="block" style="height: 90%"
                     @click="handleReturn()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
                         <ion-label >Back</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!is_locked" size="small" expand="block" style="height: 100%"
+                <ion-button v-if="!is_locked" size="small" expand="block" style="height: 90%"
                     @click="handleSave()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.saveSharp"></ion-icon>
                         <ion-label >Save</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!is_locked" size="small" expand="block" style="height: 100%"
+                <ion-button v-if="!is_locked" size="small" expand="block" style="height: 90%"
                     @click="handleLock()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
                         <ion-label >Lock</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="is_locked" size="small" expand="block" style="height: 100%"
+                <ion-button v-if="is_locked" size="small" expand="block" style="height: 90%"
                     @click="handleUnlock()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.lockClosedSharp"></ion-icon>
@@ -39,13 +39,7 @@
             <h1>{{ customer.customer_code }}</h1>
         </ion-item>
 
-        
         <ion-content :fullscreen="true">
-            
-            <ion-item>
-                <img v-if="customer.image_path" :src="customer.image_path" >
-            </ion-item>
-
             <ion-list :inset="true" style="margin: 5px">
                 <div style="padding: 5px;">
                     <ion-item>
@@ -77,7 +71,20 @@
                         <ion-label position="stacked">Reward No. :</ion-label>
                         <ion-input :disabled="is_locked" v-model="customer.reward_number" placeholder="Enter Reward No."></ion-input>
                     </ion-item>
-                    <br>
+                    
+                    <ion-item>
+                        <div style="height: 100px;width: auto; display: flex;flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center;">
+                            <img v-if="customer.image_path" :src="customer.image_path" alt="Image" />
+                        </div>
+                    </ion-item>
+                    <ion-item >
+                        <ion-button v-if="!is_locked" @click="captureImage">
+                            <ion-icon :icon="icons.camera"></ion-icon>
+                        </ion-button>
+                        <ion-button v-if="!is_locked" @click="retreiveImage">
+                            <ion-icon :icon="icons.attachSharp"></ion-icon>
+                        </ion-button>
+                    </ion-item>
                     
                 </div>
 
@@ -106,6 +113,7 @@ import { CUSTOMER } from '@/models/customer.model';
 import { addCustomers, getCustomerById, getLastCustomerCode, lockCustomers, unlockCustomers, updateCustomers } from '@/services/setup/customer.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/composables/toast.service';
+import { usePhotoGallery } from '@/composables/image-composable';
 
 export default defineComponent({
     components: { 
@@ -140,12 +148,42 @@ export default defineComponent({
         const not_found = ref(false);
         const imagePath = ref('');
         const is_locked = ref(false);
+        const { takePhoto, selectPhoto, loadImageFromFilesystem, savedPhotoPath } = usePhotoGallery();
 
         
         // BACK
         const handleReturn = () => {
             router.push(`/Setup/Customers`);
         }
+
+                // Capture an image and save it
+        const captureImage = async () => {
+            const dataUrl = await takePhoto();
+            console.log(`dataUrl ${JSON.stringify(dataUrl)}`);
+            const webPath = dataUrl?.webPath;
+            const format = dataUrl?.format;
+            // blobUrl.value = dataUrl?.webPath ?? '';
+            console.log(`webPath: ${webPath}`);
+            console.log(`format: ${format}`);
+            // await updateImage(webPath) 
+            if(webPath){
+                customer.value.image_path = webPath ?? '';
+            }
+        };
+
+        const retreiveImage = async () => {
+            const dataUrl = await selectPhoto();
+            console.log(`dataUrl ${JSON.stringify(dataUrl)}`);
+            const webPath = dataUrl?.webPath;
+            const format = dataUrl?.format;
+            // blobUrl.value = dataUrl?.webPath ?? '';
+            console.log(`webPath: ${webPath}`);
+            console.log(`format: ${format}`);
+            // updateImage(webPath) 
+            if(webPath){
+                customer.value.image_path = webPath ?? '';
+            }
+        };
 
         const handleSave = async () => {
             setTimeout(async () => {
@@ -250,7 +288,10 @@ export default defineComponent({
             handleReturn,
             handleSave,
             handleLock,
-            handleUnlock
+            handleUnlock,
+            
+            captureImage,
+            retreiveImage,
         }
     }
 });

@@ -4,9 +4,12 @@
 
         <ion-item>
             <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon>
-            <ion-button slot="end" size="medium" expand="block" style="height: 100%"
+            <ion-button slot="end" size="medium" expand="block" style="height: 90%"
                 @click="handleSave()">
-                <ion-label>Save</ion-label>
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.saveSharp"></ion-icon>
+                    <ion-label>Save</ion-label>
+                </div>
             </ion-button>
         </ion-item>
         

@@ -18,8 +18,7 @@
                 <!-- List -->
                 <ion-item v-for="customer in customers" :key="customer.id" @click="openActionSheet(customer)">
                     <ion-avatar aria-hidden="true" slot="start">
-                        <!-- <img alt="" v-if="item.image" :src="item.image" /> -->
-                        <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon>
+                        <img alt="" v-if="customer.image_path" :src="customer.image_path" />
                     </ion-avatar>
                     <ion-label>
                         <p>{{ customer.customer_code }}</p>
@@ -119,7 +118,7 @@ export default defineComponent({
 
         const addNewCustomer = async() => {
             try {
-                const result = await addCustomers(customer.value, '')
+                const result = await addCustomers(customer.value)
                 if(result.success){
                     router.push(`/Setup/Customer/Details/${result.data}`);
                 }

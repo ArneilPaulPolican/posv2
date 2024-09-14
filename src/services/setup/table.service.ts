@@ -54,10 +54,10 @@ export const getTableById = async (id: number) => {
   }
 };
 
-export const addTable = async (data: TABLE) => {
+export const addTable = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
-  let transaction;
+
   try {
     
     const taxServiceQuery = 
@@ -68,7 +68,7 @@ export const addTable = async (data: TABLE) => {
       category,
       pax,
       image_path,
-      is_locked,
+      is_locked
     ) VALUES (
       ?, ?, ?, ?, ? ,?
     )
@@ -77,17 +77,59 @@ export const addTable = async (data: TABLE) => {
     const transactionStatements = [
       {
         statement: taxServiceQuery,
-        values: [data.table_code, data.table_name, data.category, data.is_locked],
+        values: ['NA', 'NA', 'NA', 0,'', false],
+      },
+    ];
+    const res = await db.executeTransaction(transactionStatements);
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId;
+    } else {
+      Id = 0;
+    }
+    return { success: true, data: Id  };
+  } catch (error) {
+    console.log(error)
+    throw error;
+  }
+};
+
+export const updateTable = async (data: TABLE) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const transactionStatements = [
+      {
+        statement: `
+        UPDATE ${TABLES_TABLE}
+          SET table_code=?,
+          table_name=?,
+          category=?,
+          pax=?,
+          image_path=?
+        WHERE id=?
+        `,
+        values: [
+          data.table_code,
+          data.table_name,
+          data.category,
+          data.pax,
+          data.image_path,
+          data.id
+        ],
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
     return { success: true };
   } catch (error) {
     throw error;
-  }
+  } 
 };
 
-export const updateTable = async (data: TABLE) => {
+export const lockTable = async (data: TABLE) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -109,7 +151,31 @@ export const updateTable = async (data: TABLE) => {
           data.category,
           data.pax,
           data.image_path,
-          data.is_locked,
+          true,
+          data.id
+        ],
+      },
+    ];
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true };
+  } catch (error) {
+    throw error;
+  } 
+};
+
+export const unlockTable = async (data: TABLE) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    const transactionStatements = [
+      {
+        statement: `
+        UPDATE ${TABLES_TABLE}
+          SET is_locked=?
+        WHERE id=?
+        `,
+        values: [
+          false,
           data.id
         ],
       },
@@ -128,7 +194,7 @@ export const deleteTable = async (id: number) => {
   
     const transactionStatements = [
       {
-        statement: `DELETE ${TABLES_TABLE}
+        statement: `DELETE FROM ${TABLES_TABLE}
         WHERE id=?`,
         values: [ 
           id

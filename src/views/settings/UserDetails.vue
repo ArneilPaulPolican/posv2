@@ -2,10 +2,19 @@
     <ion-page>
         
         <ion-item>
-            <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon>
-            <ion-button slot="end" size="medium" expand="block" style="height: 100%"
+            <ion-button size="medium" expand="block" style="height: 90%"
+                @click="handleReturn">
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                    <ion-label>Back</ion-label>
+                </div>
+            </ion-button>
+            <ion-button size="medium" expand="block" style="height: 90%"
                 @click="">
-                <ion-label>Save</ion-label>
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.saveSharp"></ion-icon>
+                    <ion-label>Save</ion-label>
+                </div>
             </ion-button>
         </ion-item>
 
@@ -37,9 +46,9 @@
 </template>
 
 <script lang="ts">
-import USER from '@/models/user.model';
-import { icons } from '@/plugins/icons';
-import { getUserById, getUsers } from '@/services/settings/user.service';
+import USER from '../../models/user.model';
+import { icons } from '../../plugins/icons';
+import { getUserById, getUsers } from '../../services/settings/user.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';

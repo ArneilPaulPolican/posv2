@@ -4,7 +4,7 @@
           <ion-list id="inbox-list">
             <ion-item>
                 <div style="display: flex; justify-content: center; align-items: center;">
-                    <img src="/public/favicon.png" style="justify-self: center;">
+                    <img :src="company_image" style="justify-self: center;">
                 </div>
             </ion-item>
             <ion-item>
@@ -208,6 +208,7 @@ export default defineComponent({
         ];
         const sysSettings = ref<SYS_SETTINGS>();
         const current_user = ref<USER>();
+        const company_image =ref();
             
         const selectedIndex = ref(0);
         function accordionToggle(i: number) {
@@ -218,6 +219,7 @@ export default defineComponent({
                 try {
                     const { value } = await Storage.get({ key: 'sysSettings' });
                     sysSettings.value = JSON.parse(value as string);
+                    company_image.value = sysSettings.value?.image;
                 } catch (error) {
                     await presentToast(`Retreiving current settings failed: ${error}`);
                 }
@@ -244,13 +246,14 @@ export default defineComponent({
             await fetchCurrentSettings();
         });
         onIonViewDidEnter(async () => {
-            await fetchCurrentSettings()
+            await fetchCurrentSettings();
         });
         return{
             icons,
             appPages,
             labels: ['Sales', 'Item', 'Customer'],
             sysSettings,
+            company_image,
             current_user,
             selectedIndex,
             accordionToggle,

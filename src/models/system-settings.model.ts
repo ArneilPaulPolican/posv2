@@ -14,6 +14,7 @@ export interface SYS_SETTINGS {
     pos_vendor_accreditation_number: string;
     pos_vendor_accreditation_expiry_date: string;
     remarks?: string;
+    image: string;
     backoffice_domain?: string;
     backoffice_access_token?: string;
     is_backoffice_enabled?: boolean;

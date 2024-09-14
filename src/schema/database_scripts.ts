@@ -116,7 +116,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
     const createTablesTableQuery = `
       CREATE TABLE IF NOT EXISTS ${TABLES_TABLE} (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        table_code TEXT NOT NULL UNIQUE,
+        table_code TEXT NOT NULL,
         table_name TEXT NOT NULL,
         category TEXT NOT NULL,
         pax INTEGER NOT NULL,
@@ -484,6 +484,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         pos_vendor_tin TEXT NOT NULL,
         pos_vendor_accreditation_number TEXT NOT NULL,
         pos_vendor_accreditation_expiry_date TEXT NOT NULL,
+        image TEXT,
         remarks TEXT,
         backoffice_domain TEXT,
         backoffice_access_token TEXT,

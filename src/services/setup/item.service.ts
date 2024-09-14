@@ -167,30 +167,32 @@ export const getItemById = async (id: number) => {
   }
 };
 
-export const getLastItemCode = async (): Promise<string> => {
+export const getItemCode = async (): Promise<string> => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
     const query = `SELECT item_code FROM ${ITEMS_TABLE} ORDER BY id DESC LIMIT 1`;
     const result = await db?.query(query);
     console.log(result?.values?.[0])
-    const last_code =result?.values?.[0].item_code;
-    return last_code || '0000000001';
+
+    let item_code = result?.values?.[0].item_code;
+    const currentItemCode = parseInt(item_code, 10);
+    const nextItemCode = currentItemCode + 1;
+    const formattedNextSalesNumber = nextItemCode.toString().padStart(10, '0');
+    item_code = formattedNextSalesNumber;
+
+    return item_code;
   } catch (error) {
     return '0000000001';
   }
 }
 
-export const addItem = async (data: ITEM, processedImageSavePath: string) => {
+export const addItem = async (data: ITEM) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
     
-    let item_code = await getLastItemCode();
-    const currentItemCode = parseInt(item_code, 10);
-    const nextItemCode = currentItemCode + 1;
-    const formattedNextSalesNumber = nextItemCode.toString().padStart(10, '0');
-    item_code = formattedNextSalesNumber;
+    const item_code = await getItemCode();
 
     const transaction: any = [
       {
@@ -201,16 +203,14 @@ export const addItem = async (data: ITEM, processedImageSavePath: string) => {
             cost, quantity, unit_id, 
             is_inventory, is_package, is_locked, 
             generic_name, tax_id, remarks, 
-            image_path, expiry_date, lot_number,
-            is_vat_inclusive
+            expiry_date, lot_number, is_vat_inclusive
           ) VALUES (
            ?, ?, ?,
            ?, ?, ?, 
            ?, ?, ?, 
            ?, ?, ?, 
            ?, ?, ?, 
-           ?, ?, ?,
-           ?
+           ?, ?, ?
           )
         `,
         values: [
@@ -219,8 +219,7 @@ export const addItem = async (data: ITEM, processedImageSavePath: string) => {
           data.cost, data.quantity, data.unit_id, 
           data.is_inventory, data.is_package,data.is_locked,
           data.generic_name, data.tax_id, data.remarks, 
-          processedImageSavePath, data.expiry_date, data.lot_number,
-          data.is_vat_inclusive
+          data.expiry_date, data.lot_number, data.is_vat_inclusive
         ],
       },
     ];
@@ -235,13 +234,13 @@ export const addItem = async (data: ITEM, processedImageSavePath: string) => {
     } else {
       Id = 0;
     }
-    return { success: true, insertedId: Id };
+    return { success: true, data: Id };
   } catch (err: any) {
     throw err;
   }
 };
 
-export const updateItem = async (data: ITEM, processedImageSavePath: string) => {
+export const updateItem = async (data: ITEM) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
 
@@ -282,7 +281,7 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
           data.generic_name,
           data.tax_id,
           data.remarks,
-          processedImageSavePath,
+          data.image_path,
           data.is_package,
           data.is_locked,
           data.is_vat_inclusive,
@@ -302,7 +301,7 @@ export const updateItem = async (data: ITEM, processedImageSavePath: string) => 
   }
 };
 
-export const lockItem = async (data: ITEM, processedImageSavePath: string) => {
+export const lockItem = async (data: ITEM) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
 
@@ -342,7 +341,7 @@ export const lockItem = async (data: ITEM, processedImageSavePath: string) => {
           data.generic_name,
           data.tax_id,
           data.remarks,
-          processedImageSavePath,
+          data.image_path,
           data.is_package,
           true,
           data.is_vat_inclusive,

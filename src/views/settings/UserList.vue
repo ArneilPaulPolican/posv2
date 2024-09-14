@@ -28,10 +28,10 @@
 </template>
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
-import USER from '@/models/user.model';
-import { icons } from '@/plugins/icons';
-import { getUsers } from '@/services/settings/user.service';
+import { icons } from '../../plugins/icons';
+import { presentToast } from '../../composables/toast.service';
+import USER from '../../models/user.model';
+import { getUsers } from '../../services/settings/user.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';

@@ -107,7 +107,17 @@
                         <ion-textarea :disabled="is_locked" v-model="item.remarks" placeholder="Remarks" ></ion-textarea>
                     </ion-item>
                     <ion-item>
-                        <img v-if="item.image_path" :src="item.image_path" >
+                        <div style="height: 100px;width: auto; display: flex;flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center;">
+                            <img v-if="item.image_path" :src="item.image_path" alt="Image" />
+                        </div>
+                    </ion-item>
+                    <ion-item >
+                        <ion-button v-if="!is_locked" @click="captureImage">
+                            <ion-icon :icon="icons.camera"></ion-icon>
+                        </ion-button>
+                        <ion-button v-if="!is_locked" @click="retreiveImage">
+                            <ion-icon :icon="icons.attachSharp"></ion-icon>
+                        </ion-button>
                     </ion-item>
                 </div>
 
@@ -131,7 +141,7 @@ import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch } from '
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
-import { addItem, getItemById, getItems, getLastItemCode, lockItem, unlockItem, updateItem } from '@/services/setup/item.service';
+import { addItem, getItemById, getItems, lockItem, unlockItem, updateItem } from '@/services/setup/item.service';
 import { Lock } from '@/services/lock';
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import UnitListModal from '@/components/Modal/UnitListModal.vue';
@@ -139,6 +149,7 @@ import TaxListModal from '@/components/Modal/TaxListModal.vue';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/composables/toast.service';
 import { reload } from 'ionicons/icons';
+import { usePhotoGallery } from '@/composables/image-composable';
 
 
 export default defineComponent({
@@ -148,10 +159,11 @@ export default defineComponent({
     },
     setup() {
         //#region VARIABLES
+        const { takePhoto, selectPhoto, loadImageFromFilesystem, savedPhotoPath } = usePhotoGallery();
+
         const route = useRoute();
         const dbLock = new Lock(); // Create a new lock
         const router = useRouter();
-        const imagePath = ref('');
         const item = ref<ITEM_DTO>({
             id:0,
             item_code: '',
@@ -221,9 +233,38 @@ export default defineComponent({
             item.value.tax = tax.tax;
         };
 
+        // Capture an image and save it
+        const captureImage = async () => {
+            const dataUrl = await takePhoto();
+            console.log(`dataUrl ${JSON.stringify(dataUrl)}`);
+            const webPath = dataUrl?.webPath;
+            const format = dataUrl?.format;
+            // blobUrl.value = dataUrl?.webPath ?? '';
+            console.log(`webPath: ${webPath}`);
+            console.log(`format: ${format}`);
+            // await updateImage(webPath) 
+            if(webPath){
+                item.value.image_path = webPath ?? '';
+            }
+        };
+
+        const retreiveImage = async () => {
+            const dataUrl = await selectPhoto();
+            console.log(`dataUrl ${JSON.stringify(dataUrl)}`);
+            const webPath = dataUrl?.webPath;
+            const format = dataUrl?.format;
+            // blobUrl.value = dataUrl?.webPath ?? '';
+            console.log(`webPath: ${webPath}`);
+            console.log(`format: ${format}`);
+            // updateImage(webPath) 
+            if(webPath){
+                item.value.image_path = webPath ?? '';
+            }
+        };
+
         const handleSave = async () => {
             try {
-                const response = await updateItem(item.value, imagePath.value);
+                const response = await updateItem(item.value);
                 if(response){
                     await presentToast('Item successfully updated');
                 }else{
@@ -236,7 +277,7 @@ export default defineComponent({
 
         const handleLock = async () => {
             try {
-                const response = await lockItem(item.value, imagePath.value);
+                const response = await lockItem(item.value);
                 if(response.success){
                     await presentToast('Item successfully locked');
                     is_locked.value = true;
@@ -271,6 +312,7 @@ export default defineComponent({
                 if(itemRes.success){
                     if(itemRes.data){
                         is_locked.value = itemRes.data.is_locked;
+                        console.log(itemRes.data.image_path);
                         item.value = {
                             id: itemRes.data.id,
                             item_code: itemRes.data.item_code,
@@ -337,6 +379,9 @@ export default defineComponent({
 
             handleLock,
             handleUnlock,
+
+            captureImage,
+            retreiveImage,
         }
     }
 });

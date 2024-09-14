@@ -221,19 +221,19 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/Settings/company',
     name: 'company_details',
-    component: () => import ('../views/settings/CompanyDetails.vue'),
+    component: () => import ('../views/Settings/CompanyDetails.vue'),
     meta: { title: 'Company Details' }
   },
   {
     path: '/settings/users',
     name: 'user_lists',
-    component: () => import ('../views/settings/UserList.vue'),
+    component: () => import ('../views/Settings/UserList.vue'),
     meta: { title: 'User List' }
   },
   {
     path: '/settings/user/details/:id',
     name: 'user_details',
-    component: () => import ('../views/settings/UserDetails.vue'),
+    component: () => import ('../views/Settings/UserDetails.vue'),
     meta: { title: 'User Detail' }
   },
 ]

@@ -35,7 +35,8 @@ export default defineComponent({
       await Storage.set({
         key: 'sysSettings',
         value: JSON.stringify(result) as string
-      });    }
+      });    
+    }
     onIonViewDidEnter(async () => {
         await fetchSettings()
     });

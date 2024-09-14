@@ -449,7 +449,7 @@ export default defineComponent({
 
         async function handleLock() {
             try {
-                if(!sales.value.is_locked){
+                if(!sales.value.is_locked && sales.value.total_amount >0){
                     const inventory_result = await onLockRecordInventory(sales_item_list.value, sales.value.id ?? 0, 'SI', sales.value.sales_date, sales.value.sales_number)
                     if(inventory_result.success){
                         sales.value.balance_amount = (sales.value.net_amount ?? 0) - (sales.value.paid_amount ?? 0); 
@@ -460,6 +460,8 @@ export default defineComponent({
                             is_locked.value = true;
                         }
                     }
+                }else{
+                    await presentToast(`Total Amount is ${ sales.value.total_amount}`)
                 }
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`)

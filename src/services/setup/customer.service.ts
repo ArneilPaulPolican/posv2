@@ -109,7 +109,7 @@ export const getLastCustomerCode = async (): Promise<string> => {
   }
 }
 
-export const addCustomers = async (data: CUSTOMER, processedImageSavePath: string) => {
+export const addCustomers = async (data: CUSTOMER) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -132,7 +132,7 @@ export const addCustomers = async (data: CUSTOMER, processedImageSavePath: strin
         customer_code, data.customer, data.contact_number,
         data.contact_person, data.credit_limit, data.category,
         data.address, data.tin,
-        data.reward_number, processedImageSavePath,
+        data.reward_number, ''
       ];
     const res = await db.query(customerServiceQuery, values);
     const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';

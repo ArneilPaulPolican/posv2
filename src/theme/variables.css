@@ -235,7 +235,7 @@ http://ionicframework.com/docs/theming/ */
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 60px;
+    height: 40px;
   }
   
   .icon-label-wrapper ion-icon {

@@ -1,6 +1,11 @@
 import { Photo } from "@capacitor/camera";
-import { UserPhoto } from "./usePhotoGallery";
+// import { UserPhoto } from "./usePhotoGallery";
 import { Directory, Filesystem } from "@capacitor/filesystem";
+
+export interface UserPhoto {
+  filepath: string;
+  webviewPath?: string;
+}
 
 export const savePicture = async (photo: Photo, fileName: string): Promise<UserPhoto> => {
     let base64Data: string;
@@ -32,5 +37,5 @@ export const savePicture = async (photo: Photo, fileName: string): Promise<UserP
         resolve(reader.result);
       };
       reader.readAsDataURL(blob);
-    });
-    
+    }
+  );

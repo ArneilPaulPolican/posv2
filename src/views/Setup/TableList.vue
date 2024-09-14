@@ -3,7 +3,7 @@
     <ion-page>
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
             <ion-nav-link router-direction="forward">
-                <ion-fab-button size="small" @click="openItemDetailForm">
+                <ion-fab-button size="small" @click="addNewTable">
                     <ion-icon :icon="icons.addSharp"></ion-icon>
                 </ion-fab-button>
             </ion-nav-link>
@@ -32,7 +32,7 @@ import { presentToast } from '@/composables/toast.service';
 import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
 import router from '@/router';
-import { getTables } from '@/services/setup/table.service';
+import { addTable, getTables } from '@/services/setup/table.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, markRaw, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -84,11 +84,18 @@ export default defineComponent({
             throw new Error('Function not implemented.');
         };
         const handleEdit = (table: any) => {
-            router.push(`/Setup/Table/Details/${table.id}`);
+            router.push(`/setup/table/details/${table.id}`);
         };
         
-        const openItemDetailForm = async() => {
-            router.push(`/Setup/Table/Details/0`);
+        const addNewTable = async() => {
+            try {
+                const result = await addTable();
+                if(result.success){
+                    router.push(`/setup/table/details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
         
         async function fetchList() {
@@ -111,7 +118,7 @@ export default defineComponent({
             icons,
             tables,
 
-            openItemDetailForm,
+            addNewTable,
             openActionSheet
         }
     },

@@ -1,34 +1,54 @@
 <template>
     <ion-page>
         
-        <ion-item>
-            
-            <ion-buttons slot="start">
-                <ion-back-button default-href="/"></ion-back-button>
-            </ion-buttons>
-            <!-- <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon> -->
-            <ion-button slot="end" size="medium" expand="block" style="height: 100%">
-                <ion-label>Save</ion-label>
+        <ion-item>  
+            <ion-button size="medium" expand="block" style="height: 90%"
+                @click="handleReturn">
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                    <ion-label>Back</ion-label>
+                </div>
             </ion-button>
+            <ion-button size="medium" expand="block" style="height: 90%"
+                @click="handleSave">
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.saveSharp"></ion-icon>
+                    <ion-label>Save</ion-label>
+                </div>
+            </ion-button> 
+            
+            <ion-button v-if="!is_locked" size="medium" expand="block" style="height: 90%" @click="handleLock()">
+                <div class="icon-label-wrapper">
+                    <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>
+                    <ion-label>Lock</ion-label>
+                </div>
+            </ion-button>
+            <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%" @click="handleUnlock()">
+                <div class="icon-label-wrapper">
+                    <ion-icon  :icon="icons.lockClosedSharp"></ion-icon>
+                    <ion-label>Unlock</ion-label>
+                </div>
+            </ion-button>         
         </ion-item>
+
         <ion-content :fullscreen="true">
             <ion-list :inset="true" style="margin: px">
                 <div style="padding: 5px;">
                     <ion-item>
                         <ion-label position="stacked">Table Code :</ion-label>
-                        <ion-input v-model="table.table_code" placeholder="Enter Tax Code"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="table.table_code" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Table :</ion-label>
-                        <ion-input v-model="table.table_name" placeholder="Enter Tax Code"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="table.table_name" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">Category :</ion-label>
-                        <ion-input v-model="table.category" placeholder="Enter Tax Code"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="table.category" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label position="stacked">pax :</ion-label>
-                        <ion-input v-model="table.pax" placeholder="Enter Tax Code"></ion-input>
+                        <ion-input :disabled="is_locked" v-model="table.pax" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     
                     <ion-item>
@@ -45,7 +65,7 @@ import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
 import { presentToast } from '@/composables/toast.service';
 import router from '@/router';
-import { getTableById, getTables } from '@/services/setup/table.service';
+import { getTableById, getTables, lockTable, unlockTable, updateTable } from '@/services/setup/table.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, markRaw, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -68,9 +88,46 @@ export default defineComponent({
         const router = useRouter();
         const route = useRoute();
         const table_id = ref(0)
+        const is_locked = ref(false);
         
-        const openItemDetailForm = async() => {
-            router.push(`/Setup/Table/Details/0`);
+        const handleReturn = async() => {
+            router.push(`/setup/tables`);
+        }
+
+        
+        async function handleSave() {
+            try {
+                const result = await updateTable(table.value);
+                if(result.success){
+                    await presentToast('Table Unlock successfully!')
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
+        }
+
+        async function handleUnlock() {
+            try {
+                const result = await unlockTable(table.value);
+                if(result.success){
+                    is_locked.value = false;
+                    await presentToast('Table Unlock successfully!')
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
+        }
+
+        async function handleLock() {
+            try {
+                const result = await lockTable(table.value);
+                if(result.success){
+                    is_locked.value = true;
+                    await presentToast('Table Lock successfully!')
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
         
         async function fetchDetails() {
@@ -101,8 +158,12 @@ export default defineComponent({
         return{
             icons,
             table,
+            is_locked,
 
-            openItemDetailForm,
+            handleReturn,
+            handleUnlock,
+            handleLock,
+            handleSave
         }
     },
 });
