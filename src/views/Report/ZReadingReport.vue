@@ -15,27 +15,27 @@
                     </ion-item>
                     <ion-item>
                         <ion-label>Gross Sales (Net of VAT)</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-input slot="end" readonly v-model="z_reading.gross_sales"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Regular Discount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-input slot="end" readonly v-model="z_reading.regular_discount"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label>Seniorr Discount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-label>Senior Discount</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.senior_discount"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>PWD Discount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-input slot="end" readonly v-model="z_reading.pwd_discount"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Sales Return</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-input slot="end" readonly v-model="z_reading.sales_return"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Net Sales</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-input slot="end" readonly v-model="z_reading.net_sales"></ion-input>
                     </ion-item>
                 </div>
             </ion-list>
@@ -44,11 +44,11 @@
                 <div>
                     <ion-item>
                         <ion-label>Cash</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-input slot="end" readonly ></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Refund</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.cancelled_amount"></ion-input>
+                        <ion-input slot="end" readonly ></ion-input>
                     </ion-item>
                 </div>
             </ion-list>
@@ -222,26 +222,21 @@ export default defineComponent({
                 let z_read_count =0;
 
                 const result = await getCollectionForZRead(z_reading_date.value)
-                console.log('getCollectionForZRead',result.data);
 
-                if(result.success){
-                    result.data?.forEach(async (item) => {
-                        console.log(item.amount)
-                        _total_collection += item.amount;
+                if(result.success && result.data){
+                    for (const item of result.data) {
+                        _total_collection += item.total_amount;
                         const collection_line_result = await getCollectionLineByCollectionId(item.id)
                         if(collection_line_result.success && collection_line_result.data){
-                            collection_line_result.data?.forEach(async (lines) => {
+                            for (const lines of collection_line_result.data) {
                                 collection_lines.push({ paytype: lines.paytype, amount: lines.amount })
-                            });
+                            }
                         }
 
-                        console.log(`Sales Id ${item.sales_id}`);
                         const sales_result = await getSalesById(item.sales_id)
                         if(sales_result.success && sales_result.data){
                             _total_trx +=1;
                             _total_gros_sales += sales_result.data.total_amount;
-                            // if (!sales_result.data.discount.toLowerCase().includes('pwd') &&
-                            //     !sales_result.data.discount.toLowerCase().includes('senior')) 
                             if(sales_result.data.discount.toLowerCase().includes('senior')){
                                 _total_senior_discount += sales_result.data.discount_amount;
                             }else if(sales_result.data.discount.toLowerCase().includes('pwd')){
@@ -256,19 +251,29 @@ export default defineComponent({
                             if(sales_result.data.is_cancelled) _total_cancelled_trx +=1;
                             if(sales_result.data.is_cancelled) _total_cancelled_amount += sales_result.data.total_amount;
 
-                            console.log(`Sales`,sales_result.data)
                             const sales_item_result = await getSalesItemBySalesId(item.sales_id)
                             if(sales_item_result.success){
-                                console.log(`Sales Item `,sales_item_result.data)
                                 // loop through sales items
-                                sales_item_result.data?.forEach(async (sales_item) => {
+                                for (const sales_item of sales_item_result.data) {
                                     _total_no_of_sku += 1
                                     _total_quantity += sales_item.quantity;
-                                });
+
+                                    if((sales_item.tax_amount?? 0) > 0){
+                                        _total_vatable_sales += (sales_item.amount??0);
+                                        _total_vat_amount += (sales_item.tax_amount??0);
+                                    } else if(sales_item.tax.toLowerCase().includes('non')){
+                                        _total_non_vat_amount += (sales_item.amount??0);
+                                    } else if(sales_item.tax.toLowerCase().includes('exempt')){
+                                        _total_vat_exempt_amount += (sales_item.amount??0);
+                                    }else if(sales_item.tax.toLowerCase().includes('zero')){
+                                        _total_zero_vat_amount += (sales_item.amount??0);
+                                    }
+                                    _total_vat += sales_item.tax_amount??0;
+                                }
                             }
                         }
-                    });
-                    console.log(`finalization`)
+                    }
+
 
                     z_reading.value.z_reading_date = z_reading_date.value;
                     z_reading.value.gross_sales = _total_gros_sales;
@@ -278,7 +283,7 @@ export default defineComponent({
                     z_reading.value.sales_return = _total_sales_return;
                     z_reading.value.net_sales = _total_net_sales;
                     z_reading.value.collections = '';
-                    z_reading.value.total_collection = _total_collection;
+                    z_reading.value.total_collection = _total_collection; 
                     z_reading.value.vat_sales = _total_vatable_sales;
                     z_reading.value.vat_amount = _total_vat_amount;
                     z_reading.value.non_vat = _total_non_vat_amount;
@@ -286,8 +291,8 @@ export default defineComponent({
                     z_reading.value.vat_zero_rated = _total_zero_vat_amount;
                     z_reading.value.total_vat_analysis = _total_vat;
                     if (z_counter.length > 0) {
-                        z_reading.value.counter_id_start = z_counter[0];
-                        z_reading.value.counter_id_end= z_counter[z_counter.length - 1];
+                        z_reading.value.counter_id_start = z_counter[z_counter.length - 1];
+                        z_reading.value.counter_id_end= z_counter[0];
                     }
 
                     z_reading.value.cancelled_transaction = _total_cancelled_trx;
@@ -307,7 +312,6 @@ export default defineComponent({
                         z_reading.value.ans_accumulated_net_sales = prev_reading.data.ans_accumulated_net_sales + _total_net_sales;
                     }
 
-                    console.log('zreading', z_reading)
                     
                 }
             } catch (error) {

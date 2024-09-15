@@ -38,8 +38,8 @@ export const netPrice = async (item: ITEM_DTO, sales: SALES_DTO) => {
             _net_price = item.price;
             _net_price = _net_price - (_net_price * _discount_rate)
         }
-        _net_price = parseFloat(_net_price.toFixed(2));
     }
+    _net_price = parseFloat(_net_price.toFixed(2));
 
     return _net_price;
 }
@@ -54,10 +54,11 @@ export const computeVAT = async (quantity:number, item: ITEM_DTO) => {
         const _vat_ex_net_price = item.price * (1 + _vat_rate); // if vat exclusive
     
     
+        console.log(`_vat_in_net_price ${_vat_in_net_price} and _vat_ex_net_price ${_vat_ex_net_price}`)
         if(item.is_vat_inclusive){
             _vat_amount = parseFloat((item.price - _vat_in_net_price).toFixed(2));
         }else{
-            _vat_amount = parseFloat((item.price -_vat_ex_net_price).toFixed(2));
+            _vat_amount = parseFloat((_vat_ex_net_price - item.price).toFixed(2));
         }
     }
     return _vat_amount

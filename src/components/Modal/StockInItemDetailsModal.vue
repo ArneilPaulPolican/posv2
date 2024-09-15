@@ -35,11 +35,13 @@
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Cost</ion-label>
-                                <ion-input @ionInput="updateAmount()" type="number" v-model="stock_in_item_local.cost" placeholder="0.00"></ion-input>
+                                <!-- <ion-input @ionInput="updateAmount()" type="number" v-model="stock_in_item_local.cost" placeholder="0.00"></ion-input> -->
+                                <InputFloat :amount="stock_in_item_local.cost" @update="(floatValue) => stock_in_item_local.cost = floatValue" @ionInput="updateAmount()"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Quantity</ion-label>
-                                <ion-input v-model="stock_in_item_local.quantity" placeholder="0.00"></ion-input>
+                                <!-- <ion-input v-model="stock_in_item_local.quantity" placeholder="0.00"></ion-input> -->
+                                <InputFloat :amount="stock_in_item_local.quantity" @update="(floatValue) => stock_in_item_local.quantity = floatValue" @ionInput="updateAmount()"></InputFloat>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -47,7 +49,8 @@
                         <ion-row>
                             <ion-col>
                                 <ion-label position="stacked">Amount</ion-label>
-                                <ion-input readonly v-model="stock_in_item_local.amount" placeholder="0.00"></ion-input>
+                                <!-- <ion-input readonly v-model="stock_in_item_local.amount" placeholder="0.00"></ion-input> -->
+                                <InputFloat :amount="stock_in_item_local.amount" @update="(floatValue) => stock_in_item_local.amount = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
 
@@ -67,9 +70,13 @@ import ITEM_DTO from '@/models/item.model';
 import { getItemById } from '@/services/setup/item.service';
 import { STOCK_IN_ITEMS_DTO } from '@/models/stock-in-item.model';
 import { updateStockInItem } from '@/services/activity/stock-in-items.service';
+import InputFloat from '../InputFloat.vue';
 
   
 export default defineComponent({
+    components: { 
+        InputFloat
+    },
     props: {
         stock_in: {
             type: Object,

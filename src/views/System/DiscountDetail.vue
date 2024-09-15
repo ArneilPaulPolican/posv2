@@ -26,7 +26,8 @@
                         <ion-row>
                             <ion-col>
                                 <ion-label position="stacked">Rate :</ion-label>
-                                <ion-input v-model="discount.discount_rate"  type="number" placeholder="0.00"></ion-input>
+                                <!-- <ion-input v-model="discount.discount_rate"  type="number" placeholder="0.00"></ion-input> -->
+                                <InputFloat :amount="discount.discount_rate" @update="(floatValue) => discount.discount_rate = floatValue"></InputFloat>
                             </ion-col>
                             <ion-col>
                                 <!-- <ion-label position="stacked">Is Vat Inclusive  :</ion-label>&nbsp; -->
@@ -56,11 +57,13 @@ import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { DISCOUNT } from '@/models/discount.model';
 import { Lock } from '@/services/lock';
 import { presentToast } from '@/composables/toast.composables';
+import InputFloat from '@/components/InputFloat.vue';
 
 
 export default defineComponent({
     components:{
         // HeaderComponent
+        InputFloat
     },
     setup(){
         const router = useRouter();

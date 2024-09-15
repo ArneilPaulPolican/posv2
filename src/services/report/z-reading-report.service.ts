@@ -186,10 +186,8 @@ export const getSalesForZRead = async (id:string) => {
         const params = [id];
         
         const result = await db.query(saleServiceQuery,params);
-        console.log(result)
         return { success: true, data: result.values as SALES_DETAILS_REPORT_DTO[] }
     } catch (error) {
-      console.log(error)
       throw error;
     }
 }
@@ -206,14 +204,12 @@ export const getPreviousReading = async () => {
 
 
         const result = await db.query(query);
-        console.log(result)
         const data = (result.values ?? [])[0] as Z_READINGS;
         if (!data) {
           return { success: false, message: 'No previous reading found' };
         }
         return { success: true, data: data };
     } catch (error) {
-        console.log(error)
         throw error;
     }
 }

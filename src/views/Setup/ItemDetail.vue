@@ -60,7 +60,8 @@
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Price : </ion-label>
-                                <ion-input :disabled="is_locked" v-model="trimmedPrice" type="number" placeholder="Enter Price" ></ion-input>
+                                <!-- <ion-input :disabled="is_locked" v-model="trimmedPrice" type="number" placeholder="Enter Price" ></ion-input> -->
+                                <InputFloat :disabled="is_locked" :amount="item.price" @update="(floatValue) => item.price = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -68,11 +69,13 @@
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Cost :</ion-label>
-                                <ion-input :disabled="is_locked" v-model="item.cost" type="number" placeholder="Enter Cost" ></ion-input>
+                                <!-- <ion-input :disabled="is_locked" v-model="item.cost" type="number" placeholder="Enter Cost" ></ion-input> -->
+                                <InputFloat :disabled="is_locked" :amount="item.cost" @update="(floatValue) => item.cost = floatValue"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Onhand Quantity :</ion-label>
-                                <ion-input v-model="item.quantity" type="number" placeholder="0.00" disabled></ion-input>
+                                <InputFloat :disabled="is_locked" :amount="item.quantity" @update="(floatValue) => item.quantity = floatValue"></InputFloat>
+                                <!-- <ion-input v-model="item.quantity" type="number" placeholder="0.00" disabled></ion-input> -->
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -150,12 +153,14 @@ import { onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/composables/toast.composables';
 import { reload } from 'ionicons/icons';
 import { usePhotoGallery } from '@/composables/image.composable';
+import InputFloat from '@/components/InputFloat.vue';
 
 
 export default defineComponent({
     components: { 
         UnitListModal,
         TaxListModal,
+        InputFloat
     },
     setup() {
         //#region VARIABLES

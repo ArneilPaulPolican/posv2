@@ -38,7 +38,8 @@
                         <ion-row>
                             <ion-col>
                                 <ion-label position="stacked">Rate Percentage (%):</ion-label>
-                                <ion-input v-model="tax.rate" type="number" placeholder="12"></ion-input>
+                                <!-- <ion-input v-model="tax.rate" type="number" placeholder="12"></ion-input> -->
+                                <InputFloat :amount="tax.rate" @update="(floatValue) => tax.rate = floatValue"></InputFloat>
                             </ion-col>
                             <!-- <ion-col >
                                 <ion-checkbox v-model="tax.is_inclusive" label-placement="start">Is Inclusive</ion-checkbox>
@@ -69,11 +70,13 @@ import { Lock } from '@/services/lock';
 import { TAX } from '@/models/tax.model';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/composables/toast.composables';
+import InputFloat from '@/components/InputFloat.vue';
 
 export default defineComponent({
     components: { 
         // HeaderComponent,
         AlertComponent,
+        InputFloat
     },
     setup(){
         const router = useRouter();

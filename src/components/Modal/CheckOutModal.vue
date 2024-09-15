@@ -24,11 +24,13 @@
                 <ion-row>
                     <ion-col size="6">
                         <ion-label position="stacked">Amount</ion-label>
-                        <ion-input @ionInput="computeChange()" v-model="amount" placeholder="0.00"></ion-input>
+                        <!-- <ion-input @ionInput="computeChange()" v-model="amount" placeholder="0.00"></ion-input> -->
+                        <InputFloat :amount="amount" @update="(floatValue) => amount = floatValue" @ionInput="computeChange()"></InputFloat>
                     </ion-col>
                     <ion-col size="6">
                         <ion-label position="stacked">Change</ion-label>
-                        <ion-input v-model="change" placeholder="0.00"></ion-input>
+                        <!-- <ion-input readonly v-model="change" placeholder="0.00"></ion-input> -->
+                        <InputFloat readonly :amount="change" @update="(floatValue) => change = floatValue"></InputFloat>
                     </ion-col>
                 </ion-row>
             </ion-item>
@@ -52,9 +54,13 @@ import { defineComponent, onMounted, ref, toRefs } from 'vue';
 import { getLastCollectionNumber } from '@/services/activity/collection.service';
 import { onPaymentSubmitUpdateSalesBalance } from '@/composables/payment.composable';
 import { SALES_DTO } from '@/models/sales.model';
+import InputFloat from '../InputFloat.vue';
 
 
 export default defineComponent({
+    components: { 
+        InputFloat
+    },
     props: {
         sales: {
             type: Object,

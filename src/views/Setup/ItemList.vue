@@ -24,17 +24,18 @@
                     </ion-item>
                     <ion-item>
                         <ion-avatar aria-hidden="true" slot="start">
-                            <!-- <ion-icon aria-hidden="true" slot="start" :name="icons.imageOutline"></ion-icon> -->
                             <img :src="item.image_path" />
                         </ion-avatar>
                         <ion-label>
                             <p>{{ item.item_code }}</p>
                             <p>{{ item.bar_code }}</p>
+                            <p v-if="item.is_locked">Locked</p><p v-else>Unlocked</p>
                         </ion-label>
                         <ion-label slot="end">
-                            <p v-if="item.is_locked">Locked</p><p v-else>Unlocked</p>
                             <p v-if="item.is_inventory">Inv.</p> <p v-else>Non-Inv.</p>
                             <p>Qty: {{ item.quantity }}</p>
+                            <p>Cost: {{ item.cost }}</p>
+                            <p>Price: {{ item.price }}</p>
                         </ion-label>
                     </ion-item>
                  </div>

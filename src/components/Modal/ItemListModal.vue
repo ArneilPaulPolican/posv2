@@ -73,7 +73,6 @@ import { defineComponent, onMounted, reactive, ref, toRefs } from 'vue';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { getItems } from '@/services/setup/item.service';
-import NumberInput from '../NumberInput.vue';
 import { presentToast } from '@/composables/toast.composables';
 import { computeVAT, discountPerQuantity, netPrice } from '@/composables/sales.composable';
 import { SALES_DTO } from '@/models/sales.model';
@@ -82,7 +81,6 @@ import { STOCK_OUT_ITEMS_DTO } from '@/models/stock-out-item.model';
 
 export default defineComponent({
     components:{
-        NumberInput
     },
     props: {
         sales: {

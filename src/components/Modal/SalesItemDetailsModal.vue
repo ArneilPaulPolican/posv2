@@ -28,6 +28,24 @@
                         <ion-input v-model="sales_item_local.item_description" placeholder="No Discount"></ion-input>
                     </ion-item>
                     <ion-item>
+                        <ion-label position="stacked">VAT</ion-label>
+                        <ion-input readonly v-model="sales_item_local.tax" placeholder="No Discount"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-row>
+                            <ion-col size="6">
+                                <ion-label position="stacked">VAT Rate</ion-label>
+                                <!-- <ion-input readonly v-model="sales_item_local.discount_rate" placeholder="No. PAX"></ion-input> --><span></span>
+                                <InputFloat readonly :amount="sales_item_local.tax_rate" @update="(floatValue) => sales_item_local.tax_rate = floatValue"></InputFloat>
+                            </ion-col>
+                            <ion-col size="6">
+                                <ion-label position="stacked">VAT Amount</ion-label>
+                                <!-- <ion-input  readonly v-model="sales_item_local.discount_amount" placeholder="NEW"></ion-input> -->
+                                <InputFloat readonly :amount="sales_item_local.tax_amount" @update="(floatValue) => sales_item_local.tax_amount = floatValue"></InputFloat>
+                            </ion-col>
+                        </ion-row>
+                    </ion-item>
+                    <ion-item>
                         <ion-label position="stacked">Discount</ion-label>
                         <ion-input readonly v-model="sales_item_local.discount" placeholder="No Discount"></ion-input>
                     </ion-item>
@@ -35,11 +53,13 @@
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Disc. Rate</ion-label>
-                                <ion-input readonly v-model="sales_item_local.discount_rate" placeholder="No. PAX"></ion-input>
+                                <!-- <ion-input readonly v-model="sales_item_local.discount_rate" placeholder="No. PAX"></ion-input> -->
+                                <InputFloat readonly :amount="sales_item_local.discount_rate" @update="(floatValue) => sales_item_local.discount_rate = floatValue"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Disc. Amount</ion-label>
-                                <ion-input  readonly v-model="sales_item_local.discount_amount" placeholder="NEW"></ion-input>
+                                <!-- <ion-input  readonly v-model="sales_item_local.discount_amount" placeholder="NEW"></ion-input> -->
+                                <InputFloat readonly :amount="sales_item_local.discount_amount" @update="(floatValue) => sales_item_local.discount_amount = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -47,11 +67,13 @@
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Price</ion-label>
-                                <ion-input @ionInput="updateAmount" v-model="sales_item_local.price" placeholder="No. PAX"></ion-input>
+                                <!-- <ion-input @ionInput="updateAmount" v-model="sales_item_local.price" placeholder="No. PAX"></ion-input> -->
+                                <InputFloat :amount="sales_item_local.price" @update="(floatValue) => sales_item_local.price = floatValue" @ionInput="updateAmount"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Quantity</ion-label>
-                                <ion-input v-model="sales_item_local.quantity" placeholder="NEW"></ion-input>
+                                <!-- <ion-input v-model="sales_item_local.quantity" placeholder="NEW"></ion-input> -->
+                                <InputFloat :amount="sales_item_local.quantity" @update="(floatValue) => sales_item_local.quantity = floatValue" @ionInput="updateAmount"></InputFloat>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -59,11 +81,13 @@
                         <ion-row>
                             <ion-col size="6">
                                 <ion-label position="stacked">Net Price</ion-label>
-                                <ion-input readonly v-model="sales_item_local.net_price" placeholder="0.00"></ion-input>
+                                <!-- <ion-input readonly v-model="sales_item_local.net_price" placeholder="0.00"></ion-input> -->
+                                <InputFloat readonly :amount="sales_item_local.net_price" @update="(floatValue) => sales_item_local.net_price = floatValue"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Amount</ion-label>
-                                <ion-input readonly v-model="sales_item_local.amount" placeholder="0.00"></ion-input>
+                                <!-- <ion-input readonly v-model="sales_item_local.amount" placeholder="0.00"></ion-input> -->
+                                <InputFloat readonly :amount="sales_item_local.amount" @update="(floatValue) => sales_item_local.amount = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
 
@@ -81,13 +105,18 @@ import { presentToast } from '@/composables/toast.composables';
 import { getSalesItemById, updateSalesItem } from '@/services/activity/sales-item.service';
 import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref, toRefs, watch } from 'vue';
-import { discountPerQuantity, netPrice } from '@/composables/sales.composable';
+import { computeVAT, discountPerQuantity, netPrice } from '@/composables/sales.composable';
 import { SALES_DTO } from '@/models/sales.model';
 import ITEM_DTO from '@/models/item.model';
 import { getItemById } from '@/services/setup/item.service';
+import InputFloat from '../InputFloat.vue';
 
   
 export default defineComponent({
+    components: { 
+        InputFloat
+    },
+
     props: {
         sales: {
             type: Object,
@@ -193,6 +222,7 @@ export default defineComponent({
             sales_item_local.value.net_price = _net_price;
             _net_amount = parseFloat((_qty * _net_price).toFixed(2))
             sales_item_local.value.amount = _net_amount;
+            sales_item_local.value.tax_amount = await computeVAT(_qty, item.value as ITEM_DTO)
             sales_item_local.value.discount_amount = await discountPerQuantity(_qty, item.value as ITEM_DTO, sales.value as SALES_DTO ) * _qty;
         }
         async function fetchDetails(){
