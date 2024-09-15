@@ -60,7 +60,7 @@
                             </ion-col>
                             <ion-col size="6">
                                 <ion-label position="stacked">Price : </ion-label>
-                                <ion-input :disabled="is_locked" v-model="item.price" type="number" placeholder="Enter Price" ></ion-input>
+                                <ion-input :disabled="is_locked" v-model="trimmedPrice" type="number" placeholder="Enter Price" ></ion-input>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -147,9 +147,9 @@ import ITEM_DTO, { ITEM } from '@/models/item.model';
 import UnitListModal from '@/components/Modal/UnitListModal.vue';
 import TaxListModal from '@/components/Modal/TaxListModal.vue';
 import { onIonViewDidEnter } from '@ionic/vue';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { reload } from 'ionicons/icons';
-import { usePhotoGallery } from '@/composables/image-composable';
+import { usePhotoGallery } from '@/composables/image.composable';
 
 
 export default defineComponent({
@@ -205,6 +205,10 @@ export default defineComponent({
         function handleBackButton(){
             router.push(`/Setup/Items`);
         }
+
+        // const trimLeadingZero = async (value: string) => {
+        //     return value.replace(/^0+/g, '');
+        // }
         
         function openUnitModal(isOpen: boolean) {
             if(!is_locked){
@@ -382,6 +386,17 @@ export default defineComponent({
 
             captureImage,
             retreiveImage,
+            // trimLeadingZero
+        }
+    },
+    computed: {
+        trimmedPrice: {
+            get() {
+                return this.item.price.toString().replace(/^0+/g, '');
+            },
+            set(value: string) {
+                this.item.price = parseFloat(value);
+            }
         }
     }
 });

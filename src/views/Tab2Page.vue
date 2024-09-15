@@ -41,7 +41,7 @@ import { generateSales, generateZReading } from '@/composables/pdf-generator';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 import { SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { getInventoryReport } from '@/services/sys-inventory.service';
 import { generateInventoryReport } from '@/services/report/sys-inventory-report.service';
 

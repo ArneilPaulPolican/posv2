@@ -77,11 +77,11 @@
   
 <script lang="ts">
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { getSalesItemById, updateSalesItem } from '@/services/activity/sales-item.service';
 import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref, toRefs, watch } from 'vue';
-import { discountPerQuantity, netPrice } from '@/composables/sales-composable';
+import { discountPerQuantity, netPrice } from '@/composables/sales.composable';
 import { SALES_DTO } from '@/models/sales.model';
 import ITEM_DTO from '@/models/item.model';
 import { getItemById } from '@/services/setup/item.service';

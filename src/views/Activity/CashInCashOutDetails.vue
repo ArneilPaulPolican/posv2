@@ -161,7 +161,7 @@
 </template>
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { CASH_IN_OUTS_DTO } from '@/models/cashin-cashout.model';
 import { icons } from '@/plugins/icons';
 import { generateCashInCashOutReceipt } from '@/services/activity/cash-in-cash-out-receipt.service';

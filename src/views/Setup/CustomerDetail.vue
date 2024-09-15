@@ -112,8 +112,8 @@ import { Lock } from '@/services/lock';
 import { CUSTOMER } from '@/models/customer.model';
 import { addCustomers, getCustomerById, getLastCustomerCode, lockCustomers, unlockCustomers, updateCustomers } from '@/services/setup/customer.service';
 import { onIonViewDidEnter } from '@ionic/vue';
-import { presentToast } from '@/composables/toast.service';
-import { usePhotoGallery } from '@/composables/image-composable';
+import { presentToast } from '@/composables/toast.composables';
+import { usePhotoGallery } from '@/composables/image.composable';
 
 export default defineComponent({
     components: { 

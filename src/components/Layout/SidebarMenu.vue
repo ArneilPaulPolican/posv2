@@ -51,7 +51,7 @@
 
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { SYS_SETTINGS } from '@/models/system-settings.model';
 import { icons } from '@/plugins/icons';
 import { defineComponent, onBeforeMount, onMounted, ref, toRaw } from 'vue';

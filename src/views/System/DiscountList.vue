@@ -33,7 +33,7 @@ import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { DISCOUNT } from '@/models/discount.model';
 import { getDiscounts } from '@/services/system/discount.service';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
     components:{

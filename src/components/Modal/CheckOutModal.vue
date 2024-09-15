@@ -45,12 +45,12 @@ import { COLLECTIONS_LINES, COLLECTIONS_LINES_DTO } from '@/models/collection-li
 import { COLLECTIONS, COLLECTIONS_DTO } from '@/models/collections.model';
 import { PAYTYPE } from '@/models/paytype.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { getPaytypes } from '@/services/system/paytype.service';
 import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref, toRefs } from 'vue';
 import { getLastCollectionNumber } from '@/services/activity/collection.service';
-import { onPaymentSubmitUpdateSalesBalance } from '@/composables/payment-composable';
+import { onPaymentSubmitUpdateSalesBalance } from '@/composables/payment.composable';
 import { SALES_DTO } from '@/models/sales.model';
 
 

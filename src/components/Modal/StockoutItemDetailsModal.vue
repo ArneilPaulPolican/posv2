@@ -60,7 +60,7 @@
 </template>
   
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref, toRefs, watch } from 'vue';
 import ITEM_DTO from '@/models/item.model';

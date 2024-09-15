@@ -41,7 +41,7 @@
 <script lang="ts">
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { deleteSales, getOpenSales, getSales } from '@/services/activity/sales.service';
 import { onIonViewDidEnter, actionSheetController, toastController } from '@ionic/vue';
 import { defineComponent, inject, onActivated, onMounted, ref } from 'vue';

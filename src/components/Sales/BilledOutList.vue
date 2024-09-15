@@ -40,7 +40,7 @@
 <script lang="ts">
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { cancelSales, getBilledSales, getOpenSales, getSales } from '@/services/activity/sales.service';
 import { onIonViewDidEnter, actionSheetController } from '@ionic/vue';
 import { defineComponent, onActivated, onMounted, ref } from 'vue';
@@ -96,6 +96,7 @@ export default defineComponent({
                 const result = await cancelSales(sales)
                 if(result.success){
                     await presentToast('Cancelation successful')
+                    await fetchData()
                 }else{
                     await presentToast('Cancelation failed')
                 }

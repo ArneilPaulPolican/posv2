@@ -90,7 +90,7 @@
                 </ion-item>
                 <ion-item>
                     <ion-label position="stacked">Serial No.</ion-label>
-                    <ion-input v-model="company.pos_serial_number" placeholder="01ExampleSerial"></ion-input>
+                    <ion-input readonly v-model="company.pos_serial_number" placeholder="01ExampleSerial"></ion-input>
                 </ion-item>
             </ion-list>
         </ion-content>
@@ -98,12 +98,12 @@
 </template>
 <script lang="ts">
 import { icons } from '../../plugins/icons';
-import { presentToast } from '../../composables/toast.service';
+import { presentToast } from '../../composables/toast.composables';
 import { SYS_SETTINGS } from '../../models/sys-settings.model';
 import { getSystemSettings, updateCompanyLogo, updateSystemSettings } from '../../services/settings/system-settings.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
-import { usePhotoGallery } from '../../composables/image-composable';
+import { usePhotoGallery } from '../../composables/image.composable';
 import { useRouter } from 'vue-router';
 import { Storage } from '@capacitor/storage';
 

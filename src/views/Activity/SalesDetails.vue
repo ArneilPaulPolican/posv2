@@ -1,6 +1,5 @@
 <template>
     <ion-page>
-        <!-- <HeaderComponent :title="header"/> -->
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
             <ion-fab-button :disabled="is_locked" size="small" position="stacked"  @click="openItemModal">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
@@ -40,10 +39,10 @@
                         <ion-label>Unlock</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="is_locked && !sales.is_billed_out" size="medium" expand="block" style="height: 90%" @click="handleBillOut()">
+                <ion-button v-if="is_locked && !is_billed_out" size="medium" expand="block" style="height: 90%" @click="handleBillOut()">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.receiptSharp"></ion-icon>
-                        <ion-label>Bill</ion-label>
+                        <ion-label>Bill out</ion-label>
                     </div>
                 </ion-button>
                 <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%" @click="handlePrint()">
@@ -52,7 +51,7 @@
                         <ion-label>Print</ion-label>
                     </div>
                 </ion-button>
-                <ion-button v-if="!sales.is_cancelled && is_locked && sales.is_billed_out" @click="confirmReturn" size="medium" expand="block" style="height: 90%">
+                <ion-button v-if="!sales.is_cancelled && is_locked && is_billed_out" @click="confirmReturn" size="medium" expand="block" style="height: 90%">
                     <div class="icon-label-wrapper">
                         <ion-icon :icon="icons.closeCircle"></ion-icon>
                         <ion-label>Cancel</ion-label>
@@ -194,7 +193,7 @@ import { addBulkSalesItem, deleteSalesItem, getSalesItemBySalesId, updatebULKSal
 import { generateSales } from '@/composables/pdf-generator';
 import { disc } from 'ionicons/icons';
 import { DISCOUNT_DTO } from '@/models/discount.model';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { onLockRecordInventory, onUnlockUpdateItemInventory } from '@/composables/inventory';
 
 
@@ -494,8 +493,8 @@ export default defineComponent({
                 if(sales.value.net_amount > 0){
                     const response = await billOutSales(sales.value);
                     if(response.success){
-                        await presentToast('Sales successfully billed out!');
                         is_billed_out.value = true;
+                        await presentToast('Sales successfully billed out!');
                     }else{
                         await presentToast('Failed to bill out sales')
                     }
@@ -570,6 +569,7 @@ export default defineComponent({
             sales_item,
             icons,
             is_locked,
+            is_billed_out,
             open_customer_modal,
             open_discount_modal,
             open_item_modal,

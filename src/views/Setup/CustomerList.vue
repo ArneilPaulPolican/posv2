@@ -39,7 +39,7 @@ import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { CUSTOMER } from '@/models/customer.model';
 import { addCustomers, deleteCustomer, getCustomers } from '@/services/setup/customer.service';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
     components: { 

@@ -58,7 +58,7 @@ import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { Lock } from '@/services/lock';
 import { PAYTYPE } from '@/models/paytype.model';
 import { getPaytypesById } from '@/services/system/paytype.service';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
     components: { 

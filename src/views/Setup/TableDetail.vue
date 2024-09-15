@@ -63,7 +63,7 @@
 <script lang="ts">
 import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import router from '@/router';
 import { getTableById, getTables, lockTable, unlockTable, updateTable } from '@/services/setup/table.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';

@@ -68,7 +68,7 @@ import { addTax, getTaxes, getTaxesById, updateTax } from '@/services/system/tax
 import { Lock } from '@/services/lock';
 import { TAX } from '@/models/tax.model';
 import { onIonViewDidEnter } from '@ionic/vue';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
     components: { 

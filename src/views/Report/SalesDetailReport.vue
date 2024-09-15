@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { SALES_DETAILS_REPORT_DTO } from '@/models/sales-detail-report.model';
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';

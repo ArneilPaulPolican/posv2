@@ -92,7 +92,7 @@
 <script lang="ts">
 import { STOCK_OUT, STOCK_OUT_DTO } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import {  deleteStockOut, getStockOutById, lockStockOut, unlockStockOut, updateStockOut } from '@/services/activity/stock-out.service';
 import { actionSheetController, modalController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, readonly, ref } from 'vue';

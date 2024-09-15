@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import USER from '@/models/user.model';
 import { authenticateUser } from '@/services/settings/user.service';
 import { defineComponent, ref } from 'vue';

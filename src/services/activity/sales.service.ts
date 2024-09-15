@@ -198,7 +198,7 @@ export const getBilledSales = async () => {
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
       WHERE ${SALES_TABLE}.is_billed_out = 1 AND ${SALES_TABLE}.is_cancelled = 0
-      AND ${SALES_TABLE}.status <> 'paid'
+      AND ${SALES_TABLE}.balance_amount <> 0
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
       `;

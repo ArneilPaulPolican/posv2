@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { TABLE } from '@/models/table.model';
 import { icons } from '@/plugins/icons';
 import router from '@/router';

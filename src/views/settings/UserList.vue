@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import { icons } from '../../plugins/icons';
-import { presentToast } from '../../composables/toast.service';
+import { presentToast } from '../../composables/toast.composables';
 import USER from '../../models/user.model';
 import { getUsers } from '../../services/settings/user.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';

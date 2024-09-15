@@ -36,7 +36,7 @@
 <script lang="ts">
 import { TAX } from '@/models/tax.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { getTaxes } from '@/services/system/tax.service';
 import { defineComponent, onMounted, ref } from 'vue';
 

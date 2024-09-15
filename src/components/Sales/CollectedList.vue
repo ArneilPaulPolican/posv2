@@ -25,7 +25,8 @@
                         <p>{{ sales.customer }}</p>
                     </ion-label>
                     <ion-label slot="end" >
-                        <h2>Amnt: {{ sales.total_amount }}</h2>
+                        <h2>{{ sales.total_amount }}<ion-note>/Amnt.</ion-note></h2>
+                        <h2>{{ sales.balance_amount }}<ion-note>/Bal.</ion-note></h2>
                         <p>{{ sales.status }}</p>
                     </ion-label>
                 </ion-item>
@@ -38,7 +39,7 @@
 <script lang="ts">
 import { SALES_DTO } from '@/models/sales.model';
 import { icons } from '@/plugins/icons';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { getCollectedSales, getOpenSales, getSales } from '@/services/activity/sales.service';
 import { onIonViewDidEnter, actionSheetController } from '@ionic/vue';
 import { defineComponent, onActivated, onMounted, ref } from 'vue';

@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { STOCK_IN } from '@/models/stock-in.model';
 import { STOCK_OUT } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';

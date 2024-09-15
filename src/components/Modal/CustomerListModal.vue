@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { CUSTOMER } from '@/models/customer.model';
 import { icons } from '@/plugins/icons';
 import { getCustomers } from '@/services/setup/customer.service';

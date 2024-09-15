@@ -30,7 +30,7 @@ import { camera, trash, close } from 'ionicons/icons';
 import { defineComponent, onMounted, ref, watch } from 'vue';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { isPlatform } from '@ionic/vue';
-import { usePhotoGallery } from '@/composables/image-composable';
+import { usePhotoGallery } from '@/composables/image.composable';
 
 
 export default defineComponent( {

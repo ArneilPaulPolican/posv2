@@ -31,7 +31,7 @@ import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { PAYTYPE } from '@/models/paytype.model';
 import { getPaytypes } from '@/services/system/paytype.service';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
     components:{

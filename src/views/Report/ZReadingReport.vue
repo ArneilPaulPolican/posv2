@@ -83,12 +83,41 @@
                         <ion-input slot="end" readonly v-model="z_reading.vat_zero_rated"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label>Sales Return</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-label>Total</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.total_vat_analysis"></ion-input>
+                    </ion-item>
+                </div>
+            </ion-list>
+
+            <ion-list :inset="true" style="margin: 5px">
+                <div>
+                    <ion-item>
+                        <ion-label>Counter Id Start</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.counter_id_start"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label>Net Sales</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-label>Counter Id End</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.counter_id_end"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label>Cancelled Transaction</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.cancelled_transaction"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label>Cancelled Amount</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.cancelled_amount"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label>No. of Transaction</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.number_of_transaction"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label>No. of SKU</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.number_of_sku"></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label>Total Quantity</ion-label>
+                        <ion-input slot="end" readonly v-model="z_reading.total_quantity"></ion-input>
                     </ion-item>
                 </div>
             </ion-list>
@@ -97,13 +126,13 @@
 </template>
 
 <script lang="ts">
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 import { Z_READINGS } from '@/models/z-reading.model';
 import { icons } from '@/plugins/icons';
 import { getCollectionLineByCollectionId } from '@/services/activity/collection-lines.service';
 import { getSalesItemBySalesId } from '@/services/activity/sales-item.service';
 import { getSalesById } from '@/services/activity/sales.service';
-import { getCollectionForZRead, getSalesForZRead, getZReding } from '@/services/report/z-reading-report.service';
+import { getCollectionForZRead, getPreviousReading, getSalesForZRead, getZReding } from '@/services/report/z-reading-report.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 
@@ -193,11 +222,11 @@ export default defineComponent({
                 let z_read_count =0;
 
                 const result = await getCollectionForZRead(z_reading_date.value)
-                console.log(result.data);
+                console.log('getCollectionForZRead',result.data);
 
                 if(result.success){
                     result.data?.forEach(async (item) => {
-
+                        console.log(item.amount)
                         _total_collection += item.amount;
                         const collection_line_result = await getCollectionLineByCollectionId(item.id)
                         if(collection_line_result.success && collection_line_result.data){
@@ -227,10 +256,10 @@ export default defineComponent({
                             if(sales_result.data.is_cancelled) _total_cancelled_trx +=1;
                             if(sales_result.data.is_cancelled) _total_cancelled_amount += sales_result.data.total_amount;
 
-                            console.log(`Sales ${sales_result.data}`)
+                            console.log(`Sales`,sales_result.data)
                             const sales_item_result = await getSalesItemBySalesId(item.sales_id)
                             if(sales_item_result.success){
-                                console.log(`Sales Item ${sales_item_result.data}`)
+                                console.log(`Sales Item `,sales_item_result.data)
                                 // loop through sales items
                                 sales_item_result.data?.forEach(async (sales_item) => {
                                     _total_no_of_sku += 1
@@ -239,35 +268,47 @@ export default defineComponent({
                             }
                         }
                     });
+                    console.log(`finalization`)
 
                     z_reading.value.z_reading_date = z_reading_date.value;
-                    z_reading.value.gross_sales = 0;
-                    z_reading.value.regular_discount = 0;
-                    z_reading.value.senior_discount = 0;
-                    z_reading.value.pwd_discount = 0;
-                    z_reading.value.sales_return = 0;
-                    z_reading.value.net_sales = 0;
+                    z_reading.value.gross_sales = _total_gros_sales;
+                    z_reading.value.regular_discount = _total_regular_discount;
+                    z_reading.value.senior_discount = _total_regular_discount;
+                    z_reading.value.pwd_discount = _total_pwd_discount;
+                    z_reading.value.sales_return = _total_sales_return;
+                    z_reading.value.net_sales = _total_net_sales;
                     z_reading.value.collections = '';
-                    z_reading.value.total_collection = 0;
-                    z_reading.value.vat_sales = 0;
-                    z_reading.value.vat_amount = 0;
-                    z_reading.value.non_vat = 0;
-                    z_reading.value.vat_exempt = 0;
-                    z_reading.value.vat_zero_rated = 0;
-                    z_reading.value.total_vat_analysis = 0;
-                    z_reading.value.counter_id_start = '';
-                    z_reading.value.counter_id_end= '';
-                    z_reading.value.cancelled_transaction = 0;
-                    z_reading.value.cancelled_amount = 0;
-                    z_reading.value.number_of_transaction = 0;
-                    z_reading.value.number_of_sku = 0;
-                    z_reading.value.total_quantity = 0;
-                    z_reading.value.ags_previous_reading = 0;
-                    z_reading.value.ags_gross_sales = 0;
-                    z_reading.value.ags_accumulated_gross_sales = 0;
-                    z_reading.value.ans_previous_reading = 0;
-                    z_reading.value.ans_net_sales = 0;
-                    z_reading.value.ans_accumulated_net_sales = 0;
+                    z_reading.value.total_collection = _total_collection;
+                    z_reading.value.vat_sales = _total_vatable_sales;
+                    z_reading.value.vat_amount = _total_vat_amount;
+                    z_reading.value.non_vat = _total_non_vat_amount;
+                    z_reading.value.vat_exempt = _total_vat_exempt_amount;
+                    z_reading.value.vat_zero_rated = _total_zero_vat_amount;
+                    z_reading.value.total_vat_analysis = _total_vat;
+                    if (z_counter.length > 0) {
+                        z_reading.value.counter_id_start = z_counter[0];
+                        z_reading.value.counter_id_end= z_counter[z_counter.length - 1];
+                    }
+
+                    z_reading.value.cancelled_transaction = _total_cancelled_trx;
+                    z_reading.value.cancelled_amount = _total_cancelled_amount;
+                    z_reading.value.number_of_transaction = _total_trx;
+                    z_reading.value.number_of_sku = _total_no_of_sku;
+                    z_reading.value.total_quantity = _total_quantity;
+
+                    const prev_reading = await getPreviousReading()
+                    if(prev_reading.success && prev_reading.data){
+                        z_reading.value.ags_previous_reading = prev_reading.data.ags_accumulated_gross_sales;
+                        z_reading.value.ags_gross_sales = _total_gros_sales;
+                        z_reading.value.ags_accumulated_gross_sales = prev_reading.data.ags_accumulated_gross_sales + _total_gros_sales;
+                    
+                        z_reading.value.ans_previous_reading = prev_reading.data.ans_accumulated_net_sales;
+                        z_reading.value.ans_net_sales = _total_net_sales;
+                        z_reading.value.ans_accumulated_net_sales = prev_reading.data.ans_accumulated_net_sales + _total_net_sales;
+                    }
+
+                    console.log('zreading', z_reading)
+                    
                 }
             } catch (error) {
                 await presentToast(`Operation failed ${error}`)

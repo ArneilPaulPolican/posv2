@@ -62,7 +62,7 @@ import { addTax } from '@/services/system/tax.service';
 import { UNIT } from '@/models/unit.model';
 import { TAX } from '@/models/tax.model';
 import ItemDetail from './ItemDetail.vue';
-import { presentToast } from '@/composables/toast.service';
+import { presentToast } from '@/composables/toast.composables';
 
 // Define the interface for your data
 interface DemoTableRow {
