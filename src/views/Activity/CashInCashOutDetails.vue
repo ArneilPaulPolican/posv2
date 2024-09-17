@@ -54,11 +54,15 @@
             <div style="padding: 5px;">
                 <ion-item>
                     <ion-label position="stacked">Reference No.</ion-label>
-                    <ion-input :disabled="is_locked" v-model="cash_in_cash_out.refund_reference_number" placeholder="0"></ion-input>
+                    <ion-input :disabled="is_locked" v-model="cash_in_cash_out.refund_reference_number" placeholder="0000000001"></ion-input>
                 </ion-item>
                 <ion-item>
                     <ion-label position="stacked">Remarks</ion-label>
-                    <ion-textarea :disabled="is_locked" v-model="cash_in_cash_out.remarks" placeholder="0"></ion-textarea>
+                    <ion-textarea :disabled="is_locked" v-model="cash_in_cash_out.remarks" placeholder="NA"></ion-textarea>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="stacked">Type</ion-label>
+                    <ion-textarea :disabled="is_locked" v-model="cash_in_cash_out.type" placeholder="Cash Count"></ion-textarea>
                 </ion-item>
                 <ion-item>
                     <ion-grid style="padding: 0px;">
@@ -69,7 +73,7 @@
                             </ion-col>
                             <ion-col size="6" style="padding: 0px;">
                                 <ion-label position="stacked">Status</ion-label>
-                                <ion-input :disabled="is_locked" v-model="cash_in_cash_out.status" placeholder="0"></ion-input>
+                                <ion-input :disabled="is_locked" readonly v-model="cash_in_cash_out.status" placeholder="0"></ion-input>
                                 
                             </ion-col>
                         </ion-row>
@@ -164,7 +168,7 @@
 import { presentToast } from '@/composables/toast.composables';
 import { CASH_IN_OUTS_DTO } from '@/models/cashin-cashout.model';
 import { icons } from '@/plugins/icons';
-import { generateCashInCashOutReceipt } from '@/services/activity/cash-in-cash-out-receipt.service';
+import { generateCashInCashOutReceipt } from '@/services/receipt/cash-in-cash-out-receipt.service';
 import { getCashInCashOutById, lockCashInCashOut, unlockCashInCashOut, updateCashInCashOut } from '@/services/activity/cash-in-cash-out.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
@@ -273,11 +277,9 @@ export default defineComponent({
                 const result = await getCashInCashOutById(routeParams)
                 if(result.success){
                     if(result.data) cash_in_cash_out.value = { ... result.data}
-                    is_locked.value = cash_in_cash_out.value.is_locked;
-                    console.log(cash_in_cash_out.value);
-                    console.log(cash_in_cash_out.value.is_locked);
-                    console.log(is_locked.value);
+                    console.log(result.data);
                     
+                    is_locked.value = cash_in_cash_out.value.is_locked;
                 }
             } catch (error) {
                 await presentToast(`Operation failed ${error}`);

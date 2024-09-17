@@ -37,7 +37,7 @@ import { usePhotoGallery } from '@/composables/usePhotoGallery';
 import { DocumentViewer, DocumentViewerOptions } from '@ionic-native/document-viewer';
 import { Directory, Filesystem, FilesystemDirectory } from '@capacitor/filesystem';
 import { Browser } from '@capacitor/browser';
-import { generateSales, generateZReading } from '@/composables/pdf-generator';
+import { generateSales, generateZReading } from '@/services/receipt/sales-receipt.service';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 import { SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';

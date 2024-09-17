@@ -137,7 +137,7 @@ export const addNewCashInCashOut = async () => {
           0, 0, 0,
           0, 0, 0,
           0, 0, 0,
-          0, 0, '',
+          0, 0, 'NA',
           'NA', 'NA', 'NEW'
         ],
       },
@@ -263,7 +263,7 @@ export const deleteCashInCashOut = async (id: number) => {
   try {
     const transactionStatements = [
       {
-        statement: `DELETE ${CASH_IN_OUTS_TABLE}
+        statement: `DELETE FROM ${CASH_IN_OUTS_TABLE}
         WHERE id=?`,
         values: [ 
           id

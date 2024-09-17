@@ -51,6 +51,10 @@ export async function generateCashInCashOutReceipt(cash_in_cash_out: CASH_IN_OUT
     // doc.text(cash_in_cash_out.refund_reference_number, availableWidth - marginX, marginY, null, null, 'right');
     
     marginY += 5;
+    doc.text(`Type : ${cash_in_cash_out.status}`, marginX, marginY);
+    // doc.text(cash_in_cash_out.status, availableWidth - marginX, marginY, null, null, 'right');
+
+    marginY += 5;
     doc.text(`Status : ${cash_in_cash_out.status}`, marginX, marginY);
     // doc.text(cash_in_cash_out.status, availableWidth - marginX, marginY, null, null, 'right');
 

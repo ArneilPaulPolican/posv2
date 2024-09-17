@@ -210,7 +210,7 @@ export const deleteStockIn = async (id: number) => {
   
     const transactionStatements = [
       {
-        statement: `DELETE ${STOCK_INS_TABLE}
+        statement: `DELETE FROM ${STOCK_INS_TABLE}
         WHERE id=?`,
         values: [ 
           id

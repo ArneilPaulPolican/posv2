@@ -33,7 +33,7 @@
 import { presentToast } from '@/composables/toast.composables';
 import { STOCK_IN } from '@/models/stock-in.model';
 import { icons } from '@/plugins/icons';
-import { getStockInById, getStockIn, addStockIn } from '@/services/activity/stock-in.service';
+import { getStockInById, getStockIn, addStockIn, deleteStockIn } from '@/services/activity/stock-in.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -76,11 +76,19 @@ export default defineComponent({
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (tax: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (stock_in: any) => {
+            try {
+                const result = await deleteStockIn(stock_in.id)
+                if(result.success){
+                    await presentToast('Stock In deleted successfully');
+                    await fetchList()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         };
-        const handleEdit = (tax: any) => {
-            router.push(`/activity/stock-in/details/${tax.id}`);
+        const handleEdit = (stock_in: any) => {
+            router.push(`/activity/stock-in/details/${stock_in.id}`);
         }
         const openDetailForm = async() => {
             // router.push(`/activity/stock-in/details/0`);

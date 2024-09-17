@@ -36,7 +36,7 @@
 import { presentToast } from '@/composables/toast.composables';
 import { CASH_IN_OUTS } from '@/models/cashin-cashout.model';
 import { icons } from '@/plugins/icons';
-import { addNewCashInCashOut, getCashInCashOut } from '@/services/activity/cash-in-cash-out.service';
+import { addNewCashInCashOut, deleteCashInCashOut, getCashInCashOut } from '@/services/activity/cash-in-cash-out.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -53,7 +53,7 @@ export default defineComponent({
                 text: 'Delete',
                 role: 'destructive',
                 handler: () => {
-                    handleDelete(cash_in_cash_out);
+                    handleDelete(cash_in_cash_out.id);
                 },
                 data: {
                     action: 'delete',
@@ -80,8 +80,16 @@ export default defineComponent({
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (trx: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (id: number) => {
+            try {
+                const result = await deleteCashInCashOut(id)
+                if(result.success){
+                    await presentToast('CashIn / CashOut deleted successfully');
+                    await fetchList()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         };
         const handleEdit = (id: number) => {
             router.push(`/activity/cash-in-cash-out/details/${id}`);

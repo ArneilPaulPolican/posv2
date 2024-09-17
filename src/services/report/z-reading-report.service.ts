@@ -2,6 +2,8 @@ import { COLLECTIONS_TABLE, CUSTOMERS_TABLE, DISCOUNTS_TABLE, ITEMS_TABLE, SALES
 import { DBConnectionService } from "../database.connection";
 import { Z_READINGS } from "@/models/z-reading.model";
 import { SALES_DETAILS_REPORT_DTO } from "@/models/sales-detail-report.model";
+import jsPDF from "jspdf";
+import { openPDFBasedOnPlatform } from "@/composables/pdf-opener";
 
 export const getZReding = async (z_read_date:string) => {
     const dbConnectionService = await DBConnectionService.getInstance();
@@ -213,3 +215,277 @@ export const getPreviousReading = async () => {
         throw error;
     }
 }
+
+
+export async function generateZReading() {
+    const doc = new jsPDF();
+  
+    // // Add some text to the PDF
+    doc.internal.pageSize.width = 80;
+    doc.internal.pageSize.height = 1000;
+    
+    // Set the font and font size
+    doc.setFont('Arial');
+    doc.setFontSize(10);
+    
+    // Calculate the margins
+    let marginX = 2;
+    let marginY = 10;
+    
+    // Calculate the available width and height
+    const availableWidth = doc.internal.pageSize.width;
+    const availableHeight = doc.internal.pageSize.height - (marginY * 2);
+    
+    // Company Name
+  
+    marginY += 5;
+    doc.text('COMPANY NAME', availableWidth / 2, marginY, null, null, 'center');
+  
+    marginY += 5;
+    doc.text('Compnay full address', availableWidth / 2, marginY, null, null, 'center');
+  
+    marginY += 5;
+    doc.text('TIN: Customer TIN', availableWidth / 2, marginY, null, null, 'center');
+  
+    marginY += 5;
+    doc.text('SN: POS Serial Number', availableWidth / 2, marginY, null, null, 'center');
+    
+    marginY += 5;
+    doc.text('PN: Permit No.', availableWidth / 2, marginY, null, null, 'center');
+  
+    marginY += 5;
+    doc.text('ACRED No.: Accreditation Number', availableWidth / 2, marginY, null, null, 'center');
+  
+    marginY += 5;
+    doc.text('MIN: Accreditation Number', availableWidth / 2, marginY, null, null, 'center');
+    
+    marginY += 5;
+    doc.text('Terminal: 001', availableWidth / 2, marginY, null, null, 'center');
+    
+    marginY += 5;
+    doc.text('SALES', availableWidth / 2, marginY, null, null, 'center');
+    
+    marginY += 5;
+    doc.text('MM/dd/yyyy', availableWidth / 2, marginY, null, null, 'center');
+    
+    marginY += 5;
+    doc.text('Print Count', marginX, marginY);
+    doc.text('1', availableWidth - marginX, marginY, null, null, 'right');
+  
+    // Table header
+    const dividingLine1Y = marginY + 3;
+    doc.line(0, dividingLine1Y, availableWidth, dividingLine1Y);
+  
+    marginY += 10;
+    doc.text('Gross Sales (Net of VAT)', marginX, marginY);
+    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+  
+    marginY += 5;
+    doc.text('Regular Discount', marginX, marginY);
+    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    
+    marginY += 5;
+    doc.text('Senior Discount', marginX, marginY);
+    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    
+    marginY += 5;
+    doc.text('PWD Discount', marginX, marginY);
+    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+  
+    marginY += 5;
+    doc.text('Sales Return', marginX, marginY);
+    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+  
+    marginY += 5;
+    doc.text('Net Sales', marginX, marginY);
+    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+  
+    const dividingLine2Y = marginY + 5;
+    doc.line(0, dividingLine2Y, availableWidth, dividingLine2Y);
+  
+    let y = dividingLine2Y + 5; // initialized y
+  
+    doc.text('Cash', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Refund', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    const dividingLine3Y = y + 3;
+    doc.line(0, dividingLine3Y, availableWidth, dividingLine3Y);
+  
+    y = dividingLine3Y + 5;
+    doc.text('Total Collection', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    const dividingLine4Y = y + 3;
+    doc.line(0, dividingLine4Y, availableWidth, dividingLine4Y);
+  
+    y = dividingLine4Y + 5;
+    doc.text('VAT Sales', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('VAT Sales', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    
+    y += 5;
+    doc.text('VAT Amount', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Non-VAT', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('VAT Exempt', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('VAT Zero Rated', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    const dividingLine5Y = y + 3;
+    doc.line(0, dividingLine5Y, availableWidth, dividingLine5Y);
+  
+    y = dividingLine5Y + 5;
+    doc.text('Total', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    
+    const dividingLine6Y = y + 3;
+    doc.line(0, dividingLine6Y, availableWidth, dividingLine6Y);
+  
+    y = dividingLine6Y + 5;
+    doc.text('Counter ID Start', marginX, y);
+    doc.text('0000000001', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Counter ID End', marginX, y);
+    doc.text('0000000002', availableWidth - marginX, y, null, null, 'right');
+  
+    const dividingLine7Y = y + 3;
+    doc.line(0, dividingLine7Y, availableWidth, dividingLine7Y);
+  
+    y = dividingLine7Y + 5;
+    doc.text('Cancelled Tx.', marginX, y);
+    doc.text('0', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Cancelled Amount', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    const dividingLine8Y = y + 3;
+    doc.line(0, dividingLine8Y, availableWidth, dividingLine8Y);
+  
+    y = dividingLine8Y + 5;
+    doc.text('No. of Transactions', marginX, y);
+    doc.text('2', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('No. of SKU', marginX, y);
+    doc.text('2', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Total Quantity', marginX, y);
+    doc.text('2', availableWidth - marginX, y, null, null, 'right');
+  
+    const dividingLine9Y = y + 3;
+    doc.line(0, dividingLine9Y, availableWidth, dividingLine9Y);
+  
+    y = dividingLine9Y + 5;
+    doc.text('Accumulated Gross Sales (Net of VAT)', marginX, y);
+    
+    y += 10;
+    doc.text('Previous Reading', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Gross Sales (Net of Vat)', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Accum. Gross Sales', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    
+    const dividingLine10Y = y + 3;
+    doc.line(0, dividingLine10Y, availableWidth, dividingLine10Y);
+  
+    y = dividingLine10Y + 5;
+    doc.text('Accumulated Net Sales', marginX, y);
+    
+    y += 10;
+    doc.text('Previous Reading', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Net Sales', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    y += 5;
+    doc.text('Accum. Net Sales', marginX, y);
+    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+  
+    
+    const dividingLine11Y = y + 3;
+    doc.line(0, dividingLine11Y, availableWidth, dividingLine11Y);
+  
+    y = dividingLine11Y + 5;
+    doc.text('Z-Reading Counter', marginX, y);
+    doc.text('1', availableWidth - marginX, y, null, null, 'right');
+  
+    const user = 'admin'
+    const date_time = new Date().toLocaleString()
+  
+    y += 5;
+    doc.text(`Printed By: ${user}`, marginX, y);
+    
+    y += 5;
+    doc.text(`Printed Date/Time: ${date_time}`, marginX, y);
+  
+    const dividingLine12Y = y + 5;
+    doc.line(0, dividingLine12Y, availableWidth, dividingLine12Y);
+  
+    y = dividingLine12Y + 5;
+    doc.text('POS VENDOR:', availableWidth / 2, y, null, null, 'center');
+  
+    y += 5;
+    doc.text('Vendor Address', availableWidth / 2, y, null, null, 'center');
+  
+    y += 5;
+    doc.text('VAT REG TIN: ', availableWidth / 2, y, null, null, 'center');
+  
+    y += 10;
+    doc.text('ACRED No.: Accreditation Number: ', availableWidth / 2, y, null, null, 'center');
+  
+    y += 5;
+    doc.text('Date Issued: ', availableWidth / 2, y, null, null, 'center');
+  
+    y += 5;
+    doc.text('Valid Until: ', availableWidth / 2, y, null, null, 'center');
+  
+    y += 10;
+    doc.text('PTU No: ', availableWidth / 2, y, null, null, 'center');
+    
+    y += 5;
+    doc.text('Date Issued: ', availableWidth / 2, y, null, null, 'center');
+    
+    y += 5;
+    doc.text('Valid Until: ', availableWidth / 2, y, null, null, 'center');
+  
+    const footer_text1 = 'THIS INVOICE SHALL BE VALID FOR FIVE'
+    const footer_text2 = '(5) YEARS FROM THE DATE OF THE'
+    const footer_text3 = 'PERMIT TO USE'
+  
+    y += 10;
+    doc.text(footer_text1, availableWidth / 2, y, null, null, 'center');
+    y += 5;
+    doc.text(footer_text2, availableWidth / 2, y, null, null, 'center');
+    y += 5;
+    doc.text(footer_text3, availableWidth / 2, y, null, null, 'center');
+    // Get the PDF data as a blob
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    await openPDFBasedOnPlatform(pdfUrl, pdfBlob)
+  }

@@ -47,7 +47,8 @@ export const getStockOutById = async (id:number) => {
         out_number: stock_out.out_number,
         out_date: stock_out.out_date,
         remarks: stock_out.remarks,
-        status: stock_out.status
+        status: stock_out.status,
+        is_locked: stock_out.is_locked
       }))[0];
   
       return { success: true, data: stock_out };
@@ -97,16 +98,17 @@ export const addStockOut = async () => {
       out_number,
       out_date,
       remarks,
-      status
+      status,
+      is_locked
     ) VALUES (
-      ?, ?, ?, ?, ?
+      ?, ?, ?, ?, ?, ?
     )
     `;
 
     const transactionStatements = [
       {
         statement: taxServiceQuery,
-        values: [1, out_number, out_date, 'NA', 'NEW'],
+        values: [1, out_number, out_date, 'NA', 'NEW', false],
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
@@ -211,7 +213,7 @@ export const deleteStockOut = async (id: number) => {
   
     const transactionStatements = [
       {
-        statement: `DELETE ${STOCK_OUTS_TABLE}
+        statement: `DELETE FROM ${STOCK_OUTS_TABLE}
         WHERE id=?`,
         values: [ 
           id

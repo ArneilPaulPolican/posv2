@@ -31,6 +31,12 @@
                         <ion-label>Unlock</ion-label>
                     </div>
                 </ion-button>
+                <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%" @click="handlePrint()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.printSharp"></ion-icon>
+                        <ion-label>Print</ion-label>
+                    </div>
+                </ion-button>
             </div>
         </ion-item>
         <ion-item >
@@ -102,19 +108,22 @@ import ItemListModal from '@/components/Modal/ItemListModal.vue';
 import { addBulkStockOutItem, deleteStockOutItem, getStockOutItemsByOUTId } from '@/services/activity/stock-out-items.service';
 import StockoutItemDetailsModal from '@/components/Modal/StockoutItemDetailsModal.vue';
 import { onLockRecordInventory, onUnlockUpdateItemInventory } from '@/composables/inventory';
+import { generateStockOutReceipt } from '@/services/receipt/stock-out-receipt.service';
 
 
 export default defineComponent({
     setup(){
         const route = useRoute();
         const router = useRouter();
-        const stock_out = ref<STOCK_OUT>({
+        const stock_out = ref<STOCK_OUT_DTO>({
             id: 0,
             user_id: 0,
+            user: '',
             out_number:'',
             out_date: '',
             remarks: '',
-            status: ''
+            status: '',
+            is_locked: false
         });
         const stock_out_items = ref<STOCK_OUT_ITEMS_DTO[]>([]);
         const stock_out_id = ref(0);
@@ -247,6 +256,14 @@ export default defineComponent({
             }
         }
 
+        async function handlePrint() {
+            try {
+                await generateStockOutReceipt(stock_out.value, stock_out_items.value)
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`);
+            }
+        }
+
         async function fetchDetails() {
             const routeParams = +route.params.id;
             stock_out_id.value = routeParams ; 
@@ -254,13 +271,16 @@ export default defineComponent({
             try {
                 const result = await getStockOutById(routeParams) 
                 if(result.success){
+                    is_locked.value = result.data?.is_locked;
                     stock_out.value ={
                         id: result.data?.id,
                         user_id: result.data?.user_id,
+                        user:'',
                         out_number: result.data?.out_number,
                         out_date: result.data?.out_date,
                         remarks: result.data?.remarks,
-                        status: result.data?.status
+                        status: result.data?.status,
+                        is_locked: result.data?.is_locked,
                     }
 
                     const item_result = await getStockOutItemsByOUTId(routeParams)
@@ -292,6 +312,7 @@ export default defineComponent({
             handleSave,
             handleLock,
             handleUnlock,
+            handlePrint,
 
             openActionSheet,
             openItemModal

@@ -66,17 +66,6 @@ export const getSalesDetailReport = async (start_date:string, end_date:string) =
     if (!db) {
         throw new Error('Database connection not open');
     }
-
-    // const start_date = new Date().toLocaleDateString('en-US', {
-    //     year: 'numeric',
-    //     month: '2-digit',
-    //     day: '2-digit'
-    //     });
-    // const end_date = new Date().toLocaleDateString('en-US', {
-    //     year: 'numeric',
-    //     month: '2-digit',
-    //     day: '2-digit'
-    //     })
     
     const saleServiceQuery = `SELECT 
   ${SALES_ITEMS_TABLE}.id,

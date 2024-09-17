@@ -816,6 +816,29 @@ export const cancelSales = async (data: SALES_DTO) => {
   }
 };
 
+export const updatePrintStatus = async (data: SALES_DTO) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+
+    const transactionStatements = [
+      {
+        statement: `UPDATE ${SALES_TABLE}
+          SET is_printed =?
+        WHERE id=?`,
+        values: [ true,
+          data.id
+        ]
+      }
+    ]
+
+    const res = await db.executeTransaction(transactionStatements);
+    return { success: true };
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const deleteSales = async (id: number) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();

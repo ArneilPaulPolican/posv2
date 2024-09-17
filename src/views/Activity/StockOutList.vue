@@ -34,7 +34,7 @@ import { STOCK_IN } from '@/models/stock-in.model';
 import { STOCK_OUT } from '@/models/stock-out.model';
 import { icons } from '@/plugins/icons';
 import { getStockInById, getStockIn } from '@/services/activity/stock-in.service';
-import { addStockOut, getStockOut } from '@/services/activity/stock-out.service';
+import { addStockOut, deleteStockOut, getStockOut } from '@/services/activity/stock-out.service';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -77,8 +77,16 @@ export default defineComponent({
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (stock_out: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (stock_out: any) => {
+            try {
+                const result = await deleteStockOut(stock_out.id)
+                if(result.success){
+                    await presentToast('Stock Out deleted successfully');
+                    await fetchList()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         };
         const handleEdit = (stock_out: any) => {
             router.push(`/activity/stock-out/details/${stock_out.id}`);

@@ -187,10 +187,10 @@ import SalesItemDetailsModal from '@/components/Modal/SalesItemDetailsModal.vue'
 import CustomerListModal from '@/components/Modal/CustomerListModal.vue';
 import DiscountListModal from '@/components/Modal/DiscountListModal.vue';
 import CheckOutModal from '@/components/Modal/CheckOutModal.vue';
-import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, lockSales, unlockSales, updateSales } from '@/services/activity/sales.service';
+import { addSales, billOutSales, getLastSalesNumber, getSales, getSalesById, lockSales, unlockSales, updatePrintStatus, updateSales } from '@/services/activity/sales.service';
 import { Lock } from '@/services/lock';
 import { addBulkSalesItem, deleteSalesItem, getSalesItemBySalesId, updatebULKSalesItem } from '@/services/activity/sales-item.service';
-import { generateSales } from '@/composables/pdf-generator';
+import { generateSales } from '@/services/receipt/sales-receipt.service';
 import { disc } from 'ionicons/icons';
 import { DISCOUNT_DTO } from '@/models/discount.model';
 import { presentToast } from '@/composables/toast.composables';
@@ -507,7 +507,13 @@ export default defineComponent({
         }
 
         async function handlePrint() {
-            await generateSales(sales.value, sales_item_list.value)
+            try {
+                await generateSales(sales.value, sales_item_list.value)
+                await updatePrintStatus(sales.value);
+                await fetchDetails();
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
 
         // Checkout

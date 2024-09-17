@@ -31,6 +31,12 @@
                         <ion-label>Unlock</ion-label>
                     </div>
                 </ion-button>
+                <ion-button v-if="is_locked" size="medium" expand="block" style="height: 90%" @click="handlePrint()">
+                    <div class="icon-label-wrapper">
+                        <ion-icon :icon="icons.printSharp"></ion-icon>
+                        <ion-label>Print</ion-label>
+                    </div>
+                </ion-button>
             </div>
         </ion-item>
         
@@ -105,6 +111,7 @@ import { addBulkStockInItem, deleteStockInItem, getStockInItemsByINId } from '@/
 import { STOCK_IN_ITEMS_DTO } from '@/models/stock-in-item.model';
 import StockInItemDetailsModal from '@/components/Modal/StockInItemDetailsModal.vue';
 import { onLockRecordInventory, onUnlockUpdateItemInventory } from '@/composables/inventory';
+import { generateStockInReceipt } from '@/services/receipt/stock-in-receipt.service';
 
 
 export default defineComponent({
@@ -112,9 +119,10 @@ export default defineComponent({
         const route = useRoute();
         const router = useRouter();
         const stock_in_items = ref<STOCK_IN_ITEMS_DTO[]>([]);
-        const stock_in = ref<STOCK_IN>({
+        const stock_in = ref<STOCK_IN_DTO>({
             id: 0,
             user_id: 0,
+            user: '',
             in_number: '',
             in_date: '',
             remarks: '',
@@ -264,15 +272,25 @@ export default defineComponent({
                 await presentToast(`Operation failed ${error}`)
             }
         }
+        async function handlePrint() {
+            try {
+                await generateStockInReceipt(stock_in.value, stock_in_items.value)
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`);
+            }
+        }
         async function fetchDetails() {
             const routeParams = +route.params.id;
             stocki_in_id.value = routeParams;
             try {
                 const response = await getStockInById(stocki_in_id.value)
                 if(response.success){
+                    is_locked.value = response.data?.is_locked;
+
                     stock_in.value ={
                         id: response.data?.id,
                         user_id: response.data?.user_id,
+                        user: '',
                         in_number: response.data?.in_number,
                         in_date: response.data?.in_date,
                         remarks: response.data?.remarks,
@@ -309,6 +327,7 @@ export default defineComponent({
             handleSave,
             handleLock,
             handleUnlock,
+            handlePrint,
             openItemModal,
             openActionSheet
         }
