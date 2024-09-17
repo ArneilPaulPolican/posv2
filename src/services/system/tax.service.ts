@@ -51,7 +51,7 @@ export const getTaxesById = async (id: number) => {
   }
 };
 
-export const addTax = async (data: TAX) => {
+export const addTax = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
@@ -72,13 +72,28 @@ export const addTax = async (data: TAX) => {
     const transactionStatements = [
       {
         statement: taxServiceQuery,
-        values: [data.tax_code, data.tax, data.rate, data.is_inclusive],
+        values: ['NA', 'NA', 0, false],
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return { success: true};
-  } catch (error) {
-    throw error;
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId;
+    } else {
+      Id = 0;
+    }
+    return { success: true, data: Id };
+  } catch (error:any) {
+    // throw error;
+    if (error.includes('UNIQUE constraint')) {
+      throw new Error("UNIQUE constraint, Please Rename or Remove 'NA' Tax Code");
+      
+    } else {
+      throw error
+    }
   }
 };
 
@@ -119,7 +134,7 @@ export const deleteTax = async (id: number) => {
   
     const transactionStatements = [
       {
-        statement: `DELETE ${TAXES_TABLE}
+        statement: `DELETE FROM ${TAXES_TABLE}
         WHERE id=?`,
         values: [ 
           id

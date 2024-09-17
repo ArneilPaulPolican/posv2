@@ -527,7 +527,9 @@ export const createTables = async (db: SQLiteDBConnection) => {
 
         ans_previous_reading REAL NOT NULL,
         ans_net_sales REAL NOT NULL,
-        ans_accumulated_net_sales REAL NOT NULL
+        ans_accumulated_net_sales REAL NOT NULL,
+
+        print_count INTEGER
       )
     `;
 

@@ -132,7 +132,7 @@ import { icons } from '@/plugins/icons';
 import { getCollectionLineByCollectionId } from '@/services/activity/collection-lines.service';
 import { getSalesItemBySalesId } from '@/services/activity/sales-item.service';
 import { getSalesById } from '@/services/activity/sales.service';
-import { getCollectionForZRead, getPreviousReading, getSalesForZRead, getZReding } from '@/services/report/z-reading-report.service';
+import { generateZReading, getCollectionForZRead, getPreviousReading, getSalesForZRead, getZReding } from '@/services/report/z-reading-report.service';
 import { onIonViewDidEnter } from '@ionic/vue';
 import { defineComponent, onMounted, ref } from 'vue';
 
@@ -170,6 +170,7 @@ export default defineComponent({
             ans_previous_reading: 0,
             ans_net_sales: 0,
             ans_accumulated_net_sales: 0,
+            print_count:0
         });
         const z_reading_date = ref(new Date().toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -178,6 +179,11 @@ export default defineComponent({
                     }));
 
         async function handlePrint() {
+            try {
+                await generateZReading(z_reading.value);
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
         async function fetchData() {
             try {

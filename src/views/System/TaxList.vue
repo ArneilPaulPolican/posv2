@@ -2,7 +2,7 @@
     <ion-page>
         <!-- <HeaderComponent :title="header" /> -->
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button  @click="openDetailForm">
+            <ion-fab-button  @click="handleAdd">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -31,7 +31,7 @@ import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { TAX } from '@/models/tax.model';
-import { getTaxes } from '@/services/system/tax.service';
+import { addTax, deleteTax, getTaxes } from '@/services/system/tax.service';
 import { presentToast } from '@/composables/toast.composables';
 
 
@@ -75,14 +75,29 @@ export default defineComponent({
             await actionSheet.present();
         };
         //#endregion
-        const handleDelete = (tax: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (tax: any) => {
+            try {
+                const result = await deleteTax(tax.id)
+                if(result.success){
+                    await presentToast(`Tax deleted successfully!`)
+                    await fetchList()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`,'middle',3000)
+            }
         };
         const handleEdit = (tax: any) => {
             router.push(`/System/Tax/Details/${tax.id}`);
         }
-        const openDetailForm = async() => {
-            router.push(`/System/Tax/Details/0`);
+        const handleAdd = async() => {
+            try {
+                const result = await addTax()
+                if(result.success){
+                    router.push(`/System/Tax/Details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`,'middle',3000)
+            }
         }
 
         async function fetchList() {
@@ -109,7 +124,7 @@ export default defineComponent({
             openActionSheet,
             handleDelete,
             handleEdit,
-            openDetailForm
+            handleAdd
         }
     }
 });

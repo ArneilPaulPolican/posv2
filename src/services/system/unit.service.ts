@@ -53,7 +53,7 @@ export const getUnitsById = async (id:number) => {
   } 
 };
 
-export const addUnit = async (data: UNIT) => {
+export const addUnit = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -67,13 +67,28 @@ export const addUnit = async (data: UNIT) => {
     const transactionStatements = [
       {
         statement: unitServiceQuery,
-        values: [data.unit_code, data.unit],
+        values: ['NA', 'NA'],
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return { success: true};
-  } catch (error) {
-    throw error;
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId;
+    } else {
+      Id = 0;
+    }
+    return { success: true, data: Id };
+  } catch (error:any) {
+    // throw error;
+    if (error.includes('UNIQUE constraint')) {
+      throw new Error("UNIQUE constraint, Please Rename or Remove 'NA' Unit Code");
+      
+    } else {
+      throw error
+    }
   }
 };
 
@@ -110,7 +125,7 @@ export const deleteUnit = async (id: number) => {
   
     const transactionStatements = [
       {
-        statement: `DELETE ${UNITS_TABLE}
+        statement: `DELETE FROM ${UNITS_TABLE}
         WHERE id=?`,
         values: [ 
           id

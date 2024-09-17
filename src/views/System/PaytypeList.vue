@@ -3,7 +3,7 @@
         <!-- <HeaderComponent :title="header" /> -->
         
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button @click="openPaytypeDetailForm">
+            <ion-fab-button @click="handleAdd">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -30,7 +30,7 @@ import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { PAYTYPE } from '@/models/paytype.model';
-import { getPaytypes } from '@/services/system/paytype.service';
+import { addNewPaytype, deletePaytype, getPaytypes } from '@/services/system/paytype.service';
 import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
@@ -76,14 +76,29 @@ export default defineComponent({
         };
         //#endregion
 
-        const handleDelete = (paytype: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (paytype: any) => {
+            try {
+                const result = await deletePaytype(paytype.id)
+                if(result.success){
+                    await presentToast(`Paytype deleted successfully!`)
+                    await fetchList()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
         };
         const handleEdit = (paytype: any) => {
             router.push(`/System/Paytype/Details/${paytype.id}`);
         };
-        const openPaytypeDetailForm = async() => {
-            router.push(`/System/Paytype/Details/0`);
+        const handleAdd = async() => {
+            try {
+                const result = await addNewPaytype()
+                if(result.success){
+                    router.push(`/System/Paytype/Details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`,'middle',3000)
+            }
         }
         
         async function fetchList() {
@@ -108,7 +123,7 @@ export default defineComponent({
             paytypes,
 
             handleEdit,
-            openPaytypeDetailForm,
+            handleAdd,
             openActionSheet
         }
     }

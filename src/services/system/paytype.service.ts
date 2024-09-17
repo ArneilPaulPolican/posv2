@@ -43,19 +43,17 @@ export const getPaytypesById = async (id: number) => {
       paytype: paytype.paytype,
       is_default_value: paytype.is_default_value,
     }))[0];
-    return paytype;
-    
+    return {success:true, data:paytype};
   } catch (error) {
     throw error;
   }
 };
 
-export const addPaytype = async (data: PAYTYPE) => {
+export const addNewPaytype = async () => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   let transaction;
   try {
-    
     const taxServiceQuery = 
     `
     INSERT INTO ${PAYTYPES_TABLE} (
@@ -69,17 +67,31 @@ export const addPaytype = async (data: PAYTYPE) => {
     const transactionStatements = [
       {
         statement: taxServiceQuery,
-        values: [data.paytype, data.is_default_value],
+        values: ['NA', false],
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
-  } catch (error) {
-    throw error;
+    const getLastIdQuery = 'SELECT last_insert_rowid() AS lastId';
+    const lastIdRes = await db.query(getLastIdQuery);
+    let Id =  0;
+
+    if (lastIdRes.values && lastIdRes.values.length > 0) {
+      Id =  lastIdRes.values[0].lastId;
+    } else {
+      Id = 0;
+    }
+    return { success: true, data: Id };
+  } catch (error: any) {
+    if (error.includes('UNIQUE constraint')) {
+      throw new Error("UNIQUE constraint, Please Rename or Remove 'NA' Paytype");
+      
+    } else {
+      throw error
+    }
   }
 };
 
-export const updateTax = async (data: PAYTYPE) => {
+export const updatePaytype = async (data: PAYTYPE) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -99,7 +111,7 @@ export const updateTax = async (data: PAYTYPE) => {
       },
     ];
     const res = await db.executeTransaction(transactionStatements);
-    return true;
+    return {success: true};
   } catch (error) {
     throw error;
   } 
@@ -112,7 +124,7 @@ export const deletePaytype = async (id: number) => {
   
     const transactionStatements = [
       {
-        statement: `DELETE ${PAYTYPES_TABLE}
+        statement: `DELETE FROM ${PAYTYPES_TABLE}
         WHERE id=?`,
         values: [ 
           id

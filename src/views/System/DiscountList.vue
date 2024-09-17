@@ -3,7 +3,7 @@
         <!-- <HeaderComponent :title="header" /> -->
 
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button @click="openDisctountDetailForm">
+            <ion-fab-button @click="handleAdd">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -15,9 +15,10 @@
                 <ion-item v-for="tax in discounts" :key="tax.id" @click="openActionSheet(tax)">
                     <ion-label>
                         <h2>{{ tax.discount }}</h2>
+                        <p v-if="tax.is_locked">Locked</p><p v-else>Unlocked</p>
                     </ion-label>
                     <ion-label slot="end">
-                        <p>{{ tax.discount_rate }}</p>
+                        <p>{{ tax.discount_rate }}%</p>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -32,7 +33,7 @@ import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter } from '@ionic/vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { DISCOUNT } from '@/models/discount.model';
-import { getDiscounts } from '@/services/system/discount.service';
+import { addDiscouunt, deleteDiscount, getDiscounts } from '@/services/system/discount.service';
 import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
@@ -79,14 +80,29 @@ export default defineComponent({
         //#endregion
 
 
-        const handleDelete = (tax: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (discount: any) => {
+            try {
+                const result = await deleteDiscount(discount.id)
+                if(result.success){
+                    await presentToast(`Discount deleted successfully!`)
+                    await fetchList()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`,'middle',3000)
+            }
         };
-        const handleEdit = (tax: any) => {
-            router.push(`/System/Discount/Details/${tax.id}`);
+        const handleEdit = (discount: any) => {
+            router.push(`/System/Discount/Details/${discount.id}`);
         };
-        const openDisctountDetailForm = async() => {
-            router.push(`/System/Discount/Details/0`);
+        const handleAdd = async() => {
+            try {
+                const result = await addDiscouunt();
+                if(result.success){
+                    router.push(`/System/Discount/Details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`,'middle', 3000)
+            }
         }
 
         async function fetchList() {
@@ -114,7 +130,7 @@ export default defineComponent({
             openActionSheet,
             handleDelete,
             handleEdit,
-            openDisctountDetailForm
+            handleAdd
         }
     }
 })

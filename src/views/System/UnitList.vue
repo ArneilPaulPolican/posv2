@@ -2,7 +2,7 @@
     <ion-page>
         <!-- <HeaderComponent :title="header" /> -->
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-            <ion-fab-button  @click="openUnitDetailForm">
+            <ion-fab-button  @click="handleAdd">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { icons } from '@/plugins/icons';
-import { getUnits } from '@/services/system/unit.service';
+import { addUnit, deleteUnit, getUnits } from '@/services/system/unit.service';
 import { defineComponent, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter, onIonViewWillEnter } from '@ionic/vue';
@@ -75,14 +75,29 @@ export default defineComponent({
         };
         //#endregion
         
-        const handleDelete = (unit: any) => {
-            throw new Error('Function not implemented.');
+        const handleDelete = async (unit: any) => {
+            try {
+                const result = await deleteUnit(unit.id)
+                if(result.success){
+                    await presentToast(`Unit deleted successfully!`)
+                    await fetchList()
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`,'middle',3000)
+            }
         };
         const handleEdit = (unit: any) => {
             router.push(`/System/Unit/Details/${unit.id}`);
         }
-        const openUnitDetailForm = async() => {
-            router.push(`/System/Unit/Details/0`);
+        const handleAdd = async() => {
+            try {
+                const result = await addUnit()
+                if(result.success){
+                    router.push(`/System/Unit/Details/${result.data}`);
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`,'middle',3000)
+            }
         }
         
         async function fetchList() {
@@ -109,7 +124,7 @@ export default defineComponent({
             openActionSheet,
             handleDelete,
             handleEdit,
-            openUnitDetailForm
+            handleAdd
         }
     }
 });

@@ -94,7 +94,7 @@ export default defineComponent({
                     router.push(`/setup/table/details/${result.data}`);
                 }
             } catch (error) {
-                await presentToast(`Operation failed ${error}`)
+                await presentToast(`Operation failed ${error}`,'middle',3000)
             }
         }
         

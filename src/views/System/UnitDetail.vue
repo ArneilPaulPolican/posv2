@@ -1,8 +1,14 @@
 <template>
     <ion-page>
         <ion-item>
-            <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon>
-            <ion-button slot="end" size="medium" expand="block" style="height: 90%"
+            <ion-button size="medium" expand="block" style="height: 90%"
+                @click="handleReturn()" >
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                    <ion-label>Back</ion-label>
+                </div>
+            </ion-button>
+            <ion-button size="medium" expand="block" style="height: 90%"
                 @click="handleSave()">
                 <div class="icon-label-wrapper">
                     <ion-icon :icon="icons.saveSharp"></ion-icon>
@@ -46,6 +52,7 @@ import { Lock } from '@/services/lock';
 import { addUnit, getUnitsById, updateUnit } from '@/services/system/unit.service';
 import { UNIT } from '@/models/unit.model';
 import { onIonViewDidEnter } from '@ionic/vue';
+import { presentToast } from '@/composables/toast.composables';
 
 
 export default defineComponent({
@@ -73,41 +80,20 @@ export default defineComponent({
             router.push(`/System/Units`);
         }
         const handleSave = async () => {
-          
-            setTimeout(async () => {
-                try {
-                    if(unit_id == 0){
-                        const response = await addUnit(unit.value);
-                        alertSubTitle.value = 'Adding Unit'
-                        if(response){
-                            alertMessage.value = 'Tax successfully created';
-                            alertTitle.value = 'Success';
-                        }else{
-                            alertTitle.value = 'Failed';
-                            alertMessage.value = 'Failed to create item';
-                        }
-                    }else{
-                        const response = await updateUnit(unit.value);
-                        alertSubTitle.value = 'Updating Item'
-                        if(response){
-                            alertMessage.value = 'Tax successfully updated';
-                            alertTitle.value = 'Success';
-                        }else{
-                            alertMessage.value = 'Failed to update item';
-                            alertTitle.value = 'Failed';
-                        }
-                    }
-                    open_alert.value = true; // Open the alert
-                } catch (err) {
-                    dbLock.release(); // Release the lock after the operation
-                }   
-            }, 500);
+            try {
+                const result = await updateUnit(unit.value);
+                if(result.success){
+                    await presentToast(`Unit updated successfully!`)
+                }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
         }
 
         async function fetchDetails() {
             const routeParams = +route.params.id;
             unit_id = routeParams;
-            if(unit_id != 0){
+            try {
                 const result = await getUnitsById(routeParams)
                 if(result.success && result.data){
                     unit.value = {
@@ -116,11 +102,11 @@ export default defineComponent({
                         unit: result.data.unit
                     }
                 }else{
-                    alertTitle.value = 'Not Found';
-                    alertSubTitle.value = 'UNIT Not Found'
-                    alertMessage.value = 'No UNIT exist';
-                    open_alert.value = true; // Open the alert
+                    handleReturn();
                 }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+                handleReturn();
             }
         }
         onMounted(async () => {

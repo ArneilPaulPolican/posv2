@@ -28,4 +28,5 @@ export interface Z_READINGS {
     ans_previous_reading: number;
     ans_net_sales: number;
     ans_accumulated_net_sales: number;
+    print_count: number;
   }

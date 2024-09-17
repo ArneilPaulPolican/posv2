@@ -3,12 +3,14 @@
         <!-- <HeaderComponent :title="header" /> -->
 
         <ion-item>
-            
-            <ion-buttons slot="start">
-                <ion-back-button default-href="/"></ion-back-button>
-            </ion-buttons>
-            <!-- <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon> -->
-            <ion-button slot="end" size="medium" expand="block" style="height: 90%"
+            <ion-button size="medium" expand="block" style="height: 90%"
+                @click="handleReturn()" >
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                    <ion-label>Back</ion-label>
+                </div>
+            </ion-button>
+            <ion-button size="medium" expand="block" style="height: 90%"
                 @click="handleSave()">
                 <div class="icon-label-wrapper">
                     <ion-icon :icon="icons.saveSharp"></ion-icon>
@@ -57,7 +59,7 @@ import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import AlertComponent from '@/components/Modal/AlertComponent.vue';
 import { Lock } from '@/services/lock';
 import { PAYTYPE } from '@/models/paytype.model';
-import { getPaytypesById } from '@/services/system/paytype.service';
+import { getPaytypesById, updatePaytype } from '@/services/system/paytype.service';
 import { presentToast } from '@/composables/toast.composables';
 
 export default defineComponent({
@@ -80,82 +82,36 @@ export default defineComponent({
         const alertSubTitle = ref('');
         const alertMessage = ref('');
 
-        
         // BACK
         const handleReturn = () =>{
             router.push(`/System/Paytypes`);
         }
         const handleSave = async () => {
-            await presentToast("save event triggered");
-
-            setTimeout(async () => {
-                try {
-                    if(paytype_id == 0){
-                        await presentToast('New')
-                        const response = true; // await addTax(paytype.value);
-                        alertSubTitle.value = 'Adding Item'
-                        if(response){
-                            // trigger here to open the alert component
-                            await presentToast('Tax successfully created')
-                            alertMessage.value = 'Tax successfully created';
-                            alertTitle.value = 'Success';
-                        }else{
-                            await presentToast('Failed to create item')
-                            alertTitle.value = 'Failed';
-                            alertMessage.value = 'Failed to create item';
-                        }
-                    }else{
-                        await presentToast('Update')
-                        const response = true ;//await updateTax(paytype.value);
-                        alertSubTitle.value = 'Updating Item'
-                        if(response){
-                            await presentToast('Tax successfully updated')
-                            alertMessage.value = 'Tax successfully updated';
-                            alertTitle.value = 'Success';
-                        }else{
-                            await presentToast('Failed to update item')
-                            alertMessage.value = 'Failed to update item';
-                            alertTitle.value = 'Failed';
-                        }
-                    }
-                    open_alert.value = true; // Open the alert
-                    await presentToast('open_alert value')
-                } catch (err) {
-                    dbLock.release(); // Release the lock after the operation
-                    await presentToast('Error adding data:')
+            try {
+                const result = await updatePaytype(paytype.value);
+                if(result.success){
+                    await presentToast('Paytype successfully updated')
                 }
-            }, 300);
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+
+            }
         }
 
         async function fetchDetails() {
             const routeParams = +route.params.id;
             paytype_id = routeParams ; 
-            
-            setTimeout(async () => {
-                const paytypeResult = await getPaytypesById(routeParams)
-                await presentToast("paytypeResult ")
-                if(paytypeResult){
-                    paytype.value ={
-                        id: paytypeResult.id,
-                        paytype: paytypeResult.paytype,
-                        is_default_value: paytypeResult.is_default_value,
-                    }
+            try {
+                const result = await getPaytypesById(routeParams)
+                if(result.success && result.data){
+                    paytype.value = { ... result.data }
                 }else{
-                    if(routeParams !=0 ){
-                        
-                        alertTitle.value = 'Not Found';
-                        alertSubTitle.value = 'PAYTYPE Not Found'
-                        alertMessage.value = 'No paytype exist';
-                        open_alert.value = true; // Open the alert
-                    }else{
-                        paytype.value ={
-                            id:0,
-                            paytype: '',
-                            is_default_value: false,
-                        }
-                    }
+                    handleReturn();
                 }
-            }, 500);
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+                handleReturn();
+            }
         }
 
         onMounted(async()=>{

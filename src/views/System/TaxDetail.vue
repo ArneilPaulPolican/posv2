@@ -3,12 +3,14 @@
         <!-- <HeaderComponent :key="$route.fullPath" :title="header" /> -->
 
         <ion-item>
-            
-            <ion-buttons slot="start">
-                <ion-back-button default-href="/"></ion-back-button>
-            </ion-buttons>
-            <!-- <ion-icon :ios="icons.arrowBackOutline" :md="icons.arrowBackSharp" @click="handleReturn"></ion-icon> -->
-            <ion-button slot="end" size="medium" expand="block" style="height: 90%"
+            <ion-button size="medium" expand="block" style="height: 90%"
+                @click="handleReturn()" >
+                <div class="icon-label-wrapper">
+                    <ion-icon :icon="icons.arrowBackSharp"></ion-icon>
+                    <ion-label>Back</ion-label>
+                </div>
+            </ion-button>
+            <ion-button size="medium" expand="block" style="height: 90%"
                 @click="handleSave()">
                 <div class="icon-label-wrapper">
                     <ion-icon :icon="icons.saveSharp"></ion-icon>
@@ -98,70 +100,31 @@ export default defineComponent({
 
         // BACK
         const handleReturn = () => {
-            // router.push(`/System/Tax`);
-            // router.back();
             router.go(-1);
         }
         const handleSave = async () => {
-            await presentToast("save event triggered");
-
-            setTimeout(async () => {
-                try {
-                    if(tax_id == 0){
-                        await presentToast('New')
-                        const response = await addTax(tax.value);
-                        alertSubTitle.value = 'Adding Item'
-                        if(response){
-                            // trigger here to open the alert component
-                            await presentToast('Tax successfully created')
-                            alertMessage.value = 'Tax successfully created';
-                            alertTitle.value = 'Success';
-                        }else{
-                            await presentToast('Failed to create item')
-                            alertTitle.value = 'Failed';
-                            alertMessage.value = 'Failed to create item';
-                        }
-                    }else{
-                        await presentToast('Update')
-                        const response = await updateTax(tax.value);
-                        alertSubTitle.value = 'Updating Item'
-                        if(response){
-                            await presentToast('Tax successfully updated')
-                            alertMessage.value = 'Tax successfully updated';
-                            alertTitle.value = 'Success';
-                        }else{
-                            await presentToast('Failed to update item')
-                            alertMessage.value = 'Failed to update item';
-                            alertTitle.value = 'Failed';
-                        }
-                    }
-                    open_alert.value = true; // Open the alert
-                } catch (err) {
-                    dbLock.release(); // Release the lock after the operation
-                    await presentToast('Error adding data:')
-                    
+            try {
+                const result = await updateTax(tax.value);
+                if(result.success){
+                    await presentToast('Tax successfully updated')
                 }
-            }, 300);
+            } catch (err) {
+                await presentToast(`Operation failed ${err}`)
+            }
         }
         async function fetchDetails() {
             const routeParams = +route.params.id;
             tax_id = routeParams ; 
-            if(tax_id != 0){
+            try {
                 const result = await getTaxesById(routeParams)
                 if(result.success && result.data){
-                    tax.value ={
-                        id: result.data.id,
-                        tax_code: result.data.tax_code,
-                        tax: result.data.tax,
-                        rate: result.data.rate,
-                        is_inclusive: result.data.is_inclusive
-                    }
+                    tax.value ={ ... result.data}
                 }else{
-                    alertTitle.value = 'Not Found';
-                    alertSubTitle.value = 'TAX Not Found'
-                    alertMessage.value = 'No tax exist';
-                    open_alert.value = true; // Open the alert
+                    handleReturn()
                 }
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+                handleReturn()
             }
         }
         onMounted(async () => {

@@ -4,6 +4,7 @@ import { Z_READINGS } from "@/models/z-reading.model";
 import { SALES_DETAILS_REPORT_DTO } from "@/models/sales-detail-report.model";
 import jsPDF from "jspdf";
 import { openPDFBasedOnPlatform } from "@/composables/pdf-opener";
+import { Storage } from '@capacitor/storage';
 
 export const getZReding = async (z_read_date:string) => {
     const dbConnectionService = await DBConnectionService.getInstance();
@@ -217,8 +218,11 @@ export const getPreviousReading = async () => {
 }
 
 
-export async function generateZReading() {
+export async function generateZReading(z_reading: Z_READINGS) {
     const doc = new jsPDF();
+
+    const { value } = await Storage.get({ key: 'sysSettings' });
+    const sysSettings = JSON.parse(value as string);
   
     // // Add some text to the PDF
     doc.internal.pageSize.width = 80;
@@ -235,38 +239,44 @@ export async function generateZReading() {
     // Calculate the available width and height
     const availableWidth = doc.internal.pageSize.width;
     const availableHeight = doc.internal.pageSize.height - (marginY * 2);
+
+    const current_date = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+        });
     
     // Company Name
   
     marginY += 5;
-    doc.text('COMPANY NAME', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(sysSettings?.customer ?? "TEST Company", availableWidth / 2, marginY, null, null, 'center');
   
     marginY += 5;
-    doc.text('Compnay full address', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(sysSettings?.customer_address ?? "Address", availableWidth / 2, marginY, null, null, 'center');
   
     marginY += 5;
-    doc.text('TIN: Customer TIN', availableWidth / 2, marginY, null, null, 'center');
-  
+    doc.text(`TIN: ${sysSettings?.customer_tin}`, availableWidth / 2, marginY, null, null, 'center');
+
     marginY += 5;
-    doc.text('SN: POS Serial Number', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(`SN: ${sysSettings?.pos_serial_number}`, availableWidth / 2, marginY, null, null, 'center');
     
     marginY += 5;
-    doc.text('PN: Permit No.', availableWidth / 2, marginY, null, null, 'center');
-  
+    doc.text(`PN: ${sysSettings?.pos_permit_number}`, availableWidth / 2, marginY, null, null, 'center');
+
     marginY += 5;
-    doc.text('ACRED No.: Accreditation Number', availableWidth / 2, marginY, null, null, 'center');
-  
+    doc.text(`ACRED No.: ${sysSettings?.pos_accreditation_number}`, availableWidth / 2, marginY, null, null, 'center');
+
     marginY += 5;
-    doc.text('MIN: Accreditation Number', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(`MIN: ${sysSettings?.pos_machine_identification_number}`, availableWidth / 2, marginY, null, null, 'center');
+
+    marginY += 5;
+    doc.text(`Terminal: ${sysSettings.terminal_number}`, availableWidth / 2, marginY, null, null, 'center');
     
     marginY += 5;
-    doc.text('Terminal: 001', availableWidth / 2, marginY, null, null, 'center');
+    doc.text('Z Reading Report', availableWidth / 2, marginY, null, null, 'center');
     
     marginY += 5;
-    doc.text('SALES', availableWidth / 2, marginY, null, null, 'center');
-    
-    marginY += 5;
-    doc.text('MM/dd/yyyy', availableWidth / 2, marginY, null, null, 'center');
+    doc.text(current_date, availableWidth / 2, marginY, null, null, 'center');
     
     marginY += 5;
     doc.text('Print Count', marginX, marginY);
@@ -278,27 +288,27 @@ export async function generateZReading() {
   
     marginY += 10;
     doc.text('Gross Sales (Net of VAT)', marginX, marginY);
-    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    doc.text(z_reading.gross_sales.toFixed(2), availableWidth - marginX, marginY, null, null, 'right');
   
     marginY += 5;
     doc.text('Regular Discount', marginX, marginY);
-    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    doc.text(z_reading.regular_discount.toFixed(2), availableWidth - marginX, marginY, null, null, 'right');
     
     marginY += 5;
     doc.text('Senior Discount', marginX, marginY);
-    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    doc.text(z_reading.senior_discount.toFixed(2), availableWidth - marginX, marginY, null, null, 'right');
     
     marginY += 5;
     doc.text('PWD Discount', marginX, marginY);
-    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    doc.text(z_reading.senior_discount.toFixed(2), availableWidth - marginX, marginY, null, null, 'right');
   
     marginY += 5;
     doc.text('Sales Return', marginX, marginY);
-    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    doc.text(z_reading.sales_return.toFixed(2), availableWidth - marginX, marginY, null, null, 'right');
   
     marginY += 5;
     doc.text('Net Sales', marginX, marginY);
-    doc.text('0.00', availableWidth - marginX, marginY, null, null, 'right');
+    doc.text(z_reading.net_sales.toFixed(2), availableWidth - marginX, marginY, null, null, 'right');
   
     const dividingLine2Y = marginY + 5;
     doc.line(0, dividingLine2Y, availableWidth, dividingLine2Y);
@@ -317,78 +327,74 @@ export async function generateZReading() {
   
     y = dividingLine3Y + 5;
     doc.text('Total Collection', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.total_collection.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     const dividingLine4Y = y + 3;
     doc.line(0, dividingLine4Y, availableWidth, dividingLine4Y);
   
     y = dividingLine4Y + 5;
     doc.text('VAT Sales', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.vat_sales.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
-    doc.text('VAT Sales', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
-    
-    y += 5;
     doc.text('VAT Amount', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.vat_amount.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Non-VAT', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.non_vat.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('VAT Exempt', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.vat_exempt.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('VAT Zero Rated', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.vat_zero_rated.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     const dividingLine5Y = y + 3;
     doc.line(0, dividingLine5Y, availableWidth, dividingLine5Y);
   
     y = dividingLine5Y + 5;
     doc.text('Total', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.total_vat_analysis.toFixed(2), availableWidth - marginX, y, null, null, 'right');
     
     const dividingLine6Y = y + 3;
     doc.line(0, dividingLine6Y, availableWidth, dividingLine6Y);
   
     y = dividingLine6Y + 5;
     doc.text('Counter ID Start', marginX, y);
-    doc.text('0000000001', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.counter_id_start, availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Counter ID End', marginX, y);
-    doc.text('0000000002', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.counter_id_end, availableWidth - marginX, y, null, null, 'right');
   
     const dividingLine7Y = y + 3;
     doc.line(0, dividingLine7Y, availableWidth, dividingLine7Y);
   
     y = dividingLine7Y + 5;
     doc.text('Cancelled Tx.', marginX, y);
-    doc.text('0', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.cancelled_transaction.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Cancelled Amount', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.cancelled_amount.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     const dividingLine8Y = y + 3;
     doc.line(0, dividingLine8Y, availableWidth, dividingLine8Y);
   
     y = dividingLine8Y + 5;
     doc.text('No. of Transactions', marginX, y);
-    doc.text('2', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.number_of_transaction.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('No. of SKU', marginX, y);
-    doc.text('2', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.number_of_sku.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Total Quantity', marginX, y);
-    doc.text('2', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.total_quantity.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     const dividingLine9Y = y + 3;
     doc.line(0, dividingLine9Y, availableWidth, dividingLine9Y);
@@ -398,15 +404,15 @@ export async function generateZReading() {
     
     y += 10;
     doc.text('Previous Reading', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.ags_previous_reading.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Gross Sales (Net of Vat)', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.ags_gross_sales.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Accum. Gross Sales', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.ags_accumulated_gross_sales.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     
     const dividingLine10Y = y + 3;
@@ -417,15 +423,15 @@ export async function generateZReading() {
     
     y += 10;
     doc.text('Previous Reading', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.ans_previous_reading.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Net Sales', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.ans_net_sales.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     y += 5;
     doc.text('Accum. Net Sales', marginX, y);
-    doc.text('0.00', availableWidth - marginX, y, null, null, 'right');
+    doc.text(z_reading.ans_accumulated_net_sales.toFixed(2), availableWidth - marginX, y, null, null, 'right');
   
     
     const dividingLine11Y = y + 3;
@@ -448,25 +454,25 @@ export async function generateZReading() {
     doc.line(0, dividingLine12Y, availableWidth, dividingLine12Y);
   
     y = dividingLine12Y + 5;
-    doc.text('POS VENDOR:', availableWidth / 2, y, null, null, 'center');
-  
+    doc.text(`POS VENDOR: ${sysSettings?.pos_vendor}`, availableWidth / 2, y, null, null, 'center');
+
     y += 5;
-    doc.text('Vendor Address', availableWidth / 2, y, null, null, 'center');
-  
+    doc.text(`${sysSettings?.pos_vendor_address}`, availableWidth / 2, y, null, null, 'center');
+
     y += 5;
-    doc.text('VAT REG TIN: ', availableWidth / 2, y, null, null, 'center');
-  
+    doc.text(`VAT REG TIN: ${sysSettings?.pos_vendor_tin}`, availableWidth / 2, y, null, null, 'center');
+
     y += 10;
-    doc.text('ACRED No.: Accreditation Number: ', availableWidth / 2, y, null, null, 'center');
-  
+    doc.text(`ACRED No.: ${sysSettings?.pos_vendor_accreditation_number}`, availableWidth / 2, y, null, null, 'center');
+
     y += 5;
     doc.text('Date Issued: ', availableWidth / 2, y, null, null, 'center');
-  
+
     y += 5;
     doc.text('Valid Until: ', availableWidth / 2, y, null, null, 'center');
-  
+
     y += 10;
-    doc.text('PTU No: ', availableWidth / 2, y, null, null, 'center');
+    doc.text(`PTU No: `, availableWidth / 2, y, null, null, 'center');
     
     y += 5;
     doc.text('Date Issued: ', availableWidth / 2, y, null, null, 'center');

@@ -181,7 +181,7 @@ name: 'DashboardView', // Update the component name here
                     router.push(`/Setup/Item/Details/${result.data}`);
                 }
             } catch (error) {
-                await presentToast(`Erroe adding new item ${error}`)
+                await presentToast(`Erroe adding new item ${error}`,'middle', 3000)
             }
         }
         

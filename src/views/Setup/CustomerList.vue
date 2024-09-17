@@ -123,7 +123,7 @@ export default defineComponent({
                     router.push(`/Setup/Customer/Details/${result.data}`);
                 }
             } catch (error) {
-                await presentToast(`Error adding new customer ${error}`)
+                await presentToast(`Error adding new customer ${error}`,'middle', 3000)
             }
         }
         
