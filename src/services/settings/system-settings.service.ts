@@ -55,7 +55,6 @@ export const getSystemSettings = async () => {
             image: sys_settings.image ?? '',
         }))[0];
 
-        
       return { success: true, data: sys_settings};
     } catch (error) {
       throw error;

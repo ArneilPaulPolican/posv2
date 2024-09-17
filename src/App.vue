@@ -20,6 +20,7 @@ import { useRoute } from 'vue-router';
 import LoginView from './views/LoginView.vue';
 import { getSystemSettings } from './services/settings/system-settings.service';
 import { Storage } from '@capacitor/storage';
+import { getUserById } from './services/settings/user.service';
 
 export default defineComponent({
   components:{
@@ -29,14 +30,22 @@ export default defineComponent({
   setup(){// Create a storage instance
     const route = useRoute();
     const showHeader = computed(() => route.name !== 'LoginView');
+    
     async function fetchSettings() {
       console.log(showHeader.value);
       const result = await getSystemSettings()
       await Storage.set({
         key: 'sysSettings',
-        value: JSON.stringify(result) as string
-      });    
+        value: JSON.stringify(result.data) as string
+      });
+      
+      const result_user = await getUserById()
+      await Storage.set({
+        key: 'current_user',
+        value: JSON.stringify(result_user.data) as string
+      });
     }
+
     onIonViewDidEnter(async () => {
       await fetchSettings()
     });

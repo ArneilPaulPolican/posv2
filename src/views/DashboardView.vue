@@ -120,19 +120,7 @@
                 </ion-row>
                 
                 <ion-row>
-                    
-                    <ion-col size="3" size-md="3" size-lg="3">
-                        <router-link :to="{ name: 'tabs' }">
-                            <ion-button size="medium" expand="block" style="height: 100%">
-                                <div class="icon-label-wrapper">
-                                    <ion-icon slot="start" :ios="icons.logInOutline" :md="icons.logInSharp"></ion-icon>
-                                    <span>TAB</span>
-                                </div>
-                            </ion-button>
-                        </router-link>
-                    </ion-col>
-                    
-                    <ion-col size="3" size-md="3" size-lg="3">
+                    <ion-col size="6" size-md="6" size-lg="6">
                         <router-link :to="{ name: 'company_details' }">
                             <ion-button size="medium" expand="block" style="height: 100%">
                                 <div class="icon-label-wrapper">
@@ -142,7 +130,7 @@
                             </ion-button>
                         </router-link>
                     </ion-col>
-                    <ion-col size="3" size-md="3" size-lg="3">
+                    <ion-col size="6" size-md="6" size-lg="6">
                         <router-link :to="{ name: 'user_lists' }">
                             <ion-button size="medium" expand="block" style="height: 100%">
                                 <div class="icon-label-wrapper">

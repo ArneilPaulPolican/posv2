@@ -221,22 +221,16 @@ export default defineComponent({
         }
         async function fetchCurrentSettings() {
             try {
-                try {
-                    const result = await getSystemSettings()
-                    if(result.success && result.data){
-                        sysSettings.value = { ... result.data};
-                    }
-                    company_image.value = sysSettings.value?.image;
-                   
-                } catch (error) {
-                    await presentToast(`Retreiving current settings failed: ${error}`);
-                }
-                try {
-                    const result_user = await getUserById()
-                    current_user.value = {... result_user.data}
-                } catch (error) {
-                    await presentToast(`Retreiving current user failed: ${error}`);
-                }
+                
+                const { value } = await Storage.get({ key: 'sysSettings' });
+                sysSettings.value = JSON.parse(value as string);
+                    
+                company_image.value = sysSettings.value?.image;
+               
+                const  data = await Storage.get({ key: 'current_user' });
+                console.log(JSON.parse(data.value as string));
+                current_user.value = JSON.parse(data.value as string);
+                
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`);
             }
