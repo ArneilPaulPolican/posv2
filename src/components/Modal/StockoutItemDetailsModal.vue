@@ -20,37 +20,37 @@
             <ion-list :inset="true" style="margin: 10px">
                 <div style="padding: 10px;">
                     <ion-item>
-                        <ion-label position="stacked">Barcode</ion-label>
-                        <ion-input v-model="stock_out_item_local.item_barcode" :readonly="true" ></ion-input>
+                        <!-- <ion-label position="stacked">Barcode</ion-label> -->
+                        <ion-input label="Barcode" label-placement="floating" fill="solid" v-model="stock_out_item_local.item_barcode" :readonly="true" ></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Discription</ion-label>
-                        <ion-input v-model="stock_out_item_local.item_description" :readonly="true"></ion-input>
+                        <!-- <ion-label position="stacked">Discription</ion-label> -->
+                        <ion-input label="Discription" label-placement="floating" fill="solid" v-model="stock_out_item_local.item_description" :readonly="true"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Unit</ion-label>
-                        <ion-input v-model="stock_out_item_local.unit_code" :readonly="true"></ion-input>
+                        <!-- <ion-label position="stacked">Unit</ion-label> -->
+                        <ion-input label="Unit" label-placement="floating" fill="solid" v-model="stock_out_item_local.unit_code" :readonly="true"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-row>
                             <ion-col size="6">
-                                <ion-label position="stacked">Cost</ion-label>
-                                <!-- <ion-input @ionInput="updateAmount()" type="number" v-model="stock_out_item_local.cost" placeholder="0.00"></ion-input> -->
-                                <InputFloat :amount="stock_out_item_local.cost" @update="(floatValue) => stock_out_item_local.cost = floatValue" @ionInput="updateAmount()"></InputFloat>
+                                <!-- <ion-label position="stacked">Cost</ion-label> -->
+                                <!-- <ion-input label="" label-placement="floating" fill="solid" @ionInput="updateAmount()" type="number" v-model="stock_out_item_local.cost" placeholder="0.00"></ion-input> -->
+                                <InputFloat label="Cost" :amount="stock_out_item_local.cost" @update="(floatValue) => stock_out_item_local.cost = floatValue" @ionInput="updateAmount()"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
-                                <ion-label position="stacked">Quantity</ion-label>
-                                <!-- <ion-input v-model="stock_out_item_local.quantity" placeholder="0.00"></ion-input> -->
-                                <InputFloat :amount="stock_out_item_local.quantity" @update="(floatValue) => stock_out_item_local.quantity = floatValue" @ionInput="updateAmount()"></InputFloat>
+                                <!-- <ion-label position="stacked">Quantity</ion-label> -->
+                                <!-- <ion-input label="" label-placement="floating" fill="solid" v-model="stock_out_item_local.quantity" placeholder="0.00"></ion-input> -->
+                                <InputFloat label="Quantity" :amount="stock_out_item_local.quantity" @update="(floatValue) => stock_out_item_local.quantity = floatValue" @ionInput="updateAmount()"></InputFloat>
                             </ion-col>
                         </ion-row>
                     </ion-item>
                     <ion-item>
                         <ion-row>
                             <ion-col>
-                                <ion-label position="stacked">Amount</ion-label>
-                                <!-- <ion-input readonly v-model="stock_out_item_local.amount" placeholder="0.00"></ion-input> -->
-                                <InputFloat :amount="stock_out_item_local.amount" @update="(floatValue) => stock_out_item_local.amount = floatValue"></InputFloat>
+                                <!-- <ion-label position="stacked">Amount</ion-label> -->
+                                <!-- <ion-input label="" label-placement="floating" fill="solid" readonly v-model="stock_out_item_local.amount" placeholder="0.00"></ion-input> -->
+                                <InputFloat label="Amount" :amount="stock_out_item_local.amount" @update="(floatValue) => stock_out_item_local.amount = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
 

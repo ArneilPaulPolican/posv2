@@ -24,20 +24,20 @@
             <ion-list :inset="true" style="margin: 10px">
                 <div style="padding: 10px;">
                     <ion-item>
-                        <ion-label position="stacked">Firstname</ion-label>
-                        <ion-input v-model="user.first_name" placeholder="Enter Tax Code"></ion-input>
+                        <!-- <ion-label position="stacked">Firstname</ion-label> -->
+                        <ion-input label="Firstname" label-placement="floating" fill="solid" v-model="user.first_name" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Lastname</ion-label>
-                        <ion-input v-model="user.last_name" placeholder="Tax Name"></ion-input>
+                        <!-- <ion-label position="stacked">Lastname</ion-label> -->
+                        <ion-input label="Lastname" label-placement="floating" fill="solid" v-model="user.last_name" placeholder="Tax Name"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Username</ion-label>
-                        <ion-input v-model="user.username" placeholder="Tax Name"></ion-input>
+                        <!-- <ion-label position="stacked">Username</ion-label> -->
+                        <ion-input label="Username" label-placement="floating" fill="solid" v-model="user.username" placeholder="Tax Name"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Email</ion-label>
-                        <ion-input v-model="user.email" placeholder="Tax Name"></ion-input>
+                        <!-- <ion-label position="stacked">Email</ion-label> -->
+                        <ion-input label="Email" label-placement="floating" fill="solid" v-model="user.email" placeholder="Tax Name"></ion-input>
                     </ion-item>
                 </div>
             </ion-list>

@@ -12,7 +12,7 @@
         <ion-item>
             <!-- Search Input -->
              <ion-label position="stacked">Search Item</ion-label>
-            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
+            <ion-searchbar v-model="search_key" @ionChange="fetchList" placeholder="Enter keyword"></ion-searchbar> 
         </ion-item>
         <ion-content :fullscreen="true">
             
@@ -102,6 +102,9 @@ name: 'DashboardView', // Update the component name here
             expiry_date:'NA',
             lot_number:'NA'
         });
+        const page = ref(1);
+        const page_size = ref(10);
+        const search_key = ref('')
 
         const imagePath = ref('');
         const dbLock = new Lock(); // Create a new lock
@@ -186,7 +189,7 @@ name: 'DashboardView', // Update the component name here
         }
         
         async function fetchList() {
-            const result = await getItems()
+            const result = await getItems(page.value, page_size.value, search_key.value)
             if(result.success){
                 items.value = result.data;
             }else{
@@ -204,6 +207,7 @@ name: 'DashboardView', // Update the component name here
             icons,
             // item_obersvable,
             component: markRaw(ItemDetail),
+            fetchList,
 
             items,
             imagePath,
@@ -214,6 +218,11 @@ name: 'DashboardView', // Update the component name here
             openActionSheet,
             handleDelete,
             handleEdit,
+
+            
+            page,
+            page_size,
+            search_key,
         }
     },
 }

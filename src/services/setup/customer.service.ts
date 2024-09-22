@@ -20,7 +20,7 @@ type QueryResult = {
   };
 };
 
-export const getCustomers = async () => {
+export const getCustomers = async (page = 1, pageSize = 10, search_keyword = '') => {
     const dbConnectionService = await DBConnectionService.getInstance();
     const db = await dbConnectionService.getDatabaseConnection();
     try {
@@ -43,7 +43,20 @@ export const getCustomers = async () => {
         ${CUSTOMERS_TABLE}.image_path,
         ${CUSTOMERS_TABLE}.is_locked,
         ${CUSTOMERS_TABLE}.is_default_value
-      FROM ${CUSTOMERS_TABLE}`
+      FROM ${CUSTOMERS_TABLE}
+      WHERE (
+          ${CUSTOMERS_TABLE}.customer_code LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.customer LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.contact_number LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.contact_person LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.category LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.email LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.address LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.tin LIKE '%${search_keyword}%' 
+          OR ${CUSTOMERS_TABLE}.reward_number LIKE '%${search_keyword}%' 
+        )
+        LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+        `;
       const res = await db.query(customerServiceQuery);
       console.log(res)
       if(res.values){

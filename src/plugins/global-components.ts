@@ -52,7 +52,8 @@ import {
     IonSelect, IonSelectOption,
     IonPopover,
     IonNavLink,
-    toastController 
+    toastController,
+    IonPicker
     // ... add other Ionic components you need
   } from '@ionic/vue';
   import { App } from 'vue';
@@ -119,6 +120,7 @@ import {
       app.component('IonPopover', IonPopover);
       app.component('IonNavLink', IonNavLink);
       app.component('toastController', toastController);
+      app.component('IonPicker', IonPicker);
       
       
     // ... register other Ionic components here

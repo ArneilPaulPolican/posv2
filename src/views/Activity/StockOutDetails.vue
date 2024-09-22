@@ -50,24 +50,24 @@
                 <ion-item>
                     <ion-row>
                         <ion-col size="6">
-                            <ion-label position="stacked">Date</ion-label>
-                            <ion-input :disabled="is_locked" :readonly="true" v-model="stock_out.out_date" ></ion-input>
+                            <!-- <ion-label position="stacked">Date</ion-label> -->
+                            <ion-input label="Date" label-placement="floating" fill="solid" :disabled="is_locked" :readonly="true" v-model="stock_out.out_date" ></ion-input>
                         </ion-col>
                         <ion-col size="6">
-                            <ion-label position="stacked">Status</ion-label>
-                            <ion-input :disabled="is_locked" v-model="stock_out.status" placeholder="New" ></ion-input>
+                            <!-- <ion-label position="stacked">Status</ion-label> -->
+                            <ion-input label="Status" label-placement="floating" fill="solid" :disabled="is_locked" v-model="stock_out.status" placeholder="New" ></ion-input>
                         </ion-col>
                     </ion-row>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="stacked">Remarks</ion-label>
-                    <ion-input :disabled="is_locked" v-model="stock_out.remarks" placeholder="Remarks" ></ion-input>
+                    <!-- <ion-label position="stacked">Remarks</ion-label> -->
+                    <ion-textarea label="Remarks" label-placement="floating" fill="solid" :disabled="is_locked" v-model="stock_out.remarks" placeholder="Remarks" ></ion-textarea>
                 </ion-item>
             </ion-list>
             
             <ion-item>
-                <ion-label position="stacked">Barcode</ion-label>
-                <ion-input  placeholder="00000000001"></ion-input>
+                <!-- <ion-label position="stacked">Barcode</ion-label> -->
+                <ion-input label="Barcode" label-placement="floating" fill="solid"  placeholder="00000000001"></ion-input>
             </ion-item>
             
             <ion-list :inset="true" style="margin: 5px">

@@ -11,31 +11,31 @@
                 <div>
                     <ion-item>
                         <ion-label>Z Reading Date</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.z_reading_date"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Gross Sales (Net of VAT)</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.gross_sales"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.gross_sales"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Regular Discount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.regular_discount"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.regular_discount"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Senior Discount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.senior_discount"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.senior_discount"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>PWD Discount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.pwd_discount"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.pwd_discount"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Sales Return</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.sales_return"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.sales_return"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Net Sales</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.net_sales"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.net_sales"></ion-input>
                     </ion-item>
                 </div>
             </ion-list>
@@ -44,11 +44,11 @@
                 <div>
                     <ion-item>
                         <ion-label>Cash</ion-label>
-                        <ion-input slot="end" readonly ></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly ></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Refund</ion-label>
-                        <ion-input slot="end" readonly ></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly ></ion-input>
                     </ion-item>
                 </div>
             </ion-list>
@@ -56,7 +56,7 @@
             
             <ion-item>
                 <ion-label>Total Collection</ion-label>
-                <ion-input slot="end" readonly v-model="z_reading.total_collection"></ion-input>
+                <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.total_collection"></ion-input>
             </ion-item>
 
             
@@ -64,27 +64,27 @@
                 <div>
                     <ion-item>
                         <ion-label>VAT Sales</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.vat_sales"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.vat_sales"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>VAT Amount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.vat_amount"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.vat_amount"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Non-VAT</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.non_vat"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.non_vat"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>VAT Exempt</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.vat_exempt"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.vat_exempt"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>VAT Zero Rated</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.vat_zero_rated"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.vat_zero_rated"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Total</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.total_vat_analysis"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.total_vat_analysis"></ion-input>
                     </ion-item>
                 </div>
             </ion-list>
@@ -93,31 +93,31 @@
                 <div>
                     <ion-item>
                         <ion-label>Counter Id Start</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.counter_id_start"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.counter_id_start"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Counter Id End</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.counter_id_end"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.counter_id_end"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Cancelled Transaction</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.cancelled_transaction"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.cancelled_transaction"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Cancelled Amount</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.cancelled_amount"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.cancelled_amount"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>No. of Transaction</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.number_of_transaction"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.number_of_transaction"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>No. of SKU</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.number_of_sku"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.number_of_sku"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-label>Total Quantity</ion-label>
-                        <ion-input slot="end" readonly v-model="z_reading.total_quantity"></ion-input>
+                        <ion-input label="" label-placement="floating" fill="solid" slot="end" readonly v-model="z_reading.total_quantity"></ion-input>
                     </ion-item>
                 </div>
             </ion-list>

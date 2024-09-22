@@ -39,15 +39,15 @@
             <ion-list :inset="true" style="margin: 10px">
                 <div style="padding: 10px;">
                     <ion-item>
-                        <ion-label position="stacked">Discount :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="discount.discount" placeholder="Discount name"></ion-input>
+                        <!-- <ion-label position="stacked">Discount :</ion-label> -->
+                        <ion-input label="Discount" label-placement="floating" fill="solid" :disabled="is_locked" v-model="discount.discount" placeholder="Discount name"></ion-input>
                     </ion-item>
                     <ion-item>
                         <ion-row>
                             <ion-col>
-                                <ion-label position="stacked">Rate :</ion-label>
-                                <!-- <ion-input v-model="discount.discount_rate"  type="number" placeholder="0.00"></ion-input> -->
-                                <InputFloat :disabled="is_locked" :amount="discount.discount_rate" @update="(floatValue) => discount.discount_rate = floatValue"></InputFloat>
+                                <!-- <ion-label position="stacked">Rate :</ion-label> -->
+                                <!-- <ion-input label="" label-placement="floating" fill="solid" v-model="discount.discount_rate"  type="number" placeholder="0.00"></ion-input> -->
+                                <InputFloat label="Rate" :disabled="is_locked" :amount="discount.discount_rate" @update="(floatValue) => discount.discount_rate = floatValue"></InputFloat>
                             </ion-col>
                             <ion-col>
                                 <!-- <ion-label position="stacked">Is Vat Inclusive  :</ion-label>&nbsp; -->
@@ -56,8 +56,8 @@
                             </ion-col>
                         </ion-row></ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Particulars :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="discount.particular" placeholder="Rate"></ion-input>
+                        <!-- <ion-label position="stacked">Particulars :</ion-label> -->
+                        <ion-input label="Particulars" label-placement="floating" fill="solid" :disabled="is_locked" v-model="discount.particular" placeholder="Rate"></ion-input>
                     </ion-item>
                     <ion-item>
                         <img v-if="discount.image_url" :src="discount.image_url" >

@@ -43,39 +43,41 @@
         <ion-content :fullscreen="true">
             
             <ion-list :inset="true" style="margin: 10px">
-                <div style="padding: 10px;">
-                    <ion-item >
-                        <ion-label position="stacked">Barcode :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="item.bar_code" placeholder="012345678912"></ion-input>
+                <div style="padding: 5px;">
+                    <ion-item>
+                        <!-- <ion-label position="stacked">Barcode</ion-label> -->
+                        <ion-input label="Barcode" label-placement="floating" fill="solid" :disabled="is_locked" v-model="item.bar_code" placeholder="012345678912"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Description :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="item.item_description" placeholder="Item Description"></ion-textarea>
+                        <!-- <ion-label position="stacked">Description</ion-label> -->
+                        <ion-textarea label="Description" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="item.item_description" placeholder="Item Description"></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-row>
-                            <ion-col size="6">
-                                <ion-label position="stacked">Unit :</ion-label>
-                                <ion-input :disabled="is_locked" :readonly="true" v-model="item.unit" placeholder="Pc(s)" @click="openUnitModal(true)"></ion-input>
+                            <ion-col size="6" @click="openUnitModal">
+                                <ion-input label="Unit" label-placement="floating" fill="solid" :disabled="is_locked" :readonly="true" v-model="item.unit" placeholder="Pc(s)" ></ion-input>
+                                <!-- <ion-button :disabled="is_locked" fill="solid" size="medium" style="align-self: center;" @click="openUnitModal(true)">
+                                    <ion-icon :icon="icons.ellipsisHorizontalOutline"></ion-icon>
+                                </ion-button> -->
                             </ion-col>
                             <ion-col size="6">
-                                <ion-label position="stacked">Price : </ion-label>
-                                <!-- <ion-input :disabled="is_locked" v-model="trimmedPrice" type="number" placeholder="Enter Price" ></ion-input> -->
-                                <InputFloat :disabled="is_locked" :amount="item.price" @update="(floatValue) => item.price = floatValue"></InputFloat>
+                                <!-- <ion-label position="stacked">Price : </ion-label> -->
+                                <!-- <ion-input label="" label-placement="floating" fill="solid" :disabled="is_locked" v-model="trimmedPrice" type="number" placeholder="Enter Price" ></ion-input> -->
+                                <InputFloat label="Price" :disabled="is_locked" :amount="item.price" @update="(floatValue) => item.price = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
                     </ion-item>
                     <ion-item>
                         <ion-row>
                             <ion-col size="6">
-                                <ion-label position="stacked">Cost :</ion-label>
-                                <!-- <ion-input :disabled="is_locked" v-model="item.cost" type="number" placeholder="Enter Cost" ></ion-input> -->
-                                <InputFloat :disabled="is_locked" :amount="item.cost" @update="(floatValue) => item.cost = floatValue"></InputFloat>
+                                <!-- <ion-label position="stacked">Cost </ion-label> -->
+                                <!-- <ion-input label="" label-placement="floating" fill="solid" :disabled="is_locked" v-model="item.cost" type="number" placeholder="Enter Cost" ></ion-input> -->
+                                <InputFloat label="Cost" :disabled="is_locked" :amount="item.cost" @update="(floatValue) => item.cost = floatValue"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
-                                <ion-label position="stacked">Onhand Quantity :</ion-label>
-                                <InputFloat :disabled="is_locked" :amount="item.quantity" @update="(floatValue) => item.quantity = floatValue"></InputFloat>
-                                <!-- <ion-input v-model="item.quantity" type="number" placeholder="0.00" disabled></ion-input> -->
+                                <!-- <ion-label position="stacked">Onhand Quantity </ion-label> -->
+                                <InputFloat label="Onhand Quantity" :disabled="is_locked" :amount="item.quantity" @update="(floatValue) => item.quantity = floatValue"></InputFloat>
+                                <!-- <ion-input label="" label-placement="floating" fill="solid" v-model="item.quantity" type="number" placeholder="0.00" disabled></ion-input> -->
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -91,48 +93,53 @@
                         </ion-row>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Tax :</ion-label>
-                        <ion-input :disabled="is_locked" :readonly="true" v-model="item.tax" placeholder="VAT"></ion-input>
-                        <ion-button :disabled="is_locked" slot="end" fill="outline" size="medium" style="align-self: center;" @click="openTaxModal(true)">
+                        <!-- <ion-label position="stacked">Tax </ion-label> -->
+                        <ion-input label="Tax" label-placement="floating" fill="solid" :disabled="is_locked" :readonly="true" v-model="item.tax" placeholder="VAT" @click="openTaxModal"></ion-input>
+                        <!-- <ion-button :disabled="is_locked" slot="end" fill="solid" size="medium" style="align-self: center;" @click="openTaxModal(true)">
                             <ion-icon :icon="icons.ellipsisHorizontalOutline"></ion-icon>
-                        </ion-button>
+                        </ion-button> -->
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Alias :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="item.alias" placeholder="Alias" ></ion-textarea>
+                        <!-- <ion-label position="stacked">Alias </ion-label> -->
+                        <ion-textarea label="Alias" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="item.alias" placeholder="Alias" ></ion-textarea>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Generic Name :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="item.generic_name" placeholder="Generic Name" ></ion-textarea>
+                        <!-- <ion-label position="stacked">Generic Name </ion-label> -->
+                        <ion-textarea label="Generic Name" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="item.generic_name" placeholder="Generic Name" ></ion-textarea>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Remarks :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="item.remarks" placeholder="Remarks" ></ion-textarea>
+                        <!-- <ion-label position="stacked">Remarks </ion-label> -->
+                        <ion-textarea label="Remarks" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="item.remarks" placeholder="Remarks" ></ion-textarea>
                     </ion-item>
                     <ion-item>
-                        <div style="height: 100px;width: auto; display: flex;flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center;">
-                            <img v-if="item.image_path" :src="item.image_path" alt="Image" />
-                        </div>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col>
+                                    <div style="height: 200px;width: auto; display: flex;flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center;">
+                                        <img v-if="item.image_path" :src="item.image_path" alt="Image" style="height: 200px;width: auto;"/>
+                                    </div>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
                     </ion-item>
                     <ion-item >
-                        <ion-button v-if="!is_locked" @click="captureImage">
-                            <ion-icon :icon="icons.camera"></ion-icon>
-                        </ion-button>
-                        <ion-button v-if="!is_locked" @click="retreiveImage">
-                            <ion-icon :icon="icons.attachSharp"></ion-icon>
-                        </ion-button>
+                        <ion-row>
+                            <ion-col> 
+                                <ion-button v-if="!is_locked" @click="captureImage" size="large" expand="block">
+                                    <ion-icon :icon="icons.camera"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                            <ion-col> 
+                                <ion-button v-if="!is_locked" @click="retreiveImage" size="large" expand="block">
+                                    <ion-icon :icon="icons.attachSharp"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
                     </ion-item>
                 </div>
 
             </ion-list>
 
-            
-            <ion-modal :is-open="open_unit_modal" @close="open_unit_modal = false">
-                <UnitListModal @unit-picked="handleUnitPicked"  @close="open_unit_modal = false"/>
-            </ion-modal>
-            <ion-modal :is-open="open_tax_modal" @close="open_tax_modal = false">
-                <TaxListModal @tax-picked="handleTaxPicked"  @close="open_tax_modal = false"/>
-            </ion-modal>
         </ion-content>
         
     </ion-page>
@@ -149,7 +156,7 @@ import { Lock } from '@/services/lock';
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import UnitListModal from '@/components/Modal/UnitListModal.vue';
 import TaxListModal from '@/components/Modal/TaxListModal.vue';
-import { onIonViewDidEnter } from '@ionic/vue';
+import { modalController, onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/composables/toast.composables';
 import { reload } from 'ionicons/icons';
 import { usePhotoGallery } from '@/composables/image.composable';
@@ -215,31 +222,58 @@ export default defineComponent({
         //     return value.replace(/^0+/g, '');
         // }
         
-        function openUnitModal(isOpen: boolean) {
-            if(!is_locked){
-                open_unit_modal.value = isOpen
-            }
-        }
+        // function openUnitModal(isOpen: boolean) {
+        //     if(!is_locked){
+        //         open_unit_modal.value = isOpen
+        //     }
+        // }
 
-        const handleUnitPicked = (unit: any) => {
-            // Handle the picked unit data here
-            open_unit_modal.value = false;
-            item.value.unit_id = unit.id;
-            item.value.unit = unit.unit_code;
-            // Process the unit data as needed
+        // const handleUnitPicked = (unit: any) => {
+        //     // Handle the picked unit data here
+        //     open_unit_modal.value = false;
+        //     item.value.unit_id = unit.id;
+        //     item.value.unit = unit.unit_code;
+        //     // Process the unit data as needed
+        // };
+
+        const openUnitModal = async () => {
+            const modal = await modalController.create({
+            component: UnitListModal,
+            // componentProps: { data: sales } 
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+            item.value.unit_id = data.id;
+            item.value.unit = data.unit_code;
+            }
         };
 
         const confirmReturn =() => {
             open_alert.value = false;
         }
         
-        function openTaxModal(isOpen: boolean) {
-            open_tax_modal.value = isOpen;
-        }
-        const handleTaxPicked = (tax: any) => {
-            open_tax_modal.value = false;
-            item.value.tax_id = tax.id;
-            item.value.tax = tax.tax;
+        // function openTaxModal(isOpen: boolean) {
+        //     open_tax_modal.value = isOpen;
+        // }
+        // const handleTaxPicked = (tax: any) => {
+        //     open_tax_modal.value = false;
+        //     item.value.tax_id = tax.id;
+        //     item.value.tax = tax.tax;
+        // };
+        const openTaxModal = async () => {
+            const modal = await modalController.create({
+            component: TaxListModal,
+            // componentProps: { data: sales } 
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+            item.value.tax_id = data.id;
+            item.value.tax = data.tax;
+            }
         };
 
         // Capture an image and save it
@@ -369,7 +403,7 @@ export default defineComponent({
             item,
             open_unit_modal,
             open_tax_modal,
-            handleUnitPicked,
+            // handleUnitPicked,
             handleBackButton,
 
             is_locked,
@@ -383,7 +417,7 @@ export default defineComponent({
             handleSave,
             openUnitModal,
             openTaxModal,
-            handleTaxPicked,
+            // handleTaxPicked,
             confirmReturn,
 
             handleLock,

@@ -23,8 +23,8 @@
             <ion-list :inset="true" style="margin: px">
                 <div style="padding: 5px;">
                     <ion-item>
-                        <ion-label position="stacked">Paytype :</ion-label>
-                        <ion-input v-model="paytype.paytype" placeholder="Enter Tax Code"></ion-input>
+                        <!-- <ion-label position="stacked">Paytype :</ion-label> -->
+                        <ion-input label="Paytype" label-placement="floating" fill="solid" v-model="paytype.paytype" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item slot="start">
                         <ion-row>

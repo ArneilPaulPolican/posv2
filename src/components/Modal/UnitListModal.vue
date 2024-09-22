@@ -2,15 +2,18 @@
     <ion-page style="margin-top: 65px;">
         <ion-header :translucent="true">
             <ion-toolbar>
+            <ion-buttons slot="start">
+                <ion-button color="medium" @click="cancel">Cancel</ion-button>
+            </ion-buttons>
             <ion-title>Select Unit</ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-item>
             <!-- Search Input -->
             <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
-            <ion-button @click="$emit('close')" size="medium" expand="block" fill="outline">
+            <!-- <ion-button @click="$emit('close')" size="medium" expand="block" fill="solid">
                 <ion-label>Close</ion-label>
-            </ion-button>
+            </ion-button> -->
         </ion-item>
 
         
@@ -39,18 +42,22 @@ import { icons } from '@/plugins/icons';
 import { presentToast } from '@/composables/toast.composables';
 import { getUnits } from '@/services/system/unit.service';
 import { defineComponent, onMounted, ref } from 'vue';
+import { modalController } from '@ionic/vue';
 
 export default defineComponent({
 
     setup(_, {emit}){
         const units = ref<UNIT[]>([])
 
-        const handlePickedUnit = async (unit:UNIT) =>{
-            emit('unit-picked', unit);
-            emit('close'); 
+        // const handlePickedUnit = async (unit:UNIT) =>{
+        //     emit('unit-picked', unit);
+        //     emit('close'); 
+        // }
+
+        const cancel = () => modalController.dismiss('', 'cancel');
+        const handlePickedUnit = (unit:UNIT) => {
+            modalController.dismiss(unit , 'confirm');
         }
-
-
         onMounted(async () => {
             setTimeout(async () => {
                 try {
@@ -67,7 +74,8 @@ export default defineComponent({
             icons,
             units,
 
-            handlePickedUnit
+            handlePickedUnit,
+            cancel
         }
     }
 });

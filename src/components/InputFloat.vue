@@ -1,6 +1,6 @@
 <!-- InputFloat.vue -->
 <template>
-    <ion-input v-model="float_value" type="number" placeholder="0.00" @ionInput="trimmValue" style="text-align: end;"></ion-input>
+    <ion-input label-placement="floating" fill="solid" v-model="float_value" type="number" placeholder="0.00" @ionInput="trimmValue" style="text-align: end;"></ion-input>
 </template>
 
 <script lang="ts">

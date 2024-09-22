@@ -35,20 +35,20 @@
             <ion-list :inset="true" style="margin: px">
                 <div style="padding: 5px;">
                     <ion-item>
-                        <ion-label position="stacked">Table Code :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="table.table_code" placeholder="Enter Tax Code"></ion-input>
+                        <!-- <ion-label position="stacked">Table Code :</ion-label> -->
+                        <ion-input label="Table Code" label-placement="floating" fill="solid" :disabled="is_locked" v-model="table.table_code" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Table :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="table.table_name" placeholder="Enter Tax Code"></ion-input>
+                        <!-- <ion-label position="stacked">Table :</ion-label> -->
+                        <ion-input label="Table" label-placement="floating" fill="solid" :disabled="is_locked" v-model="table.table_name" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Category :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="table.category" placeholder="Enter Tax Code"></ion-input>
+                        <!-- <ion-label position="stacked">Category :</ion-label> -->
+                        <ion-input label="Category" label-placement="floating" fill="solid" :disabled="is_locked" v-model="table.category" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">pax :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="table.pax" placeholder="Enter Tax Code"></ion-input>
+                        <!-- <ion-label position="stacked">pax :</ion-label> -->
+                        <ion-input label="Pax" label-placement="floating" fill="solid" :disabled="is_locked" v-model="table.pax" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
                     
                     <ion-item>

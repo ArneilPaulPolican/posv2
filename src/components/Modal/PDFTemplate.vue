@@ -4,7 +4,7 @@
             <ion-toolbar>
             <ion-title>PDF</ion-title>
             </ion-toolbar>
-            <ion-button slot="end" @click="$emit('close')" size="medium" expand="block" fill="outline">
+            <ion-button slot="end" @click="$emit('close')" size="medium" expand="block" fill="solid">
                 <ion-label>Close</ion-label>
             </ion-button>
         </ion-header>

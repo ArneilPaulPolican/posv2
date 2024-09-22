@@ -80,7 +80,7 @@ export const getSales = async (start_date:string, end_date:string) => {
     }
 };
 
-export const getOpenSales = async () => {
+export const getOpenSales = async (page = 1, pageSize = 10, sales_date = '', search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -88,7 +88,15 @@ export const getOpenSales = async () => {
       throw new Error('Database connection not open');
     }
 
-      const saleServiceQuery = `
+    if(sales_date == ''){
+      sales_date =  new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+      
+    const saleServiceQuery = `
       SELECT ${SALES_TABLE}.id,
           ${SALES_TABLE}.user_id,
           ${USERS_TABLE}.first_name || ' ' ||${USERS_TABLE}.last_name AS full_name,
@@ -133,19 +141,41 @@ export const getOpenSales = async () => {
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
       WHERE ${SALES_TABLE}.is_billed_out = 0 AND ${SALES_TABLE}.is_cancelled = 0
+      AND ${SALES_TABLE}.sales_date =?
+      AND (
+        ${SALES_TABLE}.sales_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.sales_date LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.terminal_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.customer_id LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer_code LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.address LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.tin LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.table_id LIKE '%${search_keyword}%' 
+        OR ${TABLES_TABLE}.table_code LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.total_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.balance_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.paid_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.discount_amount LIKE '%${search_keyword}%'
+      )
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
+      LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       `;
+      const params = [sales_date];
+      
     
-    const result = await db.query(saleServiceQuery);
+    const result = await db.query(saleServiceQuery,params);
     
     return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
+    console.log(error);
+    
     throw error;
   }
 };
 
-export const getBilledSales = async () => {
+export const getBilledSales = async (page = 1, pageSize = 10, sales_date = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -212,7 +242,7 @@ export const getBilledSales = async () => {
   }
 };
 
-export const getCollectedSales = async () => {
+export const getCollectedSales = async (page = 1, pageSize = 10, sales_date = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -274,7 +304,7 @@ export const getCollectedSales = async () => {
   }
 };
 
-export const getCancelledSales = async () => {
+export const getCancelledSales = async (page = 1, pageSize = 10, sales_date = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {

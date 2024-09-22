@@ -38,11 +38,11 @@
                     <div v-if="show_disc_info">
                         <ion-item v-if="discount.discount.toLowerCase().includes('senior') || discount.discount.toLowerCase().includes('pwd')">
                             <ion-label position="stacked">Senior / PWD ID No.</ion-label>
-                            <ion-input v-model="senior_pwd_id" placeholder="0123456789"></ion-input>
+                            <ion-input label="" label-placement="floating" fill="solid" v-model="senior_pwd_id" placeholder="0123456789"></ion-input>
                         </ion-item>
                         <ion-item v-if="discount.discount.toLowerCase().includes('senior') || discount.discount.toLowerCase().includes('pwd')">
                             <ion-label position="stacked">Senior / PWD Name</ion-label>
-                            <ion-input v-model="senior_pwd_name" placeholder="John Doe"></ion-input>
+                            <ion-input label="" label-placement="floating" fill="solid" v-model="senior_pwd_name" placeholder="John Doe"></ion-input>
                         </ion-item>
                     </div>
                     <div v-if="show_disc_rate">
@@ -50,12 +50,12 @@
                             <ion-row>
                                 <ion-col size="6">
                                     <ion-label position="stacked">Disc. Rate %</ion-label>
-                                    <!-- <ion-input v-model="disc_rate" placeholder="0"></ion-input> -->
+                                    <!-- <ion-input label="" label-placement="floating" fill="solid" v-model="disc_rate" placeholder="0"></ion-input> -->
                                     <InputFloat :amount="disc_rate" @update="(floatValue) => disc_rate = floatValue"></InputFloat>
                                 </ion-col>
                                 <ion-col size="6">
                                     <ion-label position="stacked">Disc. Amount</ion-label>
-                                    <!-- <ion-input v-model="disc_amount" placeholder="NEW"></ion-input> -->
+                                    <!-- <ion-input label="" label-placement="floating" fill="solid" v-model="disc_amount" placeholder="NEW"></ion-input> -->
                                     <InputFloat :amount="disc_amount" @update="(floatValue) => disc_amount = floatValue"></InputFloat>
                                 </ion-col>
                             </ion-row>

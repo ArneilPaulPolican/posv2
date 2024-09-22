@@ -77,12 +77,12 @@
         <ion-item>
             <ion-row>
                 <ion-col size="6">
-                    <ion-label position="stacked">Date</ion-label>
-                    <ion-input :readonly="true" v-model="sales.sales_date" placeholder="MM/dd/yyyy"></ion-input>
+                    <!-- <ion-label position="stacked">Date</ion-label> -->
+                    <ion-input label="Date" label-placement="floating" fill="solid" :readonly="true" v-model="sales.sales_date" placeholder="MM/dd/yyyy"></ion-input>
                 </ion-col>
                 <ion-col size="6">
-                    <ion-label position="stacked">Sales Number</ion-label>
-                    <ion-input :readonly="true" v-model="sales.sales_number" placeholder="0000000001"></ion-input>
+                    <!-- <ion-label position="stacked">Sales Number</ion-label> -->
+                    <ion-input label="Sales Number" label-placement="floating" fill="solid" :readonly="true" v-model="sales.sales_number" placeholder="0000000001"></ion-input>
                 </ion-col>
             </ion-row>
         </ion-item>
@@ -90,13 +90,13 @@
             <ion-list :inset="true" style="margin: 5px">
                 <div style="padding: 5px;">
                     <ion-item>
-                        <ion-label position="stacked">Customer</ion-label>
-                        <ion-input :disabled="is_locked" v-model="sales.customer" :readonly="true" placeholder="Walk-in" 
+                        <!-- <ion-label position="stacked">Customer</ion-label> -->
+                        <ion-input label="Customer" label-placement="floating" fill="solid" :disabled="is_locked" v-model="sales.customer" :readonly="true" placeholder="Walk-in" 
                         @click="openCustomerModal"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Discount</ion-label>
-                        <ion-input :disabled="is_locked" v-model="sales.discount" placeholder="No Discount" 
+                        <!-- <ion-label position="stacked">Discount</ion-label> -->
+                        <ion-input label="Discount" label-placement="floating" fill="solid" :disabled="is_locked" v-model="sales.discount" placeholder="No Discount" 
                         @click="openDiscountModal"></ion-input>
                     </ion-item>
                     <ion-item>
@@ -110,25 +110,25 @@
                     <ion-item>
                         <ion-row>
                             <ion-col size="6">
-                                <ion-label position="stacked">No. PAX</ion-label>
-                                <ion-input :disabled="is_locked" v-model="sales.no_of_pax" placeholder="No. PAX"></ion-input>
+                                <!-- <ion-label position="stacked">No. PAX</ion-label> -->
+                                <ion-input label="No. PAX" label-placement="floating" fill="solid" :disabled="is_locked" v-model="sales.no_of_pax" placeholder="No. PAX"></ion-input>
                             </ion-col>
                             <ion-col size="6">
-                                <ion-label position="stacked">Status</ion-label>
-                                <ion-input :disabled="is_locked" v-model="sales.status" placeholder="NEW"></ion-input>
+                                <!-- <ion-label position="stacked">Status</ion-label> -->
+                                <ion-input label="Status" label-placement="floating" fill="solid" :disabled="is_locked" v-model="sales.status" placeholder="NEW"></ion-input>
                             </ion-col>
                         </ion-row>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Remarks</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="sales.remarks" placeholder="Remarks"></ion-textarea>
+                        <!-- <ion-label position="stacked">Remarks</ion-label> -->
+                        <ion-textarea label="Remarks" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="sales.remarks" placeholder="Remarks"></ion-textarea>
                     </ion-item>
                 </div>
             </ion-list>
 
             <ion-item>
-                <ion-label position="stacked">Barcode</ion-label>
-                <ion-input  placeholder="00000000001"></ion-input>
+                <!-- <ion-label position="stacked">Barcode</ion-label> -->
+                <ion-input label="Barcode" label-placement="floating" fill="solid"  placeholder="00000000001"></ion-input>
             </ion-item>
 
             <ion-list :inset="true" style="margin: 5px">

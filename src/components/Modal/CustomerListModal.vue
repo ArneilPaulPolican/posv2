@@ -4,7 +4,7 @@
         <ion-header>
             <ion-toolbar>
                 <ion-buttons slot="start">
-                <ion-button color="medium" @click="cancel">Cancel</ion-button>
+                    <ion-button color="medium" @click="cancel">Cancel</ion-button>
                 </ion-buttons>
                 <ion-title>Select Customer</ion-title>
             </ion-toolbar>

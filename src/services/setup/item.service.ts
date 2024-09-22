@@ -24,7 +24,7 @@ type QueryResult = {
   };
 };
 
-export const getItems = async () => {
+export const getItems = async (page = 1, pageSize = 10, search_keyword = '') => {
   // const db = await db_connection.getDatabaseConnection(); // get the database connection
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
@@ -42,6 +42,8 @@ export const getItems = async () => {
                ${ITEMS_TABLE}.cost,
                ${ITEMS_TABLE}.quantity,
                ${ITEMS_TABLE}.unit_id,
+               ${UNITS_TABLE}.unit_code,
+               ${UNITS_TABLE}.unit,
                ${ITEMS_TABLE}.is_inventory,
                ${ITEMS_TABLE}.is_vat_inclusive,
                ${ITEMS_TABLE}.generic_name,
@@ -56,13 +58,25 @@ export const getItems = async () => {
                ${TAXES_TABLE}.tax_code,
                ${TAXES_TABLE}.rate as tax_rate,
                ${TAXES_TABLE}.is_inclusive as is_tax_rate_inclusive,
-               ${TAXES_TABLE}.rate,
-               ${UNITS_TABLE}.unit_code as unit
+               ${TAXES_TABLE}.rate
         FROM ${ITEMS_TABLE}
         LEFT JOIN ${UNITS_TABLE}
         ON ${ITEMS_TABLE}.unit_id = ${UNITS_TABLE}.id
         LEFT JOIN ${TAXES_TABLE}
         ON ${ITEMS_TABLE}.tax_id = ${TAXES_TABLE}.id
+        WHERE (
+          ${ITEMS_TABLE}.item_code LIKE '%${search_keyword}%' 
+          OR ${ITEMS_TABLE}.bar_code LIKE '%${search_keyword}%' 
+          OR ${ITEMS_TABLE}.item_description LIKE '%${search_keyword}%' 
+          OR ${ITEMS_TABLE}.alias LIKE '%${search_keyword}%' 
+          OR ${ITEMS_TABLE}.category LIKE '%${search_keyword}%' 
+          OR ${ITEMS_TABLE}.generic_name LIKE '%${search_keyword}%' 
+          OR ${ITEMS_TABLE}.remarks LIKE '%${search_keyword}%' 
+          OR ${ITEMS_TABLE}.lot_number LIKE '%${search_keyword}%' 
+          OR ${UNITS_TABLE}.unit_code LIKE '%${search_keyword}%' 
+          OR ${UNITS_TABLE}.unit LIKE '%${search_keyword}%' 
+        )
+        LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       `;
     // const itemServiceQuery = `SELECT * FROM customer`
     // const result = await db?.execute(itemServiceQuery);
@@ -78,6 +92,8 @@ export const getItems = async () => {
     return { success: true, data: data.value }
 
   } catch (error) {
+    console.log(error);
+    
     throw error;
   } 
 };
@@ -270,8 +286,8 @@ export const updateItem = async (data: ITEM) => {
           WHERE id = ?
         `,
         values: [
-          data.item_description,
           data.bar_code,
+          data.item_description,
           data.alias,
           data.category,
           data.price,

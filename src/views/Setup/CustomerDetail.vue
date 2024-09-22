@@ -43,62 +43,66 @@
             <ion-list :inset="true" style="margin: 5px">
                 <div style="padding: 5px;">
                     <ion-item>
-                        <ion-label position="stacked">Fullname :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="customer.customer" placeholder="Customer Fullname"></ion-textarea>
+                        <!-- <ion-label position="stacked">Fullname :</ion-label> -->
+                        <ion-textarea label="Fullname" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="customer.customer" placeholder="Customer Fullname"></ion-textarea>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Category :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="customer.category" placeholder="Enter Category"></ion-textarea>
+                        <!-- <ion-label position="stacked">Category :</ion-label> -->
+                        <ion-textarea label="Category" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="customer.category" placeholder="Enter Category"></ion-textarea>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Email :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="customer.email" placeholder="Enter Email"></ion-input>
+                        <!-- <ion-label position="stacked">Email :</ion-label> -->
+                        <ion-input label="Email" label-placement="floating" fill="solid" :disabled="is_locked" v-model="customer.email" placeholder="Enter Email"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">TIN :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="customer.tin" placeholder="Enter Tax Identification No."></ion-input>
+                        <!-- <ion-label position="stacked">TIN :</ion-label> -->
+                        <ion-input label="TIN" label-placement="floating" fill="solid" :disabled="is_locked" v-model="customer.tin" placeholder="Enter Tax Identification No."></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Address :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="customer.address" placeholder="Enter Full Address"></ion-textarea>
+                        <!-- <ion-label position="stacked">Address :</ion-label> -->
+                        <ion-textarea label="Address" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="customer.address" placeholder="Enter Full Address"></ion-textarea>
                         <br>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Contact Number :</ion-label>
-                        <ion-textarea :disabled="is_locked" v-model="customer.contact_number" placeholder="Enter Contact Number" ></ion-textarea>
+                        <!-- <ion-label position="stacked">Contact Number :</ion-label> -->
+                        <ion-textarea label="Contact Number" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="customer.contact_number" placeholder="Enter Contact Number" ></ion-textarea>
                     </ion-item>
                     <ion-item>
-                        <ion-label position="stacked">Reward No. :</ion-label>
-                        <ion-input :disabled="is_locked" v-model="customer.reward_number" placeholder="Enter Reward No."></ion-input>
+                        <!-- <ion-label position="stacked">Reward No. :</ion-label> -->
+                        <ion-input label="Reward No." label-placement="floating" fill="solid" :disabled="is_locked" v-model="customer.reward_number" placeholder="Enter Reward No."></ion-input>
                     </ion-item>
                     
                     <ion-item>
-                        <div style="height: 100px;width: auto; display: flex;flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center;">
-                            <img v-if="customer.image_path" :src="customer.image_path" alt="Image" />
-                        </div>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col>
+                                    <div style="height: 200px;width: auto; display: flex;flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center;">
+                                        <img v-if="customer.image_path" :src="customer.image_path" alt="Image" style="height: 200px;width: auto;">
+                                    </div>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
                     </ion-item>
                     <ion-item >
-                        <ion-button v-if="!is_locked" @click="captureImage">
-                            <ion-icon :icon="icons.camera"></ion-icon>
-                        </ion-button>
-                        <ion-button v-if="!is_locked" @click="retreiveImage">
-                            <ion-icon :icon="icons.attachSharp"></ion-icon>
-                        </ion-button>
+                        <ion-row>
+                            <ion-col> 
+                                <ion-button size="large" expand="block" style="height: 90%" v-if="!is_locked" @click="captureImage">
+                                    <ion-icon :icon="icons.camera"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                            <ion-col> 
+                                <ion-button size="large" expand="block" style="height: 90%" v-if="!is_locked" @click="retreiveImage">
+                                    <ion-icon :icon="icons.attachSharp"></ion-icon>
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
                     </ion-item>
-                    
                 </div>
 
             </ion-list>
 
             
         </ion-content>
-
-
-        <!-- <AlertComponent v-if="open_alert"
-        :title="alertTitle"
-        :sub_title="alertSubTitle"
-        :message="alertMessage"
-        /> -->
     </ion-page>
 </template>
 

@@ -2,15 +2,18 @@
     <ion-page style="margin-top: 65px;">
         <ion-header :translucent="true">
             <ion-toolbar>
+            <ion-buttons slot="start">
+                <ion-button color="medium" @click="cancel">Cancel</ion-button>
+            </ion-buttons>
             <ion-title>Select Tax</ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-item>
             <!-- Search Input -->
             <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
-            <ion-button @click="$emit('close')" size="medium" expand="block" fill="outline">
+            <!-- <ion-button @click="$emit('close')" size="medium" expand="block" fill="solid">
                 <ion-label>Close</ion-label>
-            </ion-button>
+            </ion-button> -->
         </ion-item>
 
         
@@ -39,17 +42,23 @@ import { icons } from '@/plugins/icons';
 import { presentToast } from '@/composables/toast.composables';
 import { getTaxes } from '@/services/system/tax.service';
 import { defineComponent, onMounted, ref } from 'vue';
+import { modalController } from '@ionic/vue';
 
 
 export default defineComponent({
     setup(_, {emit}){
         const taxes = ref<TAX[]>([])
 
-        const handleTaxPicked = async (tax:TAX) =>{
-            emit('tax-picked', tax);
-            emit('close'); 
-        }
+        // const handleTaxPicked = async (tax:TAX) =>{
+        //     emit('tax-picked', tax);
+        //     emit('close'); 
+        // }
 
+
+        const cancel = () => modalController.dismiss('', 'cancel');
+        const handleTaxPicked = (tax:TAX) => {
+            modalController.dismiss(tax , 'confirm');
+        }
 
         onMounted(async () => {
             setTimeout(async () => {
@@ -67,7 +76,8 @@ export default defineComponent({
             icons,
             taxes,
 
-            handleTaxPicked
+            handleTaxPicked,
+            cancel
         }
     }
 });

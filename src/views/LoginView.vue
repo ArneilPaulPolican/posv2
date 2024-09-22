@@ -6,17 +6,17 @@
             </div>
             <div style="padding: 5px;">
                 <ion-item >
-                    <ion-label position="stacked">Username: &nbsp;</ion-label>
-                    <ion-input v-model="username" placeholder="admin" ></ion-input>
+                    <ion-input label="Username" label-placement="floating" fill="solid" v-model="username" placeholder="admin" ></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-label position="stacked">Password: &nbsp;</ion-label>
-                    <ion-input v-model="password" type="password" placeholder="********"></ion-input>
+                    <ion-input label="Password" label-placement="floating" fill="solid" v-model="password" type="password" placeholder="********">
+                        <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+                    </ion-input>
                 </ion-item>
                 <ion-item>
                     <div style="width: 100%;">
                         <ion-button shape="round" size="medium" expand="block" @click="submitLogin()">
-                            <ion-icon>Login</ion-icon>
+                            <ion-icon :icon="icons.logInSharp"></ion-icon>&nbsp;
                             <ion-label>Login</ion-label>
                         </ion-button>
                         <!-- <ion-button shape="round" size="medium" expand="block">
