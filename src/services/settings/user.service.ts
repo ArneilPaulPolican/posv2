@@ -79,7 +79,8 @@ export const authenticateUser = async (username:string, password:string) => {
       email: user.email,
       user_type: user.user_type,
     }))[0];
-
+    console.log(user);
+    
     if(!user){
       throw new Error('User does not exist');
     }

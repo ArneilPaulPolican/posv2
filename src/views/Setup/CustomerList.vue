@@ -10,7 +10,7 @@
         <ion-item>
             <!-- Search Input -->
              <ion-label position="stacked">Search Customer</ion-label>
-             <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
+             <ion-searchbar v-model="search_key" @ionChange="fetchList" placeholder="Enter keyword"></ion-searchbar> 
         </ion-item>
         
         <ion-content :fullscreen="true">
@@ -64,6 +64,9 @@ export default defineComponent({
             is_locked: false,
             is_default_value: false,
         });
+        const page = ref(1);
+        const page_size = ref(10);
+        const search_key = ref('');
 
         
         //#region   Actionsheet
@@ -129,7 +132,7 @@ export default defineComponent({
         
         async function fetchList() {
             try {
-                const response = await getCustomers();
+                const response = await getCustomers(page.value, page_size.value, search_key.value);
                 if(response.success && response.data){
                     customers.value = response.data
                 }
@@ -150,7 +153,11 @@ export default defineComponent({
 
             addNewCustomer,
             openActionSheet,
+            fetchList,
             
+            page,
+            page_size,
+            search_key,
         }
     }
 });

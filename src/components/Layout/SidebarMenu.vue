@@ -35,6 +35,10 @@
                     </ion-list>
               </ion-accordion>
             </ion-accordion-group>
+            <ion-item slot="header" router-direction="root" @click="logout" lines="none" :detail="false" class="hydrated" >
+                  <ion-icon slot="start" :ios="icons.logOutOutline" :md="icons.logOutSharp"></ion-icon>
+                  <ion-label>Logout</ion-label>
+            </ion-item>
           </ion-list>
 
           <!-- <ion-list id="labels-list">
@@ -61,9 +65,11 @@ import USER from '@/models/user.model';
 import { generateInventoryReport } from '@/services/report/sys-inventory-report.service';
 import { getSystemSettings } from '@/services/settings/system-settings.service';
 import { getUserById } from '@/services/settings/user.service';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
     setup(){
+        const router = useRouter();
         const accordionStates= ref<{ [key: string]: boolean }>({})
         const appPages = [
                 {
@@ -83,12 +89,6 @@ export default defineComponent({
                         url: '/Setup/Customers',
                         iosIcon: icons.peopleCircleOutline,
                         mdIcon: icons.peopleSharp,
-                    },
-                    {
-                        title: 'Category',
-                        url: '/Setup/Category',
-                        iosIcon: icons.documentOutline,
-                        mdIcon: icons.documentSharp,
                     },
                     {
                         title: 'Table',
@@ -242,6 +242,14 @@ export default defineComponent({
                 await presentToast(`Operation failed ${error}`)
             }
         }
+        async function logout() {
+            try {
+                await Storage.remove({ key: 'current_user' });
+                router.push(`/Login`);
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
+        }
         onMounted(async () =>{
             await fetchCurrentSettings();
         });
@@ -257,7 +265,8 @@ export default defineComponent({
             current_user,
             selectedIndex,
             accordionToggle,
-            InventoryReport
+            InventoryReport,
+            logout
         }
     }
 });

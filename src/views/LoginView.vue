@@ -6,10 +6,10 @@
             </div>
             <div style="padding: 5px;">
                 <ion-item >
-                    <ion-input label="Username" label-placement="floating" fill="solid" v-model="username" placeholder="admin" ></ion-input>
+                    <ion-input @ionChange="submitLogin" label="Username" label-placement="floating" fill="solid" v-model="username" placeholder="admin" ></ion-input>
                 </ion-item>
                 <ion-item>
-                    <ion-input label="Password" label-placement="floating" fill="solid" v-model="password" type="password" placeholder="********">
+                    <ion-input @ionChange="submitLogin" label="Password" label-placement="floating" fill="solid" v-model="password" type="password" placeholder="********">
                         <ion-input-password-toggle slot="end"></ion-input-password-toggle>
                     </ion-input>
                 </ion-item>
@@ -36,9 +36,10 @@ import { icons } from '@/plugins/icons';
 import { presentToast } from '@/composables/toast.composables';
 import USER from '@/models/user.model';
 import { authenticateUser } from '@/services/settings/user.service';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { Storage } from '@capacitor/storage';
 import { useRouter } from 'vue-router';
+import { onIonViewDidEnter } from '@ionic/vue';
 
 
 export default defineComponent({
@@ -50,22 +51,35 @@ export default defineComponent({
 
         async function submitLogin() {
             try {
+                if(username.value != '' || password.value != ''){
                 const result = await authenticateUser(username.value, password.value)
-                if(result.success){
-                    await presentToast('Login successful')
-                    await Storage.set({
-                        key: 'current_user',
-                        value: JSON.stringify(result.data) as string
-                    });
-                    router.push('/dashboard')
-                }else{
-                    await presentToast('Login failed')
+                    if(result.success){
+                        await presentToast('Login successful')
+                        await Storage.set({
+                            key: 'current_user',
+                            value: JSON.stringify(result.data) as string
+                        });
+                        router.push('/dashboard')
+                    }else{
+                        await presentToast('Login failed')
+                    }
                 }
             } catch (error) {
                 await presentToast(`Login failed: ${error}`);
             }
         }
-
+        async function fetchUser() {
+            const { value } = await Storage.get({ key: 'current_user' });
+            const current_user = JSON.parse(value as string);
+            console.log(current_user);
+            
+        }
+        onIonViewDidEnter(async () => {
+            await fetchUser()
+        });
+        onMounted(async () => {
+            await fetchUser()
+        });
         return{
             icons,
             username,
