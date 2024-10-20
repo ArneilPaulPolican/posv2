@@ -175,14 +175,20 @@ export const getOpenSales = async (page = 1, pageSize = 10, sales_date = '', sea
   }
 };
 
-export const getBilledSales = async (page = 1, pageSize = 10, sales_date = '') => {
+export const getBilledSales = async (page = 1, pageSize = 10, sales_date = '', search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
     if (!db) {
       throw new Error('Database connection not open');
     }
-
+    if(sales_date == ''){
+      sales_date =  new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
       const saleServiceQuery = `
       SELECT ${SALES_TABLE}.id,
           ${SALES_TABLE}.user_id,
@@ -228,12 +234,31 @@ export const getBilledSales = async (page = 1, pageSize = 10, sales_date = '') =
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
       WHERE ${SALES_TABLE}.is_billed_out = 1 AND ${SALES_TABLE}.is_cancelled = 0
+      AND ${SALES_TABLE}.sales_date =?
+      AND (
+        ${SALES_TABLE}.sales_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.sales_date LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.terminal_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.customer_id LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer_code LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.address LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.tin LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.table_id LIKE '%${search_keyword}%' 
+        OR ${TABLES_TABLE}.table_code LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.total_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.balance_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.paid_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.discount_amount LIKE '%${search_keyword}%'
+      )
       AND ${SALES_TABLE}.balance_amount <> 0
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
+      LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       `;
+      const params = [sales_date];
     
-    const result = await db.query(saleServiceQuery);
+    const result = await db.query(saleServiceQuery,params);
     
     return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
@@ -242,7 +267,7 @@ export const getBilledSales = async (page = 1, pageSize = 10, sales_date = '') =
   }
 };
 
-export const getCollectedSales = async (page = 1, pageSize = 10, sales_date = '') => {
+export const getCollectedSales = async (page = 1, pageSize = 10, sales_date = '', search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -293,18 +318,37 @@ export const getCollectedSales = async (page = 1, pageSize = 10, sales_date = ''
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
       WHERE ${SALES_TABLE}.is_locked = 1 AND ${SALES_TABLE}.balance_amount = 0
+      AND ${SALES_TABLE}.sales_date =?
+      AND (
+        ${SALES_TABLE}.sales_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.sales_date LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.terminal_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.customer_id LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer_code LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.address LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.tin LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.table_id LIKE '%${search_keyword}%' 
+        OR ${TABLES_TABLE}.table_code LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.total_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.balance_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.paid_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.discount_amount LIKE '%${search_keyword}%'
+      )
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
+      LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       `;
+      const params = [sales_date];
     
-    const result = await db.query(saleServiceQuery);
+    const result = await db.query(saleServiceQuery,params);
     return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {
     throw error;
   }
 };
 
-export const getCancelledSales = async (page = 1, pageSize = 10, sales_date = '') => {
+export const getCancelledSales = async (page = 1, pageSize = 10, sales_date = '', search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -356,11 +400,30 @@ export const getCancelledSales = async (page = 1, pageSize = 10, sales_date = ''
       LEFT JOIN ${COLLECTIONS_TABLE}
       ON ${COLLECTIONS_TABLE}.sales_id=${SALES_TABLE}.id
       WHERE ${SALES_TABLE}.is_cancelled = 1
+      AND ${SALES_TABLE}.sales_date =?
+      AND (
+        ${SALES_TABLE}.sales_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.sales_date LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.terminal_number LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.customer_id LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer_code LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.customer LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.address LIKE '%${search_keyword}%' 
+        OR ${CUSTOMERS_TABLE}.tin LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.table_id LIKE '%${search_keyword}%' 
+        OR ${TABLES_TABLE}.table_code LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.total_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.balance_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.paid_amount LIKE '%${search_keyword}%' 
+        OR ${SALES_TABLE}.discount_amount LIKE '%${search_keyword}%'
+      )
       GROUP BY ${SALES_TABLE}.id
       ORDER BY ${SALES_TABLE}.sales_number DESC
+      LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
       `;
+      const params = [sales_date];
     
-    const result = await db.query(saleServiceQuery);
+    const result = await db.query(saleServiceQuery,params);
     
     return { success: true, data: result.values as SALES_DTO[] };
   } catch (error) {

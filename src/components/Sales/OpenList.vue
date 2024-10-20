@@ -4,6 +4,9 @@
             <ion-label position="stacked">Search Sales</ion-label>
             <ion-searchbar v-model="search_key"  @ionChange="fetchList" placeholder="Enter Keyword"> </ion-searchbar>
         </ion-item>
+        <ion-modal :keep-contents-mounted="false" :is-open="salesDateModalOpen" style="margin-top: 65px;">
+            <ion-datetime format="MM/dd/yyyy" @ionChange="onSalesDateChange($event.detail.value)"></ion-datetime>
+        </ion-modal>
         <ion-item>
             <ion-chip @click="openStartDateModal()">
                 Date: &nbsp;
@@ -16,9 +19,6 @@
                 <ion-icon :icon="icons.terminalOutline"></ion-icon>
             </ion-chip>
         </ion-item>
-        <ion-modal :keep-contents-mounted="false" :is-open="salesDateModalOpen" style="margin-top: 65px;">
-            <ion-datetime format="MM/dd/yyyy" @ionChange="onSalesDateChange($event.detail.value)"></ion-datetime>
-        </ion-modal>
         <ion-content :fullscreen="true">
             <ion-list :inset="true">
                 <!-- List -->
@@ -133,11 +133,6 @@ export default defineComponent({
         }
         async function fetchList() {
             try {
-                date_today.value = new Date().toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                });
                 const result = await getOpenSales(page.value,page_size.value,date_today.value,search_key.value)
                 if(result){
                     sales_list.value = result.data
@@ -148,9 +143,19 @@ export default defineComponent({
         }
         
         onIonViewDidEnter(async () => {
+            date_today.value = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
             await fetchList()
         });
         onMounted(async () =>{
+            date_today.value = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
             await fetchList()
         })
         return{

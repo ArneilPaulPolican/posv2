@@ -153,6 +153,12 @@ export default defineComponent({
                             mdIcon: icons.readerSharp,
                         },
                         {
+                            title: 'Remittance',
+                            url: '/report/remittance',
+                            iosIcon: icons.readerOutline,
+                            mdIcon: icons.readerSharp,
+                        },
+                        {
                             title: 'Inventory',
                             url: '/report/inventory',
                             iosIcon: icons.readerOutline,

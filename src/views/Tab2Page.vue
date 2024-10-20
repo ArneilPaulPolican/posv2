@@ -37,7 +37,7 @@ import { usePhotoGallery } from '@/composables/usePhotoGallery';
 import { DocumentViewer, DocumentViewerOptions } from '@ionic-native/document-viewer';
 import { Directory, Filesystem, FilesystemDirectory } from '@capacitor/filesystem';
 import { Browser } from '@capacitor/browser';
-import { generateSales, generateZReading } from '@/services/receipt/sales-receipt.service';
+import { generateSales } from '@/services/receipt/sales-receipt.service';
 import { FileOpener } from '@capawesome-team/capacitor-file-opener';
 import { SALES_DTO } from '@/models/sales.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
@@ -96,7 +96,7 @@ export default defineComponent({
     async function takePhoto () {
       const response = await usePhotoGallery();
       // const blob = new Blob(['<h1>Test Blob Content</h1>'], { type: 'text/html' });
-      let webviewPath = response[0].webviewPath;
+      // let webviewPath = response[0].webviewPath;
       await presentToast('webviewPath ')
       // blob_res = await fetch(blobUrl);
       // const blob = await webviewPath.blob();
@@ -110,21 +110,21 @@ export default defineComponent({
       //   encoding: Filesystem.Encoding.UTF8, // Base64 is the default encoding
       // });
 
-      // await Browser.open({ url: uri });
-      if(webviewPath){
-        const blob_res = await fetch(webviewPath);
+      // // await Browser.open({ url: uri });
+      // if(webviewPath){
+      //   const blob_res = await fetch(webviewPath);
 
-        const blob = await blob_res.blob();
+      //   const blob = await blob_res.blob();
 
-        const base64Data = await blobToBase64Image(blob);
+      //   const base64Data = await blobToBase64Image(blob);
 
-        const { uri } = await Filesystem.writeFile({
-          path: 'myimage.png',
-          data: base64Data,
-          directory: Directory.Documents,
-        });
-        imageUri.value = uri; // Set the image URI to display
-      }
+      //   const { uri } = await Filesystem.writeFile({
+      //     path: 'myimage.png',
+      //     data: base64Data,
+      //     directory: Directory.Documents,
+      //   });
+      //   imageUri.value = uri; // Set the image URI to display
+      // }
     }
 
     async function blobToBase64Image(blob: Blob): Promise<string> {
@@ -142,7 +142,7 @@ export default defineComponent({
 
     
     async function printZReading() {
-      await generateZReading()
+      // await generateZReading()
     }
     async function printSales() {
       await generateSales(sales.value,sales_item_list.value)

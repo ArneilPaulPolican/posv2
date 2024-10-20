@@ -2,12 +2,15 @@
     <ion-page>
         <ion-item>
             <ion-label position="stacked">Search Cancelled Sales</ion-label>
-            <ion-searchbar placeholder="Enter Keyword"> </ion-searchbar>
+            <ion-searchbar v-model="search_key"  @ionChange="fetchList" placeholder="Enter Keyword"> </ion-searchbar>
         </ion-item>
+        <ion-modal :keep-contents-mounted="false" :is-open="salesDateModalOpen" style="margin-top: 65px;">
+            <ion-datetime format="MM/dd/yyyy" @ionChange="onSalesDateChange($event.detail.value)"></ion-datetime>
+        </ion-modal>
         <ion-item>
-            <ion-chip>
+            <ion-chip @click="openStartDateModal()">
                 Date: &nbsp;
-                <ion-label>{{ date_today.toLocaleDateString() }}</ion-label>
+                <ion-label>{{ date_today }}</ion-label>
                 <ion-icon :icon="icons.calendarNumberOutline"></ion-icon>
             </ion-chip>
             <ion-chip>
@@ -51,9 +54,14 @@ export default defineComponent({
     },
     setup(){
         const router = useRouter();
-        const date_today: Date = new Date();
+        const date_today = ref('');
         const terminal = '001'
         const sales_list = ref<SALES_DTO[]>([]);
+        
+        const page = ref(1);
+        const page_size = ref(10);
+        const search_key = ref('')
+        const salesDateModalOpen = ref(false)
         
         //#region   Actionsheet
         const actionSheetButtons = (sales:any) => [
@@ -82,7 +90,21 @@ export default defineComponent({
             router.push(`/Activity/Sales/Details/${sales.id}`);
         }
 
-        async function fetchData() {
+        async function openStartDateModal() {
+            salesDateModalOpen.value = true;
+        }
+        const onSalesDateChange = async (selectedDate: Date) => {
+            const _date = new Date(selectedDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                    });
+            console.log('test',_date)
+            date_today.value = _date;
+            salesDateModalOpen.value = false
+            await fetchList();
+        }
+        async function fetchList() {
             try {
                 const result = await getCancelledSales();
                 if(result.success){
@@ -94,18 +116,36 @@ export default defineComponent({
         }
         
         onIonViewDidEnter(async () => {
-            await fetchData()
+            date_today.value = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            await fetchList()
         });
         onMounted(async () =>{
-            await fetchData()
+            date_today.value = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            await fetchList()
         })
         return{
             icons,
-            date_today,
             terminal,
             sales_list,
 
-            openActionSheet
+            openActionSheet,
+            fetchList,
+            openStartDateModal,
+            onSalesDateChange,
+
+            salesDateModalOpen,
+            page,
+            page_size,
+            search_key,
+            date_today,
         }
     }
 });

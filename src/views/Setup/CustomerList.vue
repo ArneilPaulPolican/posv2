@@ -132,6 +132,7 @@ export default defineComponent({
         
         async function fetchList() {
             try {
+                console.log(search_key.value)
                 const response = await getCustomers(page.value, page_size.value, search_key.value);
                 if(response.success && response.data){
                     customers.value = response.data
