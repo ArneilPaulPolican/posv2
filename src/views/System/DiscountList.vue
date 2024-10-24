@@ -2,12 +2,19 @@
     <ion-page>
         <!-- <HeaderComponent :title="header" /> -->
 
-        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+        <!-- <ion-fab slot="fixed" vertical="bottom" horizontal="end">
             <ion-fab-button @click="handleAdd">
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
-        </ion-fab>
-
+        </ion-fab> -->
+        <ion-item>
+            <ion-searchbar label="Barcode" label-placement="floating" v-model="search_key" @ionChange="fetchList" placeholder="Enter keyword"></ion-searchbar> 
+            <ion-button size="small" expand="block" style="height: 70%"
+                    @click="handleAdd()">
+                    <ion-icon :icon="icons.addOutline"></ion-icon>
+                    <ion-label>Add</ion-label>
+            </ion-button>
+        </ion-item>
         <ion-content :fullscreen="true">
             
             <ion-list :inset="true">
@@ -44,6 +51,9 @@ export default defineComponent({
         const router = useRouter();
         const discounts = ref<DISCOUNT[]>([])
         let saveTimeout: number | undefined;
+        const search_key = ref('');
+        const page = ref(1);
+        const page_size = ref(10);
 
         //#region   Actionsheet
                 const actionSheetButtons = (tax:any) => [
@@ -107,7 +117,7 @@ export default defineComponent({
 
         async function fetchList() {
             try {
-                const result = await getDiscounts();
+                const result = await getDiscounts(page.value, page_size.value, search_key.value);
                 if(result.success){
                     discounts.value = result.data;
                 }
@@ -130,7 +140,12 @@ export default defineComponent({
             openActionSheet,
             handleDelete,
             handleEdit,
-            handleAdd
+            handleAdd,
+            fetchList,
+            
+            page,
+            page_size,
+            search_key,
         }
     }
 })

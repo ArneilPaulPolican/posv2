@@ -8,7 +8,7 @@ interface ResultSet {
   };
 }
 
-export const getDiscounts = async () => {
+export const getDiscounts = async (page = 1, pageSize = 10, search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -16,7 +16,13 @@ export const getDiscounts = async () => {
       throw new Error('Database connection not open');
     }
 
-    const discountServiceQuery = `SELECT * FROM ${DISCOUNTS_TABLE}`;
+    const discountServiceQuery = `SELECT * FROM ${DISCOUNTS_TABLE}
+    WHERE (
+      ${DISCOUNTS_TABLE}.discount LIKE '%${search_keyword}%' 
+      OR ${DISCOUNTS_TABLE}.discount_rate LIKE '%${search_keyword}%' 
+      OR ${DISCOUNTS_TABLE}.particular LIKE '%${search_keyword}%' 
+    )
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`;
     
     const result = await db.query(discountServiceQuery);
    

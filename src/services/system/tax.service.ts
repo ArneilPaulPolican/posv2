@@ -7,7 +7,7 @@ interface ResultSet {
     raw: () => any[];
   };
 }
-export const getTaxes = async () => {
+export const getTaxes = async (page = 1, pageSize = 10, search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -15,7 +15,13 @@ export const getTaxes = async () => {
       throw new Error('Database connection not open');
     }
 
-    const taxServiceQuery = `SELECT * FROM ${TAXES_TABLE}`;
+    const taxServiceQuery = `SELECT * FROM ${TAXES_TABLE}
+    WHERE (
+      ${TAXES_TABLE}.tax_code LIKE '%${search_keyword}%' 
+      OR ${TAXES_TABLE}.tax LIKE '%${search_keyword}%' 
+      OR ${TAXES_TABLE}.rate LIKE '%${search_keyword}%' 
+    )
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`;
     
     const result = await db.query(taxServiceQuery);
    

@@ -7,7 +7,7 @@ interface ResultSet {
     raw: () => any[];
   };
 }
-export const getPaytypes = async () => {
+export const getPaytypes = async (page = 1, pageSize = 10, search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -15,7 +15,11 @@ export const getPaytypes = async () => {
       throw new Error('Database connection not open');
     }
 
-    const taxServiceQuery = `SELECT * FROM ${PAYTYPES_TABLE}`;
+    const taxServiceQuery = `SELECT * FROM ${PAYTYPES_TABLE}
+    WHERE (
+      ${PAYTYPES_TABLE}.paytype LIKE '%${search_keyword}%' 
+    )
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`;
     
     const result = await db.query(taxServiceQuery);
     

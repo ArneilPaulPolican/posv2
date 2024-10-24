@@ -1,18 +1,23 @@
 <template>
     <ion-page>
         <!-- <HeaderComponent :title="header" /> -->
-        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+        <!-- <ion-fab slot="fixed" vertical="top" horizontal="end">
             <ion-nav-link router-direction="forward" :component="component">
                 <ion-fab-button size="small" @click="addNewItem">
                     <ion-icon :icon="icons.addSharp"></ion-icon>
                 </ion-fab-button>
             </ion-nav-link>
-        </ion-fab>
+        </ion-fab> -->
 
         <ion-item>
             <!-- Search Input -->
-             <ion-label position="stacked">Search Item</ion-label>
-            <ion-searchbar v-model="search_key" @ionChange="fetchList" placeholder="Enter keyword"></ion-searchbar> 
+             <!-- <ion-label label="Barcode" label-placement="floating">Search Item</ion-label> -->
+            <ion-searchbar label="Barcode" label-placement="floating" v-model="search_key" @ionChange="fetchList" placeholder="Enter keyword"></ion-searchbar> 
+            <ion-button size="small" expand="block" style="height: 70%"
+                    @click="addNewItem()">
+                    <ion-icon :icon="icons.addOutline"></ion-icon>
+                    <ion-label>Add</ion-label>
+            </ion-button>
         </ion-item>
         <ion-content :fullscreen="true">
             
@@ -127,6 +132,7 @@ name: 'DashboardView', // Update the component name here
         //#region   Actionsheet
         const actionSheetButtons = (item:any) => [
             {
+                icon: icons.trashOutline,
                 text: 'Delete',
                 role: 'destructive',
                 handler: () => {
@@ -137,6 +143,7 @@ name: 'DashboardView', // Update the component name here
                 },
             },
             {
+                icon: icons.pencil,
                 text: 'Edit',
                 handler: () => {
                     handleEdit(item);
@@ -145,6 +152,26 @@ name: 'DashboardView', // Update the component name here
                     action: 'Edit',
                 },
             },
+            {
+                icon: icons.closeCircleOutline,
+                text: 'Cancel',
+                handler: () => {
+                    // handleEdit(item);
+                },
+                data: {
+                    action: 'Cancel',
+                },
+            },
+            {
+                text: '',
+                handler: () => {
+                    // handleEdit(item);
+                },
+                data: {
+                    action: '',
+                },
+            },
+            
         ];
         const actionSheet = ref(null);
         const _actionSheetController = actionSheetController;// Action Sheet Controller
@@ -152,7 +179,7 @@ name: 'DashboardView', // Update the component name here
         const openActionSheet = async (item:any) => {
             const actionSheet = await _actionSheetController.create({
                 header: `Options for Item ${item.bar_code}  ${item.item_description}`,
-                buttons: actionSheetButtons(item)
+                buttons: actionSheetButtons(item),
             });
             await actionSheet.present();
         };

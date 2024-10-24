@@ -7,7 +7,14 @@
                 <ion-icon :icon="icons.addSharp"></ion-icon>
             </ion-fab-button>
         </ion-fab>
-
+        <ion-item>
+            <ion-searchbar label="Barcode" label-placement="floating" v-model="search_key" @ionChange="fetchList" placeholder="Enter keyword"></ion-searchbar> 
+            <ion-button size="small" expand="block" style="height: 70%"
+                    @click="handleAdd()">
+                    <ion-icon :icon="icons.addOutline"></ion-icon>
+                    <ion-label>Add</ion-label>
+            </ion-button>
+        </ion-item>
         
         <ion-content :fullscreen="true">
             
@@ -40,6 +47,9 @@ export default defineComponent({
     setup(){
         const router = useRouter();
         const paytypes = ref<PAYTYPE[]>([])
+        const page = ref(1);
+        const page_size = ref(10);
+        const search_key = ref('')
 
 
         //#region   Actionsheet
@@ -103,7 +113,7 @@ export default defineComponent({
         
         async function fetchList() {
             try {
-                const result = await getPaytypes()
+                const result = await getPaytypes(page.value, page_size.value, search_key.value)
                 if(result.success){
                     paytypes.value = result.data
                 }
@@ -121,10 +131,15 @@ export default defineComponent({
             header: 'Paytype List',
             icons,
             paytypes,
-
+            
             handleEdit,
             handleAdd,
-            openActionSheet
+            openActionSheet,
+            fetchList,
+            
+            page,
+            page_size,
+            search_key,
         }
     }
 })

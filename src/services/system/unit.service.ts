@@ -11,7 +11,7 @@ interface ResultSet {
   };
 }
 
-export const getUnits = async () => {
+export const getUnits = async (page = 1, pageSize = 10, search_keyword = '') => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
@@ -19,7 +19,12 @@ export const getUnits = async () => {
       throw new Error('Database connection not open');
     }
 
-    const unitServiceQuery = `SELECT * FROM ${UNITS_TABLE}`;
+    const unitServiceQuery = `SELECT * FROM ${UNITS_TABLE}
+    WHERE (
+      ${UNITS_TABLE}.unit_code LIKE '%${search_keyword}%' 
+      OR ${UNITS_TABLE}.unit LIKE '%${search_keyword}%' 
+    )
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`;
     const res = await db.query(unitServiceQuery);
 
     return { success: true, data: res.values as UNIT[]};

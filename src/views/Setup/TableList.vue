@@ -1,18 +1,23 @@
 <template>
 
     <ion-page>
-        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+        <!-- <ion-fab slot="fixed" vertical="bottom" horizontal="end">
             <ion-nav-link router-direction="forward">
                 <ion-fab-button size="small" @click="addNewTable">
                     <ion-icon :icon="icons.addSharp"></ion-icon>
                 </ion-fab-button>
             </ion-nav-link>
-        </ion-fab>
+        </ion-fab> -->
         
         <ion-item>
             <!-- Search Input -->
-             <ion-label position="stacked">Search Table</ion-label>
-            <ion-searchbar placeholder="Enter keyword"></ion-searchbar> 
+             <!-- <ion-label position="stacked">Search Table</ion-label> -->
+            <ion-searchbar label="Barcode" label-placement="floating" placeholder="Enter keyword"></ion-searchbar> 
+            <ion-button size="small" expand="block" style="height: 70%"
+                @click="addNewTable()">
+                <ion-icon :icon="icons.addOutline"></ion-icon>
+                <ion-label>Add</ion-label>
+            </ion-button>
         </ion-item>
         <ion-content :fullscreen="true">
             <ion-list :inset="true">
