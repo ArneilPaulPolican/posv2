@@ -23,19 +23,19 @@
             <ion-item>
                 <ion-row>
                     <ion-col size="6">
-                        <ion-label position="stacked">Amount</ion-label>
+                        <!-- <ion-label position="stacked">Amount</ion-label> -->
                         <!-- <ion-input label="" label-placement="floating" fill="solid" @ionInput="computeChange()" v-model="amount" placeholder="0.00"></ion-input> -->
-                        <InputFloat :amount="amount" @update="(floatValue) => amount = floatValue" @ionInput="computeChange()"></InputFloat>
+                        <InputFloat label="Amount" label-placement="floating" fill="solid" :amount="amount" @update="(floatValue) => amount = floatValue" @ionInput="computeChange()"></InputFloat>
                     </ion-col>
                     <ion-col size="6">
-                        <ion-label position="stacked">Change</ion-label>
+                        <!-- <ion-label position="stacked">Change</ion-label> -->
                         <!-- <ion-input label="" label-placement="floating" fill="solid" readonly v-model="change" placeholder="0.00"></ion-input> -->
-                        <InputFloat readonly :amount="change" @update="(floatValue) => change = floatValue"></InputFloat>
+                        <InputFloat readonly label="Change" label-placement="floating" fill="solid" :amount="change" @update="(floatValue) => change = floatValue"></InputFloat>
                     </ion-col>
                 </ion-row>
             </ion-item>
             <ion-item v-if="selected_paytype?.paytype.toLowerCase() != 'cash'">
-                <ion-label position="stacked">Refrence</ion-label>
+                <!-- <ion-label position="stacked">Refrence</ion-label> -->
                 <ion-input label="" label-placement="floating" fill="solid" placeholder="RF: 0123456"></ion-input>
             </ion-item>
         </ion-content>

@@ -135,26 +135,14 @@ export default defineComponent({
                     mdIcon: icons.readerSharp,
                     subitems: [
                         {
-                            title: 'Z-Reading',
-                            url: '/report/z-reading-report',
+                            title: 'Sales Report',
+                            url: '/report/SalesReport',
                             iosIcon: icons.readerOutline,
                             mdIcon: icons.readerSharp,
                         },
                         {
-                            title: 'X-Reading',
-                            url: '/Report/XReading',
-                            iosIcon: icons.readerOutline,
-                            mdIcon: icons.readerSharp,
-                        },
-                        {
-                            title: 'Sales Details Report',
-                            url: '/report/sales-detail-report',
-                            iosIcon: icons.readerOutline,
-                            mdIcon: icons.readerSharp,
-                        },
-                        {
-                            title: 'Remittance',
-                            url: '/report/remittance',
+                            title: 'POS Report',
+                            url: '/report/POSReport',
                             iosIcon: icons.readerOutline,
                             mdIcon: icons.readerSharp,
                         },

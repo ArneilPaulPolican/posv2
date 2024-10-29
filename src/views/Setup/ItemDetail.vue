@@ -46,7 +46,7 @@
                 <div style="padding: 5px;">
                     <ion-item>
                         <!-- <ion-label position="stacked">Barcode</ion-label> -->
-                        <ion-input label="Barcode" label-placement="floating" fill="solid" :disabled="is_locked" v-model="item.bar_code" placeholder="012345678912"></ion-input>
+                        <ion-input label="Barcode" label-placement="floating" fill="solid" :disabled="is_locked" v-model="item.bar_code" ></ion-input>
                     </ion-item>
                     <ion-item>
                         <!-- <ion-label position="stacked">Description</ion-label> -->
@@ -151,7 +151,7 @@ import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch } from '
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
-import { addItem, getItemById, getItems, lockItem, unlockItem, updateItem } from '@/services/setup/item.service';
+import { addItem, getItemById, getItems, getTransaction, lockItem, unlockItem, updateItem } from '@/services/setup/item.service';
 import { Lock } from '@/services/lock';
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import UnitListModal from '@/components/Modal/UnitListModal.vue';
@@ -210,6 +210,7 @@ export default defineComponent({
         const not_found = ref(false);
 
         const is_locked = ref(false);
+        const with_trn = ref(false);
         //#endregion
 
         //#region FUNCTIONS
@@ -218,35 +219,23 @@ export default defineComponent({
             router.push(`/Setup/Items`);
         }
 
-        // const trimLeadingZero = async (value: string) => {
-        //     return value.replace(/^0+/g, '');
-        // }
-        
-        // function openUnitModal(isOpen: boolean) {
-        //     if(!is_locked){
-        //         open_unit_modal.value = isOpen
-        //     }
-        // }
-
-        // const handleUnitPicked = (unit: any) => {
-        //     // Handle the picked unit data here
-        //     open_unit_modal.value = false;
-        //     item.value.unit_id = unit.id;
-        //     item.value.unit = unit.unit_code;
-        //     // Process the unit data as needed
-        // };
-
         const openUnitModal = async () => {
-            const modal = await modalController.create({
-            component: UnitListModal,
-            // componentProps: { data: sales } 
-            });
+            if(with_trn.value){
+                await presentToast(`Item already has transaction.`);
+                return;
+            }
+            if(!is_locked.value){
+                const modal = await modalController.create({
+                component: UnitListModal,
+                // componentProps: { data: sales } 
+                });
 
-            modal.present();
-            const { data, role } = await modal.onWillDismiss();
-            if (role === 'confirm') {
-            item.value.unit_id = data.id;
-            item.value.unit = data.unit_code;
+                modal.present();
+                const { data, role } = await modal.onWillDismiss();
+                if (role === 'confirm') {
+                item.value.unit_id = data.id;
+                item.value.unit = data.unit_code;
+                }
             }
         };
 
@@ -254,25 +243,19 @@ export default defineComponent({
             open_alert.value = false;
         }
         
-        // function openTaxModal(isOpen: boolean) {
-        //     open_tax_modal.value = isOpen;
-        // }
-        // const handleTaxPicked = (tax: any) => {
-        //     open_tax_modal.value = false;
-        //     item.value.tax_id = tax.id;
-        //     item.value.tax = tax.tax;
-        // };
         const openTaxModal = async () => {
-            const modal = await modalController.create({
-            component: TaxListModal,
-            // componentProps: { data: sales } 
-            });
+            if(!is_locked.value){
+                const modal = await modalController.create({
+                component: TaxListModal,
+                // componentProps: { data: sales } 
+                });
 
-            modal.present();
-            const { data, role } = await modal.onWillDismiss();
-            if (role === 'confirm') {
-            item.value.tax_id = data.id;
-            item.value.tax = data.tax;
+                modal.present();
+                const { data, role } = await modal.onWillDismiss();
+                if (role === 'confirm') {
+                item.value.tax_id = data.id;
+                item.value.tax = data.tax;
+                }
             }
         };
 
@@ -381,6 +364,12 @@ export default defineComponent({
                             lot_number: itemRes.data.lot_number,
                         };
 
+                        const transaction = await getTransaction(itemRes.data.id);
+                        if(transaction.exist){
+                            with_trn.value = true;
+                        }else{
+                            with_trn.value = false;
+                        }
                     }
                 }else{ 
                     await presentToast('No item found');
@@ -426,6 +415,7 @@ export default defineComponent({
             captureImage,
             retreiveImage,
             // trimLeadingZero
+            with_trn
         }
     },
     computed: {

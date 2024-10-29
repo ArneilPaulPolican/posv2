@@ -1,8 +1,13 @@
 <template>
     <ion-page>
         <ion-item>
-            <ion-label position="stacked">Search Sales</ion-label>
+            <!-- <ion-label position="stacked">Search Sales</ion-label> -->
             <ion-searchbar v-model="search_key"  @ionChange="fetchList" placeholder="Enter Keyword"> </ion-searchbar>
+            <ion-button size="small" expand="block" style="height: 70%"
+                @click="openDetailForm">
+                <ion-icon :icon="icons.addOutline"></ion-icon>
+                <ion-label>Add</ion-label>
+            </ion-button>
         </ion-item>
         <ion-modal :keep-contents-mounted="false" :is-open="salesDateModalOpen" style="margin-top: 65px;">
             <ion-datetime format="MM/dd/yyyy" @ionChange="onSalesDateChange($event.detail.value)"></ion-datetime>
@@ -49,6 +54,7 @@ import { deleteSales, getOpenSales, getSales } from '@/services/activity/sales.s
 import { onIonViewDidEnter, actionSheetController, toastController } from '@ionic/vue';
 import { defineComponent, inject, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { newSales } from '@/services/activity/sales.service';
 
 
 export default defineComponent({
@@ -131,6 +137,13 @@ export default defineComponent({
             salesDateModalOpen.value = false
             await fetchList();
         }
+        
+        const openDetailForm = async() => {
+            const response = await newSales();
+            if(response.success){
+                router.push(`/Activity/Sales/Details/${response.data}`);
+            }
+        }
         async function fetchList() {
             try {
                 const result = await getOpenSales(page.value,page_size.value,date_today.value,search_key.value)
@@ -167,6 +180,7 @@ export default defineComponent({
             fetchList,
             openStartDateModal,
             onSalesDateChange,
+            openDetailForm,
             salesDateModalOpen,
             page,
             page_size,

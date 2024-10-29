@@ -1,0 +1,29 @@
+export class SALES_SUMMARY_REPORT_DTO {
+  id:number=0;
+  user_id: number = 0;
+  user?: string = '';
+  sales_number: string = '';
+  sales_date: string = '';
+  terminal_number: string = '';
+  customer_id: number =0;
+  customer_code?: string = '';
+  customer?: string = '';
+  customer_address?:string = '';
+  customer_tin?:string = '';
+  table_id: number =0;
+  table_code?: string = '';
+  total_amount: number = 0;
+  net_amount: number = 0;
+  balance_amount: number =0;
+  paid_amount:number =0;
+  discount_amount:number =0;
+  no_of_pax: number = 0;
+  remarks?: string = '';
+  status: string = '';
+  is_locked?: boolean = false;
+  is_billed_out?: boolean = false;
+  is_cancelled?: boolean = false;
+  is_printed?: boolean = false;
+  senior_pwd_name?: string = '';
+  senior_pwd_id?: string = '';
+}

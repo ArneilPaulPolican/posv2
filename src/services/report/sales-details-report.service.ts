@@ -149,7 +149,6 @@ WHERE
     const params = [start_date, end_date];
     
     const result = await db.query(saleServiceQuery,params);
-    console.log(result)
     return { success: true, data: result.values as SALES_DETAILS_REPORT_DTO[] }
   } catch (error) {
     console.log(error)

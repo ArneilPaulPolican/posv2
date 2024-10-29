@@ -46,10 +46,9 @@
                         <!-- <ion-label position="stacked">Category :</ion-label> -->
                         <ion-input label="Category" label-placement="floating" fill="solid" :disabled="is_locked" v-model="table.category" placeholder="Enter Tax Code"></ion-input>
                     </ion-item>
-                    <ion-item>
-                        <!-- <ion-label position="stacked">pax :</ion-label> -->
+                    <!-- <ion-item>
                         <ion-input label="Pax" label-placement="floating" fill="solid" :disabled="is_locked" v-model="table.pax" placeholder="Enter Tax Code"></ion-input>
-                    </ion-item>
+                    </ion-item> -->
                     
                     <ion-item>
                         <img :src="table.image_path" />

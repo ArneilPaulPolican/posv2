@@ -2,6 +2,9 @@
 import { CapacitorSQLite, SQLiteConnection, } from '@capacitor-community/sqlite';
 import {
   ITEMS_TABLE,
+  SALES_ITEMS_TABLE,
+  STOCK_IN_ITEMS_TABLE,
+  STOCK_OUT_ITEMS_TABLE,
   TAXES_TABLE,
   UNITS_TABLE,
 } from '@/schema/tables';
@@ -40,7 +43,7 @@ export const getItems = async (page = 1, pageSize = 10, search_keyword = '') => 
                ${ITEMS_TABLE}.category,
                ${ITEMS_TABLE}.price,
                ${ITEMS_TABLE}.cost,
-               ${ITEMS_TABLE}.quantity,
+               0 as quantity,
                ${ITEMS_TABLE}.unit_id,
                ${UNITS_TABLE}.unit_code,
                ${UNITS_TABLE}.unit,
@@ -178,6 +181,28 @@ export const getItemById = async (id: number) => {
 
     return { success: true , data:item }
 
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getTransaction = async (id: number)  => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    if (!db) {
+      throw new Error('Database connection not open');
+    }
+
+    const categoryQuery = `SELECT DISTINCT ${SALES_ITEMS_TABLE}.item_id FROM ${SALES_ITEMS_TABLE} WHERE ${SALES_ITEMS_TABLE}.item_id=? LIMIT 1`;
+    const params = [id];
+    
+    const result = await db.query(categoryQuery, params);
+    if (result.values) {
+      return { exist: true}; // Return the first record
+    } else {
+      return { exist: false}; // Handle case where no record is found
+    }
   } catch (error) {
     throw error;
   }

@@ -46,7 +46,7 @@
                 <ion-row>
                     <ion-col size="4" size-md="4" size-lg="4">
                         <router-link :to="{ name: 'item_lists' }">
-                        <ion-button size="medium" expand="block" style="height: 100%" color="danger">
+                        <ion-button size="medium" expand="block" style="height: 100%;" color="danger">
                             <div class="icon-label-wrapper">
                                 <ion-icon slot="start" :ios="icons.fileTrayStackedOutline" :md="icons.fileTrayStackedSharp"></ion-icon>
                                 <span>item</span>
@@ -147,11 +147,11 @@
             <ion-grid style="width: 100%">
                 <ion-row>
                     <ion-col size="6" size-md="6" size-lg="6">
-                        <router-link :to="{ name: 'item_lists' }">
+                        <router-link :to="{ name: 'sales_report' }">
                         <ion-button size="medium" expand="block" style="height: 100%" >
                             <div class="icon-label-wrapper">
                                 <ion-icon slot="start" :ios="icons.receiptOutline" :md="icons.receiptSharp"></ion-icon>
-                                <span>SALES</span>
+                                <span>SALES REPORT</span>
                             </div>
                         </ion-button>
                         </router-link>
@@ -169,7 +169,7 @@
                 </ion-row>
                 <ion-row>
                     <ion-col >
-                        <router-link :to="{ name: 'item_lists' }">
+                        <router-link :to="{ name: 'pos_report' }">
                         <ion-button size="medium" expand="block" style="height: 100%" >
                             <div class="icon-label-wrapper">
                                 <ion-icon slot="start" :ios="icons.receiptOutline" :md="icons.receiptSharp"></ion-icon>

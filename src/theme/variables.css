@@ -74,6 +74,14 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-light-contrast-rgb: 0, 0, 0;
     --ion-color-light-shade: #d7d8da;
     --ion-color-light-tint: #f5f6f9;
+    
+    /** menu **/
+    --ion-color-menu: #eb445a;
+    --ion-color-menu-rgb: 45, 211, 111;
+    --ion-color-menu-contrast: #ffffff;
+    --ion-color-menu-contrast-rgb: 255, 255, 255;
+    --ion-color-menu-shade: #cf3c4f;
+    --ion-color-menu-tint: #ed576b;
   }
   
   @media (prefers-color-scheme: dark) {

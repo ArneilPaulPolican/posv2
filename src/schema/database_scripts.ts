@@ -51,7 +51,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         tax_code TEXT NOT NULL UNIQUE,
         tax TEXT NOT NULL,
         rate REAL NOT NULL,
-        is_inclusive BOOLEAN DEFAULT false
+        sort_no INTEGER
       )
     `;
 
@@ -121,7 +121,8 @@ export const createTables = async (db: SQLiteDBConnection) => {
         category TEXT NOT NULL,
         pax INTEGER NOT NULL,
         image_path TEXT,
-        is_locked BOOLEAN DEFAULT false
+        is_locked BOOLEAN DEFAULT false,
+        sort_no INTEGER
       )
     `;
 
@@ -133,7 +134,8 @@ export const createTables = async (db: SQLiteDBConnection) => {
         vat_inclusive BOOLEAN DEFAULT false,
         particular TEXT,
         is_locked BOOLEAN DEFAULT false,
-        image_url TEXT
+        image_url TEXT,
+        sort_no INTEGER
       )
     `;
 
@@ -141,7 +143,8 @@ export const createTables = async (db: SQLiteDBConnection) => {
       CREATE TABLE IF NOT EXISTS ${PAYTYPES_TABLE} (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         paytype TEXT NOT NULL UNIQUE,
-        is_default_value BOOLEAN DEFAULT false
+        is_default_value BOOLEAN DEFAULT false,
+        sort_no INTEGER
       )
     `;
 

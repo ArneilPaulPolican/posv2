@@ -15,29 +15,29 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     redirect: '/login'
   },
-  {
-    path: '/tabs/',
-    name: 'tabs',
-    component: TabsPage,
-    children: [
-      {
-        path: '',
-        redirect: '/tabs/tab1'
-      },
-      {
-        path: 'tab1',
-        component: () => import('@/views/Tab1Page.vue')
-      },
-      {
-        path: 'tab2',
-        component: () => import('@/views/Tab2Page.vue')
-      },
-      {
-        path: 'tab3',
-        component: () => import('@/views/Tab3Page.vue')
-      }
-    ]
-  },
+  // {
+  //   path: '/tabs/',
+  //   name: 'tabs',
+  //   component: TabsPage,
+  //   children: [
+  //     {
+  //       path: '',
+  //       redirect: '/tabs/tab1'
+  //     },
+  //     {
+  //       path: 'tab1',
+  //       component: () => import('@/views/Tab1Page.vue')
+  //     },
+  //     {
+  //       path: 'tab2',
+  //       component: () => import('@/views/Tab2Page.vue')
+  //     },
+  //     {
+  //       path: 'tab3',
+  //       component: () => import('@/views/Tab3Page.vue')
+  //     }
+  //   ]
+  // },
   {
     path: '/dashboard',
     component: DashboardView,
@@ -252,6 +252,58 @@ const routes: Array<RouteRecordRaw> = [
   },
 
   // REPORT
+  {
+    path: '/report/SalesReport',
+    name: 'sales_report',
+    component: () => import ('../views/Report/SalesReport.vue'),
+    meta: { title: 'Sales Report' },
+    children: [
+      {
+        path: '',
+        redirect: '/Report/SalesReport/SalesSummaryReport',
+      },
+      {
+        path: 'SalesSummaryReport',
+        component: () => import('../components/Reports/SalesReport/SummaryReport.vue'),
+      },
+      {
+        path: 'SalesDetailedReport',
+        component: () => import('../components/Reports/SalesReport/DetailedReport.vue'),
+      },
+      // {
+      //   path: 'CollectedReport',
+      //   component: () => import('../components/Reports/SalesReport/CollectedReport.vue'),
+      // },
+      {
+        path: 'CancelledReport',
+        component: () => import('../components/Reports/SalesReport/CancelledReport.vue'),
+      },
+      {
+        path: 'RemittanceReport',
+        component: () => import('../components/Reports/SalesReport/RemittanceReport.vue'),
+      },
+    ],
+  },
+  {
+    path: '/report/POSReport',
+    name: 'pos_report',
+    component: () => import ('../views/Report/POSReport.vue'),
+    meta: { title: 'POS Report' },
+    children: [
+      {
+        path: '',
+        redirect: '/Report/POSReport/ZReading',
+      },
+      {
+        path: 'ZReading',
+        component: () => import('../components/Reports/POSReport/ZReading.vue'),
+      },
+      {
+        path: 'XReading',
+        component: () => import('../components/Reports/POSReport/xReading.vue'),
+      },
+    ],
+  },
   {
     path: '/report/sales-detail-report',
     name: 'sales_detail_report',

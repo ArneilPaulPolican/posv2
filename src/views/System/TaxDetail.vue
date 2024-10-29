@@ -27,7 +27,7 @@
         <ion-content :fullscreen="true">
             
             <ion-list :inset="true" style="margin: 10px">
-                <div style="padding: 10px;">
+                <div style="padding: 5px;">
                     <ion-item>
                         <!-- <ion-label position="stacked">Tax code :</ion-label> -->
                         <ion-input label="Tax code" label-placement="floating" fill="solid" v-model="tax.tax_code" placeholder="Enter Tax Code"></ion-input>
@@ -37,12 +37,10 @@
                         <ion-input label="Tax" label-placement="floating" fill="solid" v-model="tax.tax" placeholder="Tax Name"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-row>
-                            <ion-col>
-                                <!-- <ion-label position="stacked">Rate Percentage (%):</ion-label> -->
-                                <!-- <ion-input label="" label-placement="floating" fill="solid" v-model="tax.rate" type="number" placeholder="12"></ion-input> -->
-                                <InputFloat label="Rate Percentage (%)" :amount="tax.rate" @update="(floatValue) => tax.rate = floatValue"></InputFloat>
-                            </ion-col>
+                        <ion-row >
+                            <ion-col size="6" style="padding: 0px;">
+                                <InputFloat label="Rate (%)" :amount="tax.rate" @update="(floatValue) => tax.rate = floatValue"></InputFloat>
+                            </ion-col size="6">
                             <!-- <ion-col >
                                 <ion-checkbox v-model="tax.is_inclusive" label-placement="start">Is Inclusive</ion-checkbox>
                             </ion-col> -->

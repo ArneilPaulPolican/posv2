@@ -12,7 +12,8 @@ import {
   closeCircle, closeCircleOutline, closeCircleSharp, menu, menuOutline, menuSharp, openOutline, openSharp, receiptOutline, receiptSharp,
   lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp, 
   people, peopleCircle, peopleOutline, peopleCircleSharp, triangle, imagesSharp, square, ellipsisVerticalCircleOutline, attach, attachOutline, attachSharp,
-  trashBin, trashBinOutline, trashBinSharp, trash, trashOutline, trashSharp, pencil
+  trashBin, trashBinOutline, trashBinSharp, trash, trashOutline, trashSharp, pencil, add, addCircle,addCircleOutline,addCircleSharp, remove, removeCircle,
+  removeCircleOutline, removeCircleSharp,removeOutline, removeSharp
 } from 'ionicons/icons';
 
 export const icons = {
@@ -28,5 +29,6 @@ export const icons = {
   closeCircle, closeCircleOutline, closeCircleSharp, menu, menuOutline, menuSharp, openOutline, openSharp,  receiptOutline, receiptSharp,
   lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp,
   people, peopleCircle, peopleOutline, peopleCircleSharp, triangle, imagesSharp, square, ellipsisVerticalCircleOutline, attach, attachOutline, attachSharp,
-  trashBin, trashBinOutline, trashBinSharp, trash, trashOutline, trashSharp, pencil
+  trashBin, trashBinOutline, trashBinSharp, trash, trashOutline, trashSharp, pencil, add, addCircle,addCircleOutline,addCircleSharp, remove, removeCircle,
+  removeCircleOutline, removeCircleSharp,removeOutline, removeSharp
 };
