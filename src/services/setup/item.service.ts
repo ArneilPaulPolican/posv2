@@ -5,6 +5,7 @@ import {
   SALES_ITEMS_TABLE,
   STOCK_IN_ITEMS_TABLE,
   STOCK_OUT_ITEMS_TABLE,
+  STOCK_OUTS_TABLE,
   TAXES_TABLE,
   UNITS_TABLE,
 } from '@/schema/tables';
@@ -60,7 +61,6 @@ export const getItems = async (page = 1, pageSize = 10, search_keyword = '') => 
                ${TAXES_TABLE}.tax,
                ${TAXES_TABLE}.tax_code,
                ${TAXES_TABLE}.rate as tax_rate,
-               ${TAXES_TABLE}.is_inclusive as is_tax_rate_inclusive,
                ${TAXES_TABLE}.rate
         FROM ${ITEMS_TABLE}
         LEFT JOIN ${UNITS_TABLE}
@@ -186,23 +186,29 @@ export const getItemById = async (id: number) => {
   }
 };
 
-export const getTransaction = async (id: number)  => {
+export const getTransaction = async (item_id: number)  => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
     if (!db) {
       throw new Error('Database connection not open');
     }
+    const query = `
+      SELECT DISTINCT item_id 
+      FROM (
+        SELECT ${SALES_ITEMS_TABLE}.item_id FROM ${SALES_ITEMS_TABLE} WHERE ${SALES_ITEMS_TABLE}.item_id = ?
+        UNION
+        SELECT ${STOCK_IN_ITEMS_TABLE}.item_id FROM ${STOCK_IN_ITEMS_TABLE} WHERE ${STOCK_IN_ITEMS_TABLE}.item_id = ?
+        UNION
+        SELECT ${STOCK_OUT_ITEMS_TABLE}.item_id FROM ${STOCK_OUT_ITEMS_TABLE} WHERE ${STOCK_OUT_ITEMS_TABLE}.item_id = ?
+      ) AS combined
+      LIMIT 1
+    `;
 
-    const categoryQuery = `SELECT DISTINCT ${SALES_ITEMS_TABLE}.item_id FROM ${SALES_ITEMS_TABLE} WHERE ${SALES_ITEMS_TABLE}.item_id=? LIMIT 1`;
-    const params = [id];
-    
-    const result = await db.query(categoryQuery, params);
-    if (result.values) {
-      return { exist: true}; // Return the first record
-    } else {
-      return { exist: false}; // Handle case where no record is found
-    }
+    const params = [item_id, item_id, item_id];
+    const result = await db.query(query, params);
+    console.log(result.values?.length)
+    return { exist: result.values?.length ?? false };
   } catch (error) {
     throw error;
   }
@@ -435,10 +441,9 @@ export const deleteItem = async (id: number) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
   try {
-  
     const transactionStatements = [
       {
-        statement: `DELETE ${ITEMS_TABLE}
+        statement: `DELETE FROM ${ITEMS_TABLE}
         WHERE id=?`,
         values: [ 
           id
@@ -447,8 +452,9 @@ export const deleteItem = async (id: number) => {
     ]
   
     const res = await db.executeTransaction(transactionStatements);
-    return { success: true};
+    return { success: true, message: ''};
   } catch (error) {
-    return { success: false};
+    console.log(error)
+    return { success: false, message: error};
   }
 };

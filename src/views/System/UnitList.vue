@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { icons } from '@/plugins/icons';
-import { addUnit, deleteUnit, getUnits } from '@/services/system/unit.service';
+import { addUnit, deleteUnit, getUnits, unitAssociatedWithItem } from '@/services/system/unit.service';
 import { defineComponent, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { actionSheetController, onIonViewDidEnter, onIonViewWillEnter } from '@ionic/vue';
@@ -87,6 +87,11 @@ export default defineComponent({
         
         const handleDelete = async (unit: any) => {
             try {
+                const checkUnit = await unitAssociatedWithItem(unit.id);
+                if(checkUnit.exist){
+                    await presentToast(`Unable to delete Unit associated with Item.`);
+                    return;
+                }
                 const result = await deleteUnit(unit.id)
                 if(result.success){
                     await presentToast(`Unit deleted successfully!`)

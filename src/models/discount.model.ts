@@ -7,6 +7,7 @@ export interface DISCOUNT {
   particular: string;
   is_locked: boolean;
   image_url: string;
+  sort_no: number;
 }
 
 export class DISCOUNT_DTO {
@@ -20,4 +21,5 @@ export class DISCOUNT_DTO {
   particular: string = '';
   is_locked: boolean = false;
   image_url: string = '';
+  sort_no: number=0;
 }

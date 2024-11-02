@@ -7,6 +7,8 @@ export const UNITS_TABLE = 'mst_units';
 export const ITEMS_TABLE = 'mst_items';
 export const ITEMS_INVENTORY_TABLE = 'mst_item_inventory';
 export const ITEM_COMPONENTS_TABLE = 'mst_item_components';
+export const ITEM_PRICE_TABLE = 'mst_item_price';
+
 export const TABLES_TABLE = 'mst_tables';
 export const DISCOUNTS_TABLE = 'mst_discounts';
 export const PAYTYPES_TABLE = 'mst_patypes';

@@ -45,24 +45,17 @@
             <ion-list :inset="true" style="margin: 10px">
                 <div style="padding: 5px;">
                     <ion-item>
-                        <!-- <ion-label position="stacked">Barcode</ion-label> -->
                         <ion-input label="Barcode" label-placement="floating" fill="solid" :disabled="is_locked" v-model="item.bar_code" ></ion-input>
                     </ion-item>
                     <ion-item>
-                        <!-- <ion-label position="stacked">Description</ion-label> -->
                         <ion-textarea label="Description" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="item.item_description" placeholder="Item Description"></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-row>
                             <ion-col size="6" @click="openUnitModal">
                                 <ion-input label="Unit" label-placement="floating" fill="solid" :disabled="is_locked" :readonly="true" v-model="item.unit" placeholder="Pc(s)" ></ion-input>
-                                <!-- <ion-button :disabled="is_locked" fill="solid" size="medium" style="align-self: center;" @click="openUnitModal(true)">
-                                    <ion-icon :icon="icons.ellipsisHorizontalOutline"></ion-icon>
-                                </ion-button> -->
                             </ion-col>
                             <ion-col size="6">
-                                <!-- <ion-label position="stacked">Price : </ion-label> -->
-                                <!-- <ion-input label="" label-placement="floating" fill="solid" :disabled="is_locked" v-model="trimmedPrice" type="number" placeholder="Enter Price" ></ion-input> -->
                                 <InputFloat label="Price" :disabled="is_locked" :amount="item.price" @update="(floatValue) => item.price = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
@@ -70,14 +63,10 @@
                     <ion-item>
                         <ion-row>
                             <ion-col size="6">
-                                <!-- <ion-label position="stacked">Cost </ion-label> -->
-                                <!-- <ion-input label="" label-placement="floating" fill="solid" :disabled="is_locked" v-model="item.cost" type="number" placeholder="Enter Cost" ></ion-input> -->
                                 <InputFloat label="Cost" :disabled="is_locked" :amount="item.cost" @update="(floatValue) => item.cost = floatValue"></InputFloat>
                             </ion-col>
                             <ion-col size="6">
-                                <!-- <ion-label position="stacked">Onhand Quantity </ion-label> -->
-                                <InputFloat label="Onhand Quantity" :disabled="is_locked" :amount="item.quantity" @update="(floatValue) => item.quantity = floatValue"></InputFloat>
-                                <!-- <ion-input label="" label-placement="floating" fill="solid" v-model="item.quantity" type="number" placeholder="0.00" disabled></ion-input> -->
+                                <InputFloat readonly label="Onhand Quantity" :disabled="is_locked" :amount="item.quantity" @update="(floatValue) => item.quantity = floatValue"></InputFloat>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -93,11 +82,7 @@
                         </ion-row>
                     </ion-item>
                     <ion-item>
-                        <!-- <ion-label position="stacked">Tax </ion-label> -->
                         <ion-input label="Tax" label-placement="floating" fill="solid" :disabled="is_locked" :readonly="true" v-model="item.tax" placeholder="VAT" @click="openTaxModal"></ion-input>
-                        <!-- <ion-button :disabled="is_locked" slot="end" fill="solid" size="medium" style="align-self: center;" @click="openTaxModal(true)">
-                            <ion-icon :icon="icons.ellipsisHorizontalOutline"></ion-icon>
-                        </ion-button> -->
                     </ion-item>
                     <ion-item>
                         <!-- <ion-label position="stacked">Alias </ion-label> -->
@@ -140,8 +125,44 @@
 
             </ion-list>
 
+            <!-- PRICES -->
+            <ion-card>
+                <ion-card-header>
+                <ion-card-title>Prices</ion-card-title>
+                <!-- <ion-card-subtitle>Card Subtitle</ion-card-subtitle> -->
+                </ion-card-header>
+                <ion-button fill="clear" size="medium" xstyle="height: 90%"
+                    @click="openPriceDetailModal" >
+                        <ion-icon :icon="icons.addCircle"></ion-icon>
+                        <ion-label>&nbsp;New Price</ion-label>
+                </ion-button>
+                <ion-card-content>
+                    <ion-list :inset="true" style="margin: 10px" v-for="price in itemPrices" :key="price.id">
+                        <p>{{ price.unit_code }} &nbsp; {{  price.unit }}</p>
+                        <p>{{ price.particulars }}</p>
+                        <p>{{ price.price.toFixed(2) }}</p>
+                    </ion-list>
+                </ion-card-content>
+            </ion-card>
+
+            <!-- COMPONENTS -->
+            <ion-card>
+                <ion-card-header>
+                <ion-card-title>Components</ion-card-title>
+                <!-- <ion-card-subtitle>Card Subtitle</ion-card-subtitle> -->
+                </ion-card-header>
+                <ion-button fill="clear"     size="medium" xstyle="height: 90%"
+                    @click="openComponentDetailModal" >
+                        <ion-icon :icon="icons.addCircle"></ion-icon>
+                        <ion-label>&nbsp;New Component</ion-label>
+                </ion-button>
+                <ion-card-content>
+                    <ion-list :inset="true" style="margin: 10px" v-for="component in itemComponents" :key="component.id">
+                        <p>{{ component.component_barcode }} &nbsp; {{ component.component_description }}</p>
+                    </ion-list>
+                </ion-card-content>
+            </ion-card>
         </ion-content>
-        
     </ion-page>
 </template>
 
@@ -161,6 +182,12 @@ import { presentToast } from '@/composables/toast.composables';
 import { reload } from 'ionicons/icons';
 import { usePhotoGallery } from '@/composables/image.composable';
 import InputFloat from '@/components/InputFloat.vue';
+import { getItemComponents } from '@/services/setup/item-component.service';
+import { getItemPrices } from '@/services/setup/item-price.service';
+import { ITEM_COMPONENT_DTO } from '@/models/item-component.model';
+import { ITEM_PRICE_DTO } from '@/models/item-price.model';
+import ComponentDetails from '@/components/Item/ComponentDetails.vue';
+import PriceDetails from '@/components/Item/PriceDetails.vue';
 
 
 export default defineComponent({
@@ -200,6 +227,8 @@ export default defineComponent({
             expiry_date:'',
             lot_number:''
         });
+        const itemComponents = ref<ITEM_COMPONENT_DTO[]>([])
+        const itemPrices = ref<ITEM_PRICE_DTO[]>([])
         let item_id = 0;
         const open_unit_modal = ref(false);
         const open_tax_modal = ref(false);
@@ -255,6 +284,36 @@ export default defineComponent({
                 if (role === 'confirm') {
                 item.value.tax_id = data.id;
                 item.value.tax = data.tax;
+                }
+            }
+        };
+
+        const openPriceDetailModal = async (itemPrice:any) => {
+            if(!is_locked.value){
+                const modal = await modalController.create({
+                    component: PriceDetails,
+                    componentProps: { data: itemPrice, item_id:item.value.id  } 
+                });
+
+                modal.present();
+                const { data, role } = await modal.onWillDismiss();
+                if (role === 'confirm') {
+                    fetchDetails();
+                }
+            }
+        };
+
+        const openComponentDetailModal = async (itemComponent:any) => {
+            if(!is_locked.value){
+                const modal = await modalController.create({
+                    component: ComponentDetails,
+                    componentProps: { data: itemComponent, item_id:item.value.id  } 
+                });
+
+                modal.present();
+                const { data, role } = await modal.onWillDismiss();
+                if (role === 'confirm') {
+                    fetchDetails();
                 }
             }
         };
@@ -370,6 +429,9 @@ export default defineComponent({
                         }else{
                             with_trn.value = false;
                         }
+
+                        await fetchPrices(item_id)
+                        await fetchComponents(item_id);
                     }
                 }else{ 
                     await presentToast('No item found');
@@ -378,6 +440,33 @@ export default defineComponent({
                 
             }, 300);
         }
+
+        async function fetchComponents(item_id:number) {
+            try {
+                setTimeout(async () => {
+                    const itemComponentResult = await getItemComponents(1, 10, item_id);
+                    if(itemComponentResult.success){
+                        itemComponents.value = itemComponentResult.data;
+                    }
+                });
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
+        }
+
+        async function fetchPrices(item_id:number) {
+            try {
+                setTimeout(async () => {
+                    const itemPricesResult = await getItemPrices(1, 10, item_id);
+                    if(itemPricesResult.success){
+                        itemPrices.value = itemPricesResult.data;
+                    }
+                });
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
+        }
+
         //#endregion
         onMounted(async () => {
             await fetchDetails();
@@ -415,7 +504,13 @@ export default defineComponent({
             captureImage,
             retreiveImage,
             // trimLeadingZero
-            with_trn
+            with_trn,
+            itemPrices,
+            openPriceDetailModal,
+
+            itemComponents,
+            openComponentDetailModal,
+
         }
     },
     computed: {

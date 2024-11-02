@@ -24,7 +24,7 @@ export const getTaxes = async (page = 1, pageSize = 10, search_keyword = '') => 
     LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`;
     
     const result = await db.query(taxServiceQuery);
-   
+   console.log(result.values);
     return { success: true, data: result.values as TAX[]};
   } catch (error) {
     throw error;
@@ -121,7 +121,6 @@ export const updateTax = async (data: TAX) => {
           data.tax_code,
           data.tax,
           data.rate,
-          data.is_inclusive,
           data.id,
         ],
       },

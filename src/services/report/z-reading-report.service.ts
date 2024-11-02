@@ -151,7 +151,6 @@ export const getSalesForZRead = async (id:string) => {
             ${SALES_ITEMS_TABLE}.tax_amount,
             ${TAXES_TABLE}.tax,
             ${TAXES_TABLE}.tax_code,
-            ${TAXES_TABLE}.is_inclusive,
             ${SALES_ITEMS_TABLE}.particulars
         FROM 
             ${SALES_ITEMS_TABLE}

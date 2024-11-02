@@ -6,4 +6,5 @@ export interface TABLE {
     pax: number;
     image_path?: string;
     is_locked: boolean;
+    sort_no: number;
 }

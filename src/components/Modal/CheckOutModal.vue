@@ -72,7 +72,8 @@ export default defineComponent({
         const selected_paytype = ref<PAYTYPE>({
             id: 0,
             paytype: '',
-            is_default_value: false
+            is_default_value: false,
+            sort_no:0
         });
         const paytypes = ref<PAYTYPE[]>([]);
         const collection = ref<COLLECTIONS>({

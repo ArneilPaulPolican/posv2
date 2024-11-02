@@ -60,7 +60,7 @@ import { useRouter } from 'vue-router';
 import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Lock } from '@/services/lock';
 import { DBConnectionService } from '@/services/database.connection';
-import { addItem, deleteItem, getItems } from '@/services/setup/item.service';
+import { addItem, deleteItem, getItems, getTransaction } from '@/services/setup/item.service';
 
 import ITEM_DTO, { ITEM } from '@/models/item.model';
 import { addUnit } from '@/services/system/unit.service';
@@ -126,7 +126,7 @@ name: 'DashboardView', // Update the component name here
             tax_code: 'NonVAT',
             tax:'None Vat',
             rate:0,
-            is_inclusive: false
+            sort_no:0
         });
 
         //#region   Actionsheet
@@ -189,11 +189,18 @@ name: 'DashboardView', // Update the component name here
         const handleDelete = async (item: any) => {
             // throw new Error('Function not implemented.');
             try {
+                const checkTransaction = await getTransaction(item.id);
+                if(checkTransaction.exist){
+                    await presentToast(`Unable to delete Item associated with transaction.`);
+                    return;
+                }
                 const result = await deleteItem(item.id)
                 if(result.success){
                     await presentToast(`Item deleted successfully`);
-                    await fetchList();
+                }else{
+                    await presentToast(`Item deleted unsuccessfully ${result.message}`);
                 }
+                await fetchList();
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`)
             }

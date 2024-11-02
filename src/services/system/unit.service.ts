@@ -1,5 +1,5 @@
 import { DBConnectionService } from '../database.connection';
-import { UNITS_TABLE } from '@/schema/tables';
+import { ITEMS_TABLE, UNITS_TABLE } from '@/schema/tables';
 import { ref } from 'vue';
 import { UNIT } from '@/models/unit.model';
 
@@ -33,7 +33,6 @@ export const getUnits = async (page = 1, pageSize = 10, search_keyword = '') => 
   } 
 };
 
-
 export const getUnitsById = async (id:number) => {
   const dbConnectionService = await DBConnectionService.getInstance();
   const db = await dbConnectionService.getDatabaseConnection();
@@ -56,6 +55,30 @@ export const getUnitsById = async (id:number) => {
   } catch (error) {
     throw error;
   } 
+};
+
+export const unitAssociatedWithItem = async (id: number) => {
+  const dbConnectionService = await DBConnectionService.getInstance();
+  const db = await dbConnectionService.getDatabaseConnection();
+  try {
+    if (!db) {
+      throw new Error('Database connection not open');
+    }
+    const query = `
+      SELECT EXISTS (
+        SELECT 1 FROM ${ITEMS_TABLE} WHERE unit_id = ?
+      ) AS exist
+    `;
+
+    const params = [id];
+    const result = await db.query(query, params);
+
+    // Assuming result.values is an array with the first element being the query result
+    return { exist: result.values?.length ?? false };
+  } catch (error) {
+    console.error('Error checking unit associated with item:', error);
+    throw error; // Optionally rethrow or handle it differently
+  }
 };
 
 export const addUnit = async () => {

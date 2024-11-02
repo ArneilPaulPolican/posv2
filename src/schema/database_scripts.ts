@@ -27,11 +27,13 @@ import {
   SYS_SETTINGS_TABLE,
   MIGRATIONS_TABLE,
   SYS_INVENTORY_TABLE,
+  ITEM_PRICE_TABLE,
 } from './tables';
 import { Capacitor } from "@capacitor/core";
 import MIGRATION from "@/models/migration.model";
 
 export const createTables = async (db: SQLiteDBConnection) => {
+    console.log('Create table started')
 
     const createUsersTableQuery = `
       CREATE TABLE IF NOT EXISTS ${USERS_TABLE} (
@@ -100,8 +102,31 @@ export const createTables = async (db: SQLiteDBConnection) => {
       CREATE TABLE IF NOT EXISTS ${ITEM_COMPONENTS_TABLE} (
         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         item_id INTEGER NOT NULL,
+        component_id INTEGER NOT NULL,
+        particulars TEXT,
         quantity REAL NOT NULL,
         unit_id INTEGER NOT NULL,
+        FOREIGN KEY (item_id)
+          REFERENCES ${ITEMS_TABLE} (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+        FOREIGN KEY (component_id)
+          REFERENCES ${ITEMS_TABLE} (id),
+        FOREIGN KEY (unit_id)
+          REFERENCES ${UNITS_TABLE} (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE
+      )
+    `;
+
+    const createItemPriceTableQuery = `
+      CREATE TABLE IF NOT EXISTS ${ITEM_PRICE_TABLE} (
+        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        item_id INTEGER NOT NULL,
+        unit_id INTEGER NOT NULL,
+        particulars TEXT,
+        cost REAL NOT NULL,
+        price REAL NOT NULL,
         FOREIGN KEY (item_id)
           REFERENCES ${ITEMS_TABLE} (id)
             ON UPDATE CASCADE
@@ -111,7 +136,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
             ON UPDATE CASCADE
             ON DELETE CASCADE
       )
-    `;
+  `;
 
     const createTablesTableQuery = `
       CREATE TABLE IF NOT EXISTS ${TABLES_TABLE} (
@@ -578,6 +603,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
     `;
   
     try {
+        console.log('Create table query execute')
         // Settings module
         await db.execute(createUsersTableQuery);
         // await db.execute(createCategoriesTableQuery);
@@ -587,6 +613,9 @@ export const createTables = async (db: SQLiteDBConnection) => {
         // Setup module
         await db.execute(createItemsTableQuery);
         await db.execute(createItemComponentsTableQuery);
+        await db.execute(createItemPriceTableQuery);
+
+        
         await db.execute(createTablesTableQuery);
         await db.execute(createDiscountsTableQuery);
         await db.execute(createPaytypesTableQuery);
@@ -627,6 +656,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         const existingSysSettings = await db.query(getSysSettingsQuery);
 
         if (!existingSysSettings.values?.length) {
+        console.log('Insert Default value')
           const insertSysSettingsQuery = `
             INSERT INTO ${SYS_SETTINGS_TABLE} (
               customer, customer_address, customer_tin,
@@ -655,12 +685,13 @@ export const createTables = async (db: SQLiteDBConnection) => {
 
             // Insert default paytypes
           const insertPaytypesQuery = `
-            INSERT OR IGNORE INTO ${PAYTYPES_TABLE} (paytype, is_default_value)
+            INSERT OR IGNORE INTO ${PAYTYPES_TABLE} (paytype, is_default_value, sort_no)
             VALUES
-              ('Cash', 1),
-              ('Card', 0),
-              ('GCash', 0),
-              ('Check', 0)
+              ('CASH', 1, 1),
+              ('GCASH', 0, 2),
+              ('MAYA', 0, 3),
+              ('CREDITCARD', 0, 4),
+              ('CHECK', 0, 5)
           `;
           const resPAYTYPES_TABLE = await db.execute(insertPaytypesQuery);
 
@@ -673,10 +704,11 @@ export const createTables = async (db: SQLiteDBConnection) => {
 
           // Insert Default TAX
           const insertDefaultTaxQuery = `
-            INSERT OR IGNORE INTO ${TAXES_TABLE} (tax_code, tax, rate, is_inclusive)
+            INSERT OR IGNORE INTO ${TAXES_TABLE} (tax_code, tax, rate, sort_no)
             VALUES 
-            ('NON VAT', 'None VAT', 0, false),
-            ('VAT', 'Value Added Tax', 12, false)
+            ('NONE VAT 0%', 'None VAT', 0,  1),
+            ('VAT 12%', 'Value Added Tax', 12, 2),
+            ('VATEXEMPT 0%', 'VAT Exempt', 0,  3)
           `;
           const resTAXES_TABLE = await db.execute(insertDefaultTaxQuery);
 
@@ -697,11 +729,12 @@ export const createTables = async (db: SQLiteDBConnection) => {
 
           // Insert Discount
           const insertDiscountsQuery = `
-            INSERT OR IGNORE INTO ${DISCOUNTS_TABLE} (discount, discount_rate, vat_inclusive, particular, is_locked, image_url)
+            INSERT OR IGNORE INTO ${DISCOUNTS_TABLE} (discount, discount_rate, vat_inclusive, particular, is_locked, image_url, sort_no)
             VALUES
-              ('Zero Discount', 0, false, 'NA', true, 'NA'),
-              ('Senior / PWD Discount', 20, false, 'NA', true, 'NA'),
-              ('Variable', 0, false, 'NA', true, 'NA')
+              ('ZERO DISCOUNT', 0, false, 'NA', true, 'NA', 1),
+              ('VARIABLE DISCOUNT', 0, false, 'RATE or AMOUNT', true, 'NA', 2),
+              ('SENIOR DISCOUNT', 20, false, 'NA', true, 'NA', 3),
+              ('PWD DISCOUNT', 20, false, 'NA', true, 'NA', 4)
           `;
           const resDISCOUNTS_TABLE = await db.execute(insertDiscountsQuery);
 
@@ -730,8 +763,10 @@ export const createTables = async (db: SQLiteDBConnection) => {
             ('001', 'Take-out', 'NA', 0, '', 1)
           `;
           const resTABLES_TABLE = await db.execute(insertTablespesQuery);
-        }
+        console.log('Insert Default value done',)
+      }
     } catch (error) {
+      console.log('Insert Default value error', error)
       throw error;
     }
 };

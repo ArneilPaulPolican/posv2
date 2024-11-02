@@ -4,5 +4,5 @@ export interface TAX {
   tax_code: string;
   tax: string;
   rate: number;
-  is_inclusive: boolean;
+  sort_no: number;
 }

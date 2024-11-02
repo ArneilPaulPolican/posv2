@@ -50,7 +50,6 @@ export const getSalesItemBySalesId = async (sales_id:number) => {
                 ${SALES_ITEMS_TABLE}.tax_amount,
                 ${TAXES_TABLE}.tax,
                 ${TAXES_TABLE}.tax_code,
-                ${TAXES_TABLE}.is_inclusive,
                 ${SALES_ITEMS_TABLE}.particulars,
                 ${SALES_ITEMS_TABLE}.user_id
           FROM ${SALES_ITEMS_TABLE}
@@ -110,7 +109,6 @@ export const getSalesItemById = async (id:number) => {
         ${SALES_ITEMS_TABLE}.tax_amount,
         ${TAXES_TABLE}.tax,
         ${TAXES_TABLE}.tax_code,
-        ${TAXES_TABLE}.is_inclusive,
         ${SALES_ITEMS_TABLE}.particulars,
         ${SALES_ITEMS_TABLE}.user_id
       FROM ${SALES_ITEMS_TABLE}
