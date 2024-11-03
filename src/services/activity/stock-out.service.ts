@@ -2,6 +2,7 @@ import { STOCK_OUT } from '@/models/stock-out.model';
 import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { STOCK_OUTS_TABLE } from '@/schema/tables';
+import { Storage } from '@capacitor/storage';
 
 // const db_connection = new DBConnectionService()
 const data = ref<STOCK_OUT[]>([])
@@ -88,8 +89,9 @@ export const addStockOut = async () => {
   let transaction;
   try {
     const out_number = await getOUTNumber();
-    console.log(out_number)
-    const out_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
+    const login_date = await Storage.get({ key: 'login_date' });
+    const out_date = login_date.value;
+    // const out_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
     
     const taxServiceQuery = 
     `

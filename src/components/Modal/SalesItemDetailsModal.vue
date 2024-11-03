@@ -69,7 +69,8 @@
                             <ion-col size="6">
                                 <!-- <ion-label position="stacked">Price</ion-label> -->
                                 <!-- <ion-input label="" label-placement="floating" fill="solid" @ionInput="updateAmount" v-model="sales_item_local.price" placeholder="No. PAX"></ion-input> -->
-                                <InputFloat label="Price" :amount="sales_item_local.price" @update="(floatValue) => sales_item_local.price = floatValue" @ionInput="updateAmount"></InputFloat>
+                                <InputFloat @click="openPriceModal" label="Price" :amount="sales_item_local.price" @update="(floatValue) => sales_item_local.price = floatValue" @ionInput="updateAmount">
+                                </InputFloat>
                             </ion-col>
                             <ion-col size="6">
                                 <!-- <ion-label position="stacked">Quantity</ion-label> -->
@@ -111,6 +112,8 @@ import { SALES_DTO } from '@/models/sales.model';
 import ITEM_DTO from '@/models/item.model';
 import { getItemById } from '@/services/setup/item.service';
 import InputFloat from '../InputFloat.vue';
+import { icons } from '@/plugins/icons';
+import ItemPriceModal from './ItemPriceModal.vue';
 
   
 export default defineComponent({
@@ -206,7 +209,6 @@ export default defineComponent({
         const cancel = () => modalController.dismiss('', 'cancel');
         const confirm = () => modalController.dismiss('', 'confirm');
 
-
         async function updateAmount(){
             let _qty =  sales_item_local.value.quantity;
             let price = (sales_item_local.value.price?? 0);
@@ -226,6 +228,24 @@ export default defineComponent({
             sales_item_local.value.tax_amount = await computeVAT(_qty, item.value as ITEM_DTO)
             sales_item_local.value.discount_amount = await discountPerQuantity(_qty, item.value as ITEM_DTO, sales.value as SALES_DTO ) * _qty;
         }
+
+        const openPriceModal = async () => {
+            const modal = await modalController.create({
+            component: ItemPriceModal,
+            componentProps: { item_id: sales_item?.item_id  } 
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                sales_item_local.value.unit_id = data.unit_id;
+                sales_item_local.value.unit_code = data.unit_code;
+                sales_item_local.value.unit = data.unit;
+                sales_item_local.value.price = data.price;
+                await updateAmount();
+            }
+        };
+
         async function fetchDetails(){
             setTimeout(async () => {
                 try {
@@ -311,9 +331,12 @@ export default defineComponent({
             }
         })
         return {
+            icons,
             alertButtons,
             sales_item_local,
             item,
+
+            openPriceModal,
 
             handleSave,
             updateAmount,

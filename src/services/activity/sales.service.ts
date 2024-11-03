@@ -6,6 +6,7 @@ import { CUSTOMER } from '@/models/customer.model';
 import USER from '@/models/user.model';
 import { SALES_ITEM_DTO } from '@/models/sales-item.model';
 import { addBulkSalesItem, getSalesItemBySalesId } from './sales-item.service';
+import { Storage } from '@capacitor/storage';
 
 // const db_connection = new DBConnectionService()
 const data = ref<SALES[]>([])
@@ -560,16 +561,21 @@ try {
   const nextSalesNumber = currentSalesNumber + 1;
   const formattedNextSalesNumber = nextSalesNumber.toString().padStart(10, '0');
   sales_number = formattedNextSalesNumber;
+
+  
+  const login_date = await Storage.get({ key: 'login_date' });
+  console.log(login_date.value)
   const data = 
   {
     id: undefined,
     user_id: 1,
     sales_number: sales_number,
-    sales_date: new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-      }),
+    sales_date: login_date.value,
+    // sales_date: new Date().toLocaleDateString('en-US', {
+    //   year: 'numeric',
+    //   month: '2-digit',
+    //   day: '2-digit'
+    //   }),
     sales_time : new Date().toLocaleTimeString('en-US', {
       hour:  '2-digit',
       minute: '2-digit',

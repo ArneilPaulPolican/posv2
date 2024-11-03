@@ -3,6 +3,7 @@ import { DBConnectionService } from '../database.connection';
 import { ref } from 'vue';
 import { STOCK_INS_TABLE } from '@/schema/tables';
 import { onUnlockUpdateItemInventory } from '@/composables/inventory';
+import { Storage } from '@capacitor/storage';
 
 // const db_connection = new DBConnectionService()
 const data = ref<STOCK_IN[]>([])
@@ -83,8 +84,9 @@ export const addStockIn = async () => {
     const nextNumber = currentNumber + 1;
     const formattedNextNumber = nextNumber.toString().padStart(10, '0');
     in_number = formattedNextNumber;
-    const in_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
-
+    const login_date = await Storage.get({ key: 'login_date' });
+    const in_date = login_date.value;
+    // const in_date = new Date().toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit'});
 
     const taxServiceQuery = 
     `

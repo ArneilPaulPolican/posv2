@@ -7,6 +7,19 @@
             <form @submit.prevent="submitLogin">
                 <div style="padding: 5px;">
                     <ion-item >
+                        <div style="width: 100%;">
+                            <ion-button fill="clear" expand="block" size="medium" @click="openLoginDateModal()">
+                                Login Date: &nbsp;
+                                <ion-label>{{ date_today }}</ion-label>
+                                <ion-icon :icon="icons.calendarNumberOutline"></ion-icon>
+                            </ion-button>
+                        </div>
+                        <ion-modal :keep-contents-mounted="false" :is-open="loginDateModalOpen" style="margin-top: 65px;">
+                            <ion-datetime format="MM/dd/yyyy" @ionChange="onLoginDateChange($event.detail.value)"
+                            :max="new Date().toISOString().split('T')[0]"></ion-datetime>
+                        </ion-modal>
+                    </ion-item>
+                    <ion-item >
                         <ion-input label="Username" label-placement="stacked" fill="solid" v-model="username"  ></ion-input>
                     </ion-item>
                     <ion-item>
@@ -50,6 +63,21 @@ export default defineComponent({
         const username = ref('');
         const password = ref('');
         const router = useRouter();
+        const date_today = ref('');
+        const loginDateModalOpen = ref(false)
+
+        async function openLoginDateModal() {
+            loginDateModalOpen.value = true;
+        }
+        const onLoginDateChange = async (selectedDate: Date) => {
+            const _date = new Date(selectedDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                    });
+            date_today.value = _date;
+            loginDateModalOpen.value = false
+        }
 
         async function submitLogin() {
             try {
@@ -61,6 +89,10 @@ export default defineComponent({
                             key: 'current_user',
                             value: JSON.stringify(result.data) as string
                         });
+                        await Storage.set({
+                            key: 'login_date',
+                            value: date_today.value
+                        });
                         router.push('/dashboard')
                     }else{
                         await presentToast('Login failed')
@@ -71,10 +103,13 @@ export default defineComponent({
             }
         }
         async function fetchUser() {
+            date_today.value = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
             const { value } = await Storage.get({ key: 'current_user' });
             const current_user = JSON.parse(value as string);
-            console.log(current_user);
-            
         }
         onIonViewDidEnter(async () => {
             await fetchUser()
@@ -86,6 +121,10 @@ export default defineComponent({
             icons,
             username,
             password,
+            date_today,
+            loginDateModalOpen,
+            openLoginDateModal,
+            onLoginDateChange,
 
             submitLogin
         }

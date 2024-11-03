@@ -10,7 +10,7 @@
         </ion-buttons>
         <ion-title>{{ $route.meta.title }}</ion-title>
         <router-link v-if="$route.path.toLowerCase() !== '/dashboard' " to="/dashboard"  slot="end" style="margin-right: 10px;">
-            <ion-icon size="medium" :icon="icons.homeSharp"></ion-icon>
+            <ion-icon size="large" :icon="icons.homeOutline"></ion-icon>
             <!-- <ion-avatar style="align-content: center;">
                 <img src="../../../public/favicon.png" style="height: 60%; width: 60%; align-self: center; object-fit: contain; margin: auto;"/>
             </ion-avatar> -->
@@ -18,19 +18,18 @@
         <!-- implement logout here -->
          <ion-avatar v-else @click="showPopover($event)" size="large" slot="end"
             style=" display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center;">
-            <!-- <img alt="Silhouette of a person's head" src="../../../public/user.png" /> -->
             <ion-icon :icon="icons.peopleCircle" style="width: 50px; height: 50px; align-items: center;"></ion-icon>
           </ion-avatar>
           <ion-popover :is-open="popoverOpen" :event="event" @didDismiss="popoverOpen = false" size="auto">
             <ion-content class="ion-padding">
               <ion-item>
-                <ion-button expand="block" fill="clear" style="margin-right: 10px;" color="secondary">
+                <ion-button expand="block" fill="clear" style="margin-right: 10px;" color="primary">
                   <ion-label>Settings&nbsp;</ion-label>
                   <ion-icon :icon="icons.settingsSharp"></ion-icon>
               </ion-button>
               </ion-item>
               <ion-item>
-                <ion-button expand="block" fill="clear" style="margin-right: 10px;" @click="logoutAndClosePopover " color="secondary">
+                <ion-button expand="block" fill="clear" style="margin-right: 10px;" @click="logoutAndClosePopover " color="primary">
                   <ion-label>Logout&nbsp;</ion-label>
                   <ion-icon :icon="icons.logOutSharp"></ion-icon>
                 </ion-button>

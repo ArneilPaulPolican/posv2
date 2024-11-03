@@ -49,6 +49,20 @@
                     <ion-item>
                         <!-- <ion-label position="stacked">Category :</ion-label> -->
                         <ion-textarea label="Category" label-placement="floating" fill="solid" autoGrow="true" :disabled="is_locked" v-model="customer.category" placeholder="Enter Category"></ion-textarea>
+                        <ion-button :disabled="is_locked" slot="end" size="small" expand="block" style="height: 100%"
+                            @click="showPopover($event)">
+                                <ion-icon :icon="icons.searchOutline"></ion-icon>
+                        </ion-button>
+
+                        <ion-popover :is-open="popoverOpen" :event="event" @didDismiss="popoverOpen = false" size="auto">
+                            <ion-content class="ion-padding">
+                                <ion-list v-for="category in categories" :key="category.category" @click="selectCategory(category.category)">
+                                    <ion-item>
+                                        {{ category.category }}
+                                    </ion-item>
+                                </ion-list>
+                            </ion-content>
+                        </ion-popover>
                     </ion-item>
                     <ion-item>
                         <!-- <ion-label position="stacked">Email :</ion-label> -->
@@ -118,6 +132,7 @@ import { addCustomers, getCustomerById, getLastCustomerCode, lockCustomers, unlo
 import { onIonViewDidEnter } from '@ionic/vue';
 import { presentToast } from '@/composables/toast.composables';
 import { usePhotoGallery } from '@/composables/image.composable';
+import { getCategory } from '@/services/setup/category.service';
 
 export default defineComponent({
     components: { 
@@ -145,6 +160,7 @@ export default defineComponent({
             is_default_value: false,
         });
         let customer_id = 0 ;
+        const categories = ref<{ category: string }[]>([]);
         const open_alert = ref(false);
         const alertTitle = ref('');
         const alertSubTitle = ref('');
@@ -154,6 +170,20 @@ export default defineComponent({
         const is_locked = ref(false);
         const { takePhoto, selectPhoto, loadImageFromFilesystem, savedPhotoPath } = usePhotoGallery();
 
+        const popoverOpen = ref(false);
+        const event = ref<Event | null>(null);
+        const showPopover = async (e: Event) => {
+            event.value = e;
+            popoverOpen.value = true;
+            await fetchCategory();
+        };
+        const selectCategory= async (category: string) =>{
+            customer.value.category = category;
+            await closePopover();
+        }
+        const closePopover =  async() => {  
+            popoverOpen.value = false;
+        };
         
         // BACK
         const handleReturn = () => {
@@ -259,6 +289,7 @@ export default defineComponent({
                         is_locked: result.data.is_locked,
                         is_default_value: result.data.is_default_value,
                     }
+                    console.log(customer.value)
                 }else{ 
                     await presentToast('No customer found');
                     handleReturn();
@@ -268,6 +299,19 @@ export default defineComponent({
                 await presentToast(`Error retreiving customer:  ${error}`);
                 handleReturn();
             }
+        }
+        async function fetchCategory() {
+            setTimeout(async () => {
+                try {
+                    const result = await getCategory();
+                    if(result.success){
+                    console.log(result.data)
+                    categories.value = result.data;
+                    }
+                } catch (error) {
+                    await presentToast('Failed retreiving Tax list')
+                }
+            }, 500);
         }
         onMounted(async () =>{
             await fetchDetails();
@@ -296,6 +340,13 @@ export default defineComponent({
             
             captureImage,
             retreiveImage,
+
+            categories,
+            event,
+            popoverOpen,
+            showPopover,
+            selectCategory,
+            closePopover
         }
     }
 });

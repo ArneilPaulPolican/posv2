@@ -48,6 +48,7 @@ import { cancelSales, getBilledSales, getOpenSales, getSales } from '@/services/
 import { onIonViewDidEnter, actionSheetController } from '@ionic/vue';
 import { defineComponent, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { Storage } from '@capacitor/storage';
 
 
 export default defineComponent({
@@ -129,6 +130,12 @@ export default defineComponent({
         }
         async function fetchList() {
             try {
+                const login_date = await Storage.get({ key: 'login_date' });
+                date_today.value = login_date.value ?? new Date().toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
                 const result = await getBilledSales();
                 if(result.success){
                     sales_list.value = result.data
@@ -139,19 +146,19 @@ export default defineComponent({
         }
         
         onIonViewDidEnter(async () => {
-            date_today.value = new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
+            // date_today.value = new Date().toLocaleDateString('en-US', {
+            //     year: 'numeric',
+            //     month: '2-digit',
+            //     day: '2-digit'
+            // });
             await fetchList()
         });
         onMounted(async () =>{
-            date_today.value = new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
+            // date_today.value = new Date().toLocaleDateString('en-US', {
+            //     year: 'numeric',
+            //     month: '2-digit',
+            //     day: '2-digit'
+            // });
             await fetchList()
         })
         return{

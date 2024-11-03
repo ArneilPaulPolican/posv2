@@ -34,6 +34,7 @@ export const getItemPrices = async (page = 1, pageSize = 10, item_id: number)  =
    
     return { success: true, data: result.values as ITEM_PRICE_DTO[] };
   } catch (error) {
+    console.log(error)
     throw error;
   }
 };

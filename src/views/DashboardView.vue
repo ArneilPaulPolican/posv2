@@ -5,6 +5,11 @@
         <ion-content >
             <ion-grid style="width: 100%;">
                 <ion-row>
+                    <ion-item>
+                        Login Date:&nbsp;{{ date_today }}
+                    </ion-item>
+                </ion-row>
+                <ion-row>
                     <ion-col size="8" size-md="8" size-lg="8">
                         <ion-button size="medium" expand="block" style="height: 100%" :router-link="'/Activity/Sales'" color="success">
                             <div class="icon-label-wrapper">
@@ -187,14 +192,31 @@
 
 <script lang="ts">
 import { icons } from '@/plugins/icons';
-import { defineComponent } from 'vue';
+import { onIonViewDidEnter } from '@ionic/vue';
+import { defineComponent, onMounted, ref } from 'vue';
 // import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
+import { Storage } from '@capacitor/storage';
 
 const header = 'DASHBOARD';
 export default defineComponent({
     setup(){
+        const date_today = ref('');
+        
+                
+              
+        async function loadLoginDate() {
+            const  data = await Storage.get({ key: 'login_date' });
+            date_today.value = data.value as string;
+        }
+        onIonViewDidEnter(async () => {
+            await loadLoginDate()
+        });
+        onMounted(async () => {
+            await loadLoginDate()
+        });
         return{
-            icons
+            icons,
+            date_today
         }
     }
 })
