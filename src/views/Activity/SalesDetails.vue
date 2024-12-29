@@ -195,6 +195,7 @@ import { disc } from 'ionicons/icons';
 import { DISCOUNT_DTO } from '@/models/discount.model';
 import { presentToast } from '@/composables/toast.composables';
 import { onLockRecordInventory, onUnlockUpdateItemInventory } from '@/composables/inventory';
+import { getCollectionLineBySalesId } from '@/services/activity/collection-lines.service';
 
 
 export default defineComponent({
@@ -333,40 +334,44 @@ export default defineComponent({
 
         // Select Discount
         const openDiscountModal = async () => {
-            const modal = await modalController.create({
-            component: DiscountListModal,
-            // componentProps: { data: sales } 
-            });
+            if(!is_locked.value){
+                const modal = await modalController.create({
+                component: DiscountListModal,
+                // componentProps: { data: sales } 
+                });
 
-            modal.present();
-            const { data, role } = await modal.onWillDismiss();
-            if (role === 'confirm') {
-                sales.value.discount_id = data.id;
-                sales.value.discount = data.discount;
-                sales.value.discount_rate = data.discount_rate;
+                modal.present();
+                const { data, role } = await modal.onWillDismiss();
+                if (role === 'confirm') {
+                    sales.value.discount_id = data.id;
+                    sales.value.discount = data.discount;
+                    sales.value.discount_rate = data.discount_rate;
 
-                await updateSalesItemDiscount()
+                    await updateSalesItemDiscount()
+                }
             }
         };
 
         // Open Item Modal
         const openItemModal = async () => {
-            const modal = await modalController.create({
-                component: ItemListModal,
-                componentProps: { data: sales, trx: 'SI' } 
-            });
+            if(!is_locked.value){
+                const modal = await modalController.create({
+                    component: ItemListModal,
+                    componentProps: { data: sales, trx: 'SI' } 
+                });
 
-            modal.present();
-            const { data, role } = await modal.onWillDismiss();
-            if (role === 'confirm') {
-                if (data && data._rawValue) { // Check if data is a ref object with _rawValue property
-                    const salesItems = data._rawValue; // Get the array of SALES_ITEM_DTO objects
-                    console.log(`Received data: ${JSON.stringify(salesItems)}`);
-                    await addBulkSalesItem(sales_id, salesItems); // add new selected items
-                    await calculateAmount(); // recalculate total_amount
-                    await handleSave(); // Save with updated total_amount
-                } else {
-                    console.error('Error: data is not a ref object with _rawValue property');
+                modal.present();
+                const { data, role } = await modal.onWillDismiss();
+                if (role === 'confirm') {
+                    if (data && data._rawValue) { // Check if data is a ref object with _rawValue property
+                        const salesItems = data._rawValue; // Get the array of SALES_ITEM_DTO objects
+                        console.log(`Received data: ${JSON.stringify(salesItems)}`);
+                        await addBulkSalesItem(sales_id, salesItems); // add new selected items
+                        await calculateAmount(); // recalculate total_amount
+                        await handleSave(); // Save with updated total_amount
+                    } else {
+                        console.error('Error: data is not a ref object with _rawValue property');
+                    }
                 }
             }
         };
@@ -508,6 +513,8 @@ export default defineComponent({
 
         async function handlePrint() {
             try {
+                const collectionLines = await getCollectionLineBySalesId(sales.value.id ?? 0)
+                console.log(collectionLines)
                 await generateSales(sales.value, sales_item_list.value)
                 await updatePrintStatus(sales.value);
                 await fetchDetails();

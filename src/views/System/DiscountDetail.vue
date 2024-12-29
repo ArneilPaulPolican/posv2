@@ -97,7 +97,8 @@ export default defineComponent({
             vat_inclusive: false,
             particular: 'NA',
             is_locked: false,
-            image_url:''
+            image_url:'',
+            sort_no:0
         });
         let discount_id = 0 ;
         const open_alert = ref(false);

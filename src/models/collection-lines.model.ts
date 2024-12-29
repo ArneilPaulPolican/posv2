@@ -5,6 +5,7 @@ export interface COLLECTIONS_LINES {
     particulars: string;
     amount: number;
     change: number;
+    sales_id: number;
 }
 
 export class COLLECTIONS_LINES_DTO {
@@ -16,4 +17,7 @@ export class COLLECTIONS_LINES_DTO {
     particulars: string ='';
     amount: number =0;
     change: number =0;
+    sales_id: number =0;
+    sales_date: string ='';
+    sales_number: string ='';
 }

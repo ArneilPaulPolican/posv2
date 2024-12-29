@@ -8,7 +8,6 @@
                 <ion-title>Price</ion-title>
                 <ion-buttons slot="end">
                 <ion-button color="medium" @click="cancel">Close</ion-button>
-                <!-- <ion-button @click="onCollectSubmit()" :strong="true">Confirm</ion-button> -->
                 </ion-buttons>
             </ion-toolbar>
         </ion-header>
@@ -42,7 +41,7 @@
                         <ion-icon :icon="icons.closeCircleOutline"></ion-icon>
                         &nbsp;Cancel
                     </ion-button>
-                    <ion-button size="medium" slot="end" @click="onCollectSubmit" :strong="true">
+                    <ion-button size="medium" slot="end" @click="onSubmit" :strong="true">
                         <ion-icon :icon="icons.saveOutline"></ion-icon>
                         &nbsp;Save
                     </ion-button>
@@ -56,7 +55,7 @@
 <script lang="ts">
 import { ITEM_PRICE_DTO } from '@/models/item-price.model';
 import { modalController, onIonViewDidEnter } from '@ionic/vue';
-import { defineComponent, onMounted, ref, toRefs } from 'vue';
+import { defineComponent, onMounted, ref, toRefs, PropType } from 'vue';
 import UnitListModal from '../Modal/UnitListModal.vue';
 import InputFloat from '../InputFloat.vue';
 import { icons } from '@/plugins/icons';
@@ -68,8 +67,8 @@ export default defineComponent({
         InputFloat
     },
     props: {
-        item: {
-            type: Object,
+        item_price_props: {
+            type: Object as PropType<ITEM_PRICE_DTO | null>,
             default: () => ({})
         },
         item_id:{
@@ -78,7 +77,7 @@ export default defineComponent({
         }
     },
     setup(props){
-        const { item } = toRefs(props);
+        const { item_price_props } = toRefs(props);
         const item_price = ref<ITEM_PRICE_DTO>({
             id: 0,
             item_id: 0,
@@ -107,9 +106,9 @@ export default defineComponent({
         };
         const cancel = () => modalController.dismiss('', 'cancel');
         
-        async function onCollectSubmit() {
+        async function onSubmit() {
             try {
-                if(item){
+                if(item_price.value.id === 0 ){
                     const result = await addItemPrice(item_price.value);
                     if(result.success){
                         await presentToast(`Item price added successfully!`)
@@ -127,33 +126,32 @@ export default defineComponent({
         }
         
         async function loadDataValue() {
-            if(item.value && Object.keys(item.value).length > 0){
+            item_price.value = {
+                id: 0,
+                item_id: props.item_id,
+                item_code:  '',
+                item_barcode: '',
+                item_description: '',
+                unit_id:  0,
+                unit_code: '',
+                unit:  '',
+                particulars: 'NA',
+                cost: 0,
+                price: 0,
+            }
+            if(item_price_props.value && Object.keys(item_price_props.value).length > 0){
                 item_price.value = {
-                    id: item.value.id,
-                    item_id: item.value.item_id,
-                    item_code:  item.value.item_code,
-                    item_barcode: item.value.item_barcode,
-                    item_description: item.value.item_description,
-                    unit_id:  item.value.unit_id,
-                    unit_code:  item.value.unit_code,
-                    unit:  item.value.unit,
-                    particulars: item.value.particulars,
-                    cost: item.value.cost,
-                    price: item.value.price,
-                }
-            }else{
-                item_price.value = {
-                    id: 0,
-                    item_id: props.item_id,
-                    item_code:  '',
-                    item_barcode: '',
-                    item_description: '',
-                    unit_id:  0,
-                    unit_code: '',
-                    unit:  '',
-                    particulars: 'NA',
-                    cost: 0,
-                    price: 0,
+                    id: item_price_props.value.id,
+                    item_id: item_price_props.value.item_id,
+                    item_code:  item_price_props.value.item_code,
+                    item_barcode: item_price_props.value.item_barcode,
+                    item_description: item_price_props.value.item_description,
+                    unit_id:  item_price_props.value.unit_id,
+                    unit_code:  item_price_props.value.unit_code,
+                    unit:  item_price_props.value.unit,
+                    particulars: item_price_props.value.particulars,
+                    cost: item_price_props.value.cost,
+                    price: item_price_props.value.price,
                 }
             }
         }
@@ -167,7 +165,7 @@ export default defineComponent({
             icons,
             item_price,
             openUnitModal,
-            onCollectSubmit,
+            onSubmit,
             cancel,
         }
     }

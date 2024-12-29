@@ -19,10 +19,11 @@
                 </ion-card-header>
                 <ion-card-content>
                     <ion-item>
-                        <ion-input label="Barcode" label-placement="floating" fill="solid" v-model="item_component.component_barcode" ></ion-input>
+                        <ion-input label="Barcode" label-placement="floating" fill="solid" :readonly="true" v-model="item_component.component_barcode"  
+                        @click="openGlobalItemListModal"></ion-input>
                     </ion-item>
                     <ion-item>
-                        <ion-textarea label="Description" label-placement="floating" fill="solid" autoGrow="true" v-model="item_component.component_description" placeholder="Item Description"></ion-textarea>
+                        <ion-textarea label="Description" label-placement="floating" fill="solid" :readonly="true" autoGrow="true" v-model="item_component.component_description" placeholder="Item Description"></ion-textarea>
                     </ion-item>
                     <ion-item>
                         <ion-input label="Unit" label-placement="floating" fill="solid"  :readonly="true" v-model="item_component.unit" placeholder="Pc(s)" 
@@ -38,7 +39,7 @@
                         <ion-icon :icon="icons.closeCircleOutline"></ion-icon>
                         &nbsp;Cancel
                     </ion-button>
-                    <ion-button size="medium" slot="end" @click="" :strong="true">
+                    <ion-button size="medium" slot="end" @click="onSubmit" :strong="true">
                         <ion-icon :icon="icons.saveOutline"></ion-icon>
                         &nbsp;Save
                     </ion-button>
@@ -52,9 +53,12 @@
 import { ITEM_COMPONENT_DTO } from '@/models/item-component.model';
 import { icons } from '@/plugins/icons';
 import { modalController, onIonViewDidEnter } from '@ionic/vue';
-import { defineComponent, onMounted, ref, toRefs } from 'vue';
+import { defineComponent, onMounted, ref, toRefs, PropType } from 'vue';
 import UnitListModal from '../Modal/UnitListModal.vue';
 import InputFloat from '../InputFloat.vue';
+import GlobalItemListModal from '../Modal/GlobalItemListModal.vue';
+import { addItemComponent, updateItemComponent } from '@/services/setup/item-component.service';
+import { presentToast } from '@/composables/toast.composables';
 
 
 export default defineComponent({
@@ -62,8 +66,8 @@ export default defineComponent({
         InputFloat
     },
     props: {
-        item: {
-            type: Object,
+        item_component_props: {
+            type: Object as PropType<ITEM_COMPONENT_DTO | null>,
             default: () => ({})
         },
         item_id:{
@@ -72,7 +76,7 @@ export default defineComponent({
         }
     },
     setup(props){
-        const { item } = toRefs(props);
+        const { item_component_props } = toRefs(props);
         const item_component = ref<ITEM_COMPONENT_DTO>({
             id: 0,
             item_id: 0,
@@ -90,6 +94,20 @@ export default defineComponent({
             quantity: 0
         })
 
+        const openGlobalItemListModal = async () => {
+            const modal = await modalController.create({
+            component: GlobalItemListModal,
+            });
+
+            modal.present();
+            const { data, role } = await modal.onWillDismiss();
+            if (role === 'confirm') {
+                item_component.value.component_id = data.id;
+                item_component.value.component_code = data.item_code;
+                item_component.value.component_barcode = data.bar_code;
+                item_component.value.component_description = data.item_description;
+            }
+        };
         const openUnitModal = async () => {
             const modal = await modalController.create({
             component: UnitListModal,
@@ -105,26 +123,27 @@ export default defineComponent({
         };
         const cancel = () => modalController.dismiss('', 'cancel');
 
-        async function loadDataValue() {
-            if(item.value && Object.keys(item.value).length > 0){
-                item_component.value = {
-                    id: item.value.id,
-                    item_id: item.value.item_id,
-                    item_code:  item.value.item_code,
-                    item_barcode: item.value.item_barcode,
-                    item_description: item.value.item_description,
-                    component_id: item.value.component_id,
-                    component_code: item.value.component_code,
-                    component_barcode: item.value.component_barcode,
-                    component_description: item.value.component_description,
-                    unit_id:  item.value.unit_id,
-                    unit_code:  item.value.unit_code,
-                    unit:  item.value.unit,
-                    particulars: item.value.particulars,
-                    quantity: item.value.quantity,
+        async function onSubmit() {
+            try {
+                if(item_component.value.id === 0){
+                    const result = await addItemComponent(item_component.value);
+                    if(result.success){
+                        await presentToast(`Item price added successfully!`)
+                    }
+                }else{
+                    const result = await updateItemComponent(item_component.value);
+                    if(result.success){
+                        await presentToast(`Item price updated successfully!`)
+                    }
                 }
-            }else{
-                item_component.value = {
+            } catch (error) {
+                await presentToast(`Operation failed ${error}`)
+            }
+            modalController.dismiss('' , 'confirm');
+        }
+
+        async function loadDataValue() {
+            item_component.value = {
                     id: 0,
                     item_id: props.item_id,
                     item_code: '',
@@ -139,20 +158,40 @@ export default defineComponent({
                     unit: '',
                     particulars: '',
                     quantity: 0,
+            }
+            if(item_component_props.value && Object.keys(item_component_props.value).length > 0){
+                item_component.value = {
+                    id: item_component_props.value.id,
+                    item_id: item_component_props.value.item_id,
+                    item_code:  item_component_props.value.item_code,
+                    item_barcode: item_component_props.value.item_barcode,
+                    item_description: item_component_props.value.item_description,
+                    component_id: item_component_props.value.component_id,
+                    component_code: item_component_props.value.component_code,
+                    component_barcode: item_component_props.value.component_barcode,
+                    component_description: item_component_props.value.component_description,
+                    unit_id:  item_component_props.value.unit_id,
+                    unit_code:  item_component_props.value.unit_code,
+                    unit:  item_component_props.value.unit,
+                    particulars: item_component_props.value.particulars,
+                    quantity: item_component_props.value.quantity,
                 }
             }
+            console.log(item_component.value.id)
         }
         onMounted(async () => {
-            console.log(item.value)
+            loadDataValue()
         });
         onIonViewDidEnter(async () => {
-            console.log(item.value)
+            loadDataValue()
         });
         return{
             icons,
             item_component,
+            openGlobalItemListModal,
             openUnitModal,
             cancel,
+            onSubmit,
         }
     }
 })

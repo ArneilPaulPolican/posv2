@@ -1,6 +1,7 @@
 export const syncSales = async (sales: [])  => {
   try {
-      const response = await fetch('https://api.example.com/data', { // Replace with your API URL
+    let url = 'http://127.0.0.1:8000/api/pos/post/bulk';
+      const response = await fetch(url, { // Replace with your API URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

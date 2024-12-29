@@ -81,7 +81,7 @@ export default defineComponent({
             ci_date: '',
             ci_number: '',
             customer_id: 0,
-            sales_id: 0,
+            // sales_id: 0,
             total_amount: 0,
             user_id: 0,
             is_locked: false
@@ -110,7 +110,7 @@ export default defineComponent({
                 { year: 'numeric', month: '2-digit', day: '2-digit' });
                 collection.value.ci_number = await getLastCollectionNumber();
                 collection.value.customer_id = sales.value.customer_id;
-                collection.value.sales_id = sales.value.id;
+                // collection.value.sales_id = sales.value.id;
                 collection.value.total_amount = amount.value;
                 collection.value.user_id = 1;
 
@@ -120,7 +120,8 @@ export default defineComponent({
                     paytype_id: (selected_paytype.value?.id ?? 0),
                     particulars: particulars.value,
                     amount: amount.value,
-                    change: change.value
+                    change: change.value,
+                    sales_id : sales.value.id
                 })
 
                 const result = await onPaymentSubmitUpdateSalesBalance(sales.value as SALES_DTO, collection.value as COLLECTIONS_DTO, collection_line.value)

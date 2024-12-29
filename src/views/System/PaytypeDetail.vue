@@ -75,6 +75,7 @@ export default defineComponent({
             id:0,
             paytype: '',
             is_default_value: false,
+            sort_no: 0
         });
         let paytype_id = 0 ;
         const open_alert = ref(false);

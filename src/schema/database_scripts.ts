@@ -426,6 +426,7 @@ export const createTables = async (db: SQLiteDBConnection) => {
         tax_amount REAL NOT NULL,
         particulars TEXT,
         user_id INTEGER NOT NULL,
+        backoffice_id TEXT,
         FOREIGN KEY (sales_id)
           REFERENCES ${SALES_TABLE} (id)
             ON UPDATE CASCADE
@@ -459,16 +460,11 @@ export const createTables = async (db: SQLiteDBConnection) => {
         ci_date TEXT NOT NULL DEFAULT current_timestamp,
         ci_number TEXT NOT NULL,
         customer_id INTEGER NOT NULL,
-        sales_id INTEGER NOT NULL,
         total_amount REAL NOT NULL,
         user_id INTERGER NOT NULL,
         is_locked BOOLEAN DEFAULT FALSE,
         FOREIGN KEY (customer_id)
           REFERENCES ${CUSTOMERS_TABLE} (id)
-            ON UPDATE CASCADE
-            ON DELETE CASCADE,
-        FOREIGN KEY (sales_id)
-          REFERENCES ${SALES_TABLE} (id)
             ON UPDATE CASCADE
             ON DELETE CASCADE,
         FOREIGN KEY (user_id)
@@ -486,12 +482,17 @@ export const createTables = async (db: SQLiteDBConnection) => {
         particulars TEXT,
         amount REAL NOT NULL,
         change REAL NOT NULL,
+        sales_id INTEGER NOT NULL,
         FOREIGN KEY (collection_id)
           REFERENCES ${COLLECTIONS_TABLE} (id)
             ON UPDATE CASCADE
             ON DELETE CASCADE,
         FOREIGN KEY (paytype_id)
           REFERENCES ${PAYTYPES_TABLE} (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+        FOREIGN KEY (sales_id)
+          REFERENCES ${SALES_TABLE} (id)
             ON UPDATE CASCADE
             ON DELETE CASCADE
       )

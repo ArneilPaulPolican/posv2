@@ -4,11 +4,16 @@
         <ion-router-outlet></ion-router-outlet>
         <ion-content >
             <ion-grid style="width: 100%;">
-                <ion-row>
-                    <ion-item>
+                <ion-item>
+                    <ion-label>
                         Login Date:&nbsp;{{ date_today }}
-                    </ion-item>
-                </ion-row>
+
+                    </ion-label>
+                    <ion-button slot=end size="medium" expand="block" style="height: 90%" color="primary">
+                        <ion-label>Sync</ion-label>
+                        <ion-icon slot="end" :ios="icons.cloudUploadOutline" :md="icons.cloudUploadSharp"></ion-icon>
+                    </ion-button>
+                </ion-item>
                 <ion-row>
                     <ion-col size="8" size-md="8" size-lg="8">
                         <ion-button size="medium" expand="block" style="height: 100%" :router-link="'/Activity/Sales'" color="success">

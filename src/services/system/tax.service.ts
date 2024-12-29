@@ -49,7 +49,7 @@ export const getTaxesById = async (id: number) => {
       tax_code: tax.tax_code,
       tax: tax.tax,
       rate: tax.rate,
-      is_inclusive: tax.is_inclusive,
+      sort_no: tax.sort_no,
     }))[0];
     return { success: true, data: tax};
   } catch (error) {

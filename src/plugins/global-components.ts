@@ -121,9 +121,8 @@ import {
       app.component('IonNavLink', IonNavLink);
       app.component('toastController', toastController);
       app.component('IonPicker', IonPicker);
-      
-      
-    // ... register other Ionic components here
+
+      // ... register other Ionic components here
     
     }
   };

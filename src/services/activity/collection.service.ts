@@ -147,12 +147,11 @@ export const addPayment = async (data: COLLECTIONS, data_line: COLLECTIONS_LINES
   try {
     const query = `INSERT INTO ${COLLECTIONS_TABLE} (
       user_id,          ci_date,          ci_number,
-      customer_id,       sales_id,        total_amount,
+      customer_id,       total_amount,
       is_locked
     ) VALUES (
       ?, ?, ?,
-      ?, ?, ?,
-      ?
+      ?, ?, ?
     )`;
   
     const transactionStatements = [
@@ -160,8 +159,7 @@ export const addPayment = async (data: COLLECTIONS, data_line: COLLECTIONS_LINES
         statement: query,
         values: [
           1 , data.ci_date, data.ci_number, 
-          data.customer_id, data.sales_id, data.total_amount,
-          true
+          data.customer_id, data.total_amount, true
         ],
       },
     ];
@@ -175,14 +173,17 @@ export const addPayment = async (data: COLLECTIONS, data_line: COLLECTIONS_LINES
       Id =  lastIdRes.values[0].lastId
 
       for (const line of data_line) {
+        console.log(line)
         const query =
         `INSERT INTO ${COLLECTIONS_LINES_TABLE} (
             collection_id,
             paytype_id,
             particulars,
             amount,
-            change
+            change,
+            sales_id
         ) VALUES (
+            ?,
             ?,
             ?,
             ?,
@@ -197,7 +198,8 @@ export const addPayment = async (data: COLLECTIONS, data_line: COLLECTIONS_LINES
                 line.paytype_id,
                 line.particulars,
                 line.amount,
-                line.particulars
+                line.particulars,
+                line.sales_id
               ],
             },
         ];
@@ -226,11 +228,11 @@ export const addCollection = async (data: COLLECTIONS_DTO) => {
     try {
       const query = `INSERT INTO ${COLLECTIONS_TABLE} (
         user_id,          ci_date,          ci_number,
-        customer_id,       sales_id,        total_amount,
+        customer_id,       total_amount,
         is_locked
       ) VALUES (
         ?, ?, ?,
-        ?, ?, ?,
+        ?, ?,
         ?
       )`;
     
@@ -239,7 +241,7 @@ export const addCollection = async (data: COLLECTIONS_DTO) => {
           statement: query,
           values: [
             1 , data.ci_date, data.ci_number, 
-            data.customer_id, data.sales_id, data.total_amount,
+            data.customer_id, data.total_amount,
             false
           ],
         },
@@ -276,13 +278,12 @@ export const updateCollection = async (data: COLLECTIONS_DTO, data_line: COLLECT
             ci_date =?,
             ci_number =?,
             customer_id =?,
-            sales_id =?,
             total_amount =?,
             is_locked =?
             WHERE id=?`,
             values: [
                 1 , data.ci_date, data.ci_number, 
-                data.customer_id, data.sales_id, data.total_amount,
+                data.customer_id,  data.total_amount,
                 false, data.id
             ],
             },
@@ -309,13 +310,12 @@ export const lockCollection = async (data: COLLECTIONS_DTO, data_line: COLLECTIO
             ci_date =?,
             ci_number =?,
             customer_id =?,
-            sales_id =?,
             total_amount =?,
             is_locked =?
             WHERE id=?`,
             values: [
                 1 , data.ci_date, data.ci_number, 
-                data.customer_id, data.sales_id, data.total_amount,
+                data.customer_id, data.total_amount,
                 true, data.id
             ],
             },

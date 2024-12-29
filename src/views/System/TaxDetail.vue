@@ -87,7 +87,7 @@ export default defineComponent({
             tax_code: 'NA',
             tax: 'NA',
             rate: 0,
-            is_inclusive: false,
+            sort_no:0
         });
         let tax_id = 0 ;
         const open_alert = ref(false);

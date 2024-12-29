@@ -77,7 +77,7 @@
                                 <ion-checkbox :disabled="is_locked" v-model="item.is_inventory" label-placement="start">Is Inventory</ion-checkbox>
                             </ion-col>
                             <ion-col >
-                                <ion-checkbox :disabled="is_locked" v-model="item.is_vat_inclusive" label-placement="start">VAT Inclusive</ion-checkbox>
+                                <ion-checkbox disabled="true" v-model="item.is_vat_inclusive" label-placement="start">VAT Inclusive</ion-checkbox>
                             </ion-col>
                         </ion-row>
                     </ion-item>
@@ -132,15 +132,29 @@
                 <!-- <ion-card-subtitle>Card Subtitle</ion-card-subtitle> -->
                 </ion-card-header>
                 <ion-button fill="clear" size="medium" xstyle="height: 90%"
-                    @click="openPriceDetailModal" >
+                    @click="openPriceDetailModal(null)" >
                         <ion-icon :icon="icons.addCircle"></ion-icon>
                         <ion-label>&nbsp;New Price</ion-label>
                 </ion-button>
                 <ion-card-content>
                     <ion-list :inset="true" style="margin: 10px" v-for="price in itemPrices" :key="price.id">
-                        <p>{{ price.unit_code }} &nbsp; {{  price.unit }}</p>
-                        <p>{{ price.particulars }}</p>
-                        <p>{{ price.price.toFixed(2) }}</p>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col>
+                                    <ion-button v-if="!is_locked" color="danger" @click="confirmDelete('price', price)">
+                                        <ion-icon :icon="icons.trashBinOutline"></ion-icon>
+                                    </ion-button>
+                                    <ion-button v-if="!is_locked" @click="openPriceDetailModal(price)">
+                                        <ion-icon :icon="icons.pencilOutline"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col  size="9">
+                                    <p>{{ price.unit_code }} &nbsp; {{  price.unit }}</p>
+                                    <p>{{ price.particulars }}</p>
+                                    <p>{{ price.price.toFixed(2) }}</p>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
                     </ion-list>
                 </ion-card-content>
             </ion-card>
@@ -152,23 +166,49 @@
                 <!-- <ion-card-subtitle>Card Subtitle</ion-card-subtitle> -->
                 </ion-card-header>
                 <ion-button fill="clear"     size="medium" xstyle="height: 90%"
-                    @click="openComponentDetailModal" >
+                    @click="openComponentDetailModal(null)" >
                         <ion-icon :icon="icons.addCircle"></ion-icon>
                         <ion-label>&nbsp;New Component</ion-label>
                 </ion-button>
                 <ion-card-content>
                     <ion-list :inset="true" style="margin: 10px" v-for="component in itemComponents" :key="component.id">
-                        <p>{{ component.component_barcode }} &nbsp; {{ component.component_description }}</p>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col>
+                                    <ion-button v-if="!is_locked" color="danger" @click="confirmDelete('component', component)">
+                                        <ion-icon :icon="icons.trashBinOutline"></ion-icon>
+                                    </ion-button>
+                                    <ion-button v-if="!is_locked" @click="openComponentDetailModal(component)">
+                                        <ion-icon :icon="icons.pencilOutline"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col  size="9">
+                                    <p>{{ component.component_barcode }}</p>
+                                    <p>{{ component.component_description }}</p>
+                                    <p>{{ component.unit_code }}</p>
+                                    <p>{{ component.quantity }}</p>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
                     </ion-list>
                 </ion-card-content>
             </ion-card>
+            
+                  <!-- Global Alert -->
+            <GlobalAlertComponent
+                ref="globalAlert"
+                :header="alertHeader"
+                :message="alertMessage"
+                :buttons="alertButtons"
+            />
         </ion-content>
+
     </ion-page>
 </template>
 
 <script  lang="ts">
 import { icons } from '@/plugins/icons';
-import { defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
+import { Component, defineComponent, onBeforeUnmount, onMounted, ref, toRaw, watch } from 'vue';
 import HeaderComponent from '@/components/Layout/HeaderComponent.vue';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
@@ -182,23 +222,27 @@ import { presentToast } from '@/composables/toast.composables';
 import { reload } from 'ionicons/icons';
 import { usePhotoGallery } from '@/composables/image.composable';
 import InputFloat from '@/components/InputFloat.vue';
-import { getItemComponents } from '@/services/setup/item-component.service';
-import { getItemPrices } from '@/services/setup/item-price.service';
-import { ITEM_COMPONENT_DTO } from '@/models/item-component.model';
-import { ITEM_PRICE_DTO } from '@/models/item-price.model';
+import { deleteItemComponent, getItemComponents } from '@/services/setup/item-component.service';
+import { deleteItemPrice, getItemPrices } from '@/services/setup/item-price.service';
+import { ITEM_COMPONENT, ITEM_COMPONENT_DTO } from '@/models/item-component.model';
+import { ITEM_PRICE, ITEM_PRICE_DTO } from '@/models/item-price.model';
 import ComponentDetails from '@/components/Item/ComponentDetails.vue';
 import PriceDetails from '@/components/Item/PriceDetails.vue';
+import GlobalAlert from '@/components/GlobalAlert.vue';
+import GlobalAlertComponent from '@/components/GlobalAlertComponent.vue';
 
 
 export default defineComponent({
     components: { 
         UnitListModal,
         TaxListModal,
+        GlobalAlertComponent,
         InputFloat
     },
     setup() {
         //#region VARIABLES
         const { takePhoto, selectPhoto, loadImageFromFilesystem, savedPhotoPath } = usePhotoGallery();
+
 
         const route = useRoute();
         const dbLock = new Lock(); // Create a new lock
@@ -232,10 +276,16 @@ export default defineComponent({
         let item_id = 0;
         const open_unit_modal = ref(false);
         const open_tax_modal = ref(false);
+
         const open_alert = ref(false);
         const alertTitle = ref('');
         const alertSubTitle = ref('');
         const alertMessage = ref('');
+        const globalAlert = ref<InstanceType<typeof GlobalAlertComponent> | null>(null);
+        const alertHeader = ref('');
+        const deleteType = ref<string>('');
+        const deleteData = ref<any>(null);
+
         const not_found = ref(false);
 
         const is_locked = ref(false);
@@ -271,6 +321,35 @@ export default defineComponent({
         const confirmReturn =() => {
             open_alert.value = false;
         }
+        const show_alert =() => {
+            open_alert.value = true;
+            console.log('alert triggered ', open_alert.value);
+        }
+        const alertButtons = [
+            {
+                text: 'Cancel',
+                role: 'cancel',
+            },
+            {
+                text: 'Confirm',
+                role: 'confirm',
+                handler: () => {
+                    if (deleteType.value.toLowerCase() === 'price') {
+                        deletePrice(deleteData.value); // Call the deletePrice function
+                    } else if (deleteType.value.toLowerCase() === 'component') {
+                        deleteComponents(deleteData.value); // Call the deleteComponent function
+                    }
+                },
+            },
+        ];
+
+        const confirmDelete = (type:string, data: any) => {
+            alertHeader.value = `Delete ${type}`;
+            alertMessage.value = `Are you sure you want to delete this ${type}?`;
+            deleteType.value = type;
+            deleteData.value = data;
+            globalAlert.value?.openAlert();
+        };
         
         const openTaxModal = async () => {
             if(!is_locked.value){
@@ -282,17 +361,19 @@ export default defineComponent({
                 modal.present();
                 const { data, role } = await modal.onWillDismiss();
                 if (role === 'confirm') {
-                item.value.tax_id = data.id;
-                item.value.tax = data.tax;
+                    if(data.rate > 0) item.value.is_vat_inclusive = true;
+
+                    item.value.tax_id = data.id;
+                    item.value.tax = data.tax;
                 }
             }
         };
 
-        const openPriceDetailModal = async (itemPrice:any) => {
+        const openPriceDetailModal = async (itemPrice:ITEM_PRICE_DTO | null) => {
             if(!is_locked.value){
                 const modal = await modalController.create({
                     component: PriceDetails,
-                    componentProps: { data: itemPrice, item_id:item.value.id  } 
+                    componentProps: { item_price_props: itemPrice, item_id:item.value.id  } 
                 });
 
                 modal.present();
@@ -303,11 +384,11 @@ export default defineComponent({
             }
         };
 
-        const openComponentDetailModal = async (itemComponent:any) => {
+        const openComponentDetailModal = async (itemComponent:ITEM_COMPONENT_DTO | null) => {
             if(!is_locked.value){
                 const modal = await modalController.create({
                     component: ComponentDetails,
-                    componentProps: { data: itemComponent, item_id:item.value.id  } 
+                    componentProps: { item_component_props: itemComponent, item_id:item.value.id  } 
                 });
 
                 modal.present();
@@ -441,6 +522,21 @@ export default defineComponent({
             }, 300);
         }
 
+        async function deleteComponents(component: ITEM_COMPONENT) {
+            console.log('delete components: ', component)
+            try {
+                const response = deleteItemComponent(component.id)
+                if((await response).success){
+                    await presentToast('Item Component successfully deleted!.');
+                    await fetchDetails();
+                }else{
+                    await presentToast('Failed to unlock item')
+                }
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
+        }
+
         async function fetchComponents(item_id:number) {
             try {
                 setTimeout(async () => {
@@ -449,6 +545,21 @@ export default defineComponent({
                         itemComponents.value = itemComponentResult.data;
                     }
                 });
+            } catch (error) {
+                await presentToast(`Operation failed: ${error}`)
+            }
+        }
+
+        async function deletePrice(price:ITEM_PRICE) {
+            console.log('delete price: ', price)
+            try {
+                const response = deleteItemPrice(price.id)
+                if((await response).success){
+                    await presentToast('Item  Price successfully deleted!.');
+                    await fetchDetails();
+                }else{
+                    await presentToast('Failed to unlock item')
+                }
             } catch (error) {
                 await presentToast(`Operation failed: ${error}`)
             }
@@ -489,6 +600,7 @@ export default defineComponent({
             open_alert,
             alertMessage,
             alertTitle,
+            alertHeader,
             alertSubTitle,
             not_found,
 
@@ -498,6 +610,11 @@ export default defineComponent({
             // handleTaxPicked,
             confirmReturn,
 
+            show_alert,
+            alertButtons,
+            confirmDelete,
+            globalAlert,
+
             handleLock,
             handleUnlock,
 
@@ -506,11 +623,11 @@ export default defineComponent({
             // trimLeadingZero
             with_trn,
             itemPrices,
+            deletePrice,
             openPriceDetailModal,
 
             itemComponents,
             openComponentDetailModal,
-
         }
     },
     computed: {

@@ -13,7 +13,7 @@ import {
   lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp, 
   people, peopleCircle, peopleOutline, peopleCircleSharp, triangle, imagesSharp, square, ellipsisVerticalCircleOutline, attach, attachOutline, attachSharp,
   trashBin, trashBinOutline, trashBinSharp, trash, trashOutline, trashSharp, pencil, add, addCircle,addCircleOutline,addCircleSharp, remove, removeCircle,
-  removeCircleOutline, removeCircleSharp,removeOutline, removeSharp
+  removeCircleOutline, removeCircleSharp,removeOutline, removeSharp, cloudUpload, cloudUploadOutline, cloudUploadSharp
 } from 'ionicons/icons';
 
 export const icons = {
@@ -30,5 +30,5 @@ export const icons = {
   lockClosed, lockClosedOutline, lockClosedSharp, lockOpen, lockOpenOutline, lockOpenSharp, camera, cameraOutline, cameraSharp,
   people, peopleCircle, peopleOutline, peopleCircleSharp, triangle, imagesSharp, square, ellipsisVerticalCircleOutline, attach, attachOutline, attachSharp,
   trashBin, trashBinOutline, trashBinSharp, trash, trashOutline, trashSharp, pencil, add, addCircle,addCircleOutline,addCircleSharp, remove, removeCircle,
-  removeCircleOutline, removeCircleSharp,removeOutline, removeSharp
+  removeCircleOutline, removeCircleSharp,removeOutline, removeSharp, cloudUpload, cloudUploadOutline, cloudUploadSharp
 };

@@ -46,6 +46,7 @@ export const getPaytypesById = async (id: number) => {
       id: paytype.id,
       paytype: paytype.paytype,
       is_default_value: paytype.is_default_value,
+      sort_no: paytype.sort_no
     }))[0];
     return {success:true, data:paytype};
   } catch (error) {

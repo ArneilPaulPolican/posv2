@@ -52,7 +52,8 @@ export const getDiscountById = async (id: number) => {
         vat_inclusive: discount.vat_inclusive,
         particular: discount.particular,
         is_locked: discount.is_locked,
-        image_url: discount.image_url
+        image_url: discount.image_url,
+        sort_no: discount.sort_no
       }))[0];
       return { success: true, data: discount};
     } catch (error) {
