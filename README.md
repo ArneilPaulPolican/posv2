@@ -34,4 +34,6 @@ $ ionic cap sync
 $ ionic capacitor run android
 $ ionic cap open android
 ```
+# Reference
 
+https://ionicframework.com/docs/vue/your-first-app/deploying-mobile
